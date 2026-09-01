@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Link from 'next/link';
+import { ArrowLeft, Baby } from 'lucide-react';
 
 interface BirthRatesDashboardProps {
   data: any[];
@@ -32,9 +33,22 @@ export default function BirthRatesDashboard({ data }: BirthRatesDashboardProps) 
       <header className="sticky top-0 z-50 bg-[#FBF9F5]/80 backdrop-blur-md border-b border-[#243324]/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <Link href="/" className="text-[#243324] font-serif text-xl font-medium hover:opacity-70 transition-opacity">
-              SG DataViz
-            </Link>
+            <div className="flex items-center gap-4">
+              <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-[#243324]/60 hover:text-[#243324] transition-colors py-1.5 px-3 rounded-md shadow-sm border border-[#243324]/5 bg-white/50">
+                <ArrowLeft className="w-4 h-4" />
+                <span className="hidden sm:inline">Back to Portal</span>
+              </Link>
+              <div className="h-6 w-px bg-[#243324]/10 hidden md:block" />
+              <div className="flex items-center gap-2">
+                <Baby className="w-5 h-5" />
+                <span className="font-serif text-xl font-medium">Birth Rates & Fertility</span>
+              </div>
+            </div>
+            
+            <div className="text-xs font-medium px-2.5 py-1 rounded-full bg-[#E8DCC4]/30 text-[#243324]/60 border border-[#243324]/5 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              Live Data Sync
+            </div>
           </div>
         </div>
       </header>
