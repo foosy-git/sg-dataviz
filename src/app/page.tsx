@@ -1,10 +1,18 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Building2, Train, Users, Leaf, ArrowRight, LineChart, GraduationCap, Car, Activity } from 'lucide-react';
+import { Building2, Train, Users, Leaf, ArrowRight, LineChart, GraduationCap, Car, Activity, Baby } from 'lucide-react';
 
 export default function Home() {
   const dashboards = [
+    {
+      title: 'Birth Rates & Fertility',
+      description: 'Analyze Singapore\'s historical fertility trends and demographic shifts from 1960 to today.',
+      icon: Baby,
+      href: '/demographics/birth-rates',
+      status: 'Live',
+      color: 'bg-rose-500/10 text-rose-700',
+    },
     {
       title: 'HDB Horizon',
       description: 'Interactive exploration of HDB resale data from 2017 to present. Analyze market trends, estate values, and the impact of lease decay.',

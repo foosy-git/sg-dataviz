@@ -7,25 +7,27 @@
       "static/chunks/main-app-31ace144c85ec042.js",
       "static/chunks/app/_not-found/page-a84b6735b5420280.js"
     ],
-    "/education/ges/page": [
-      "static/chunks/webpack-8449c77a4ba91e01.js",
-      "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
-      "static/chunks/117-34528c493c9407bc.js",
-      "static/chunks/main-app-31ace144c85ec042.js",
-      "static/chunks/717-3f7128701c4741f4.js",
-      "static/chunks/195-e0fe1b9315003fcc.js",
-      "static/chunks/796-75392a9b073da345.js",
-      "static/chunks/512-9ecf8ddf0efa4173.js",
-      "static/chunks/app/education/ges/page-d68e37c3e5477e5f.js"
-    ],
     "/layout": [
       "static/chunks/webpack-8449c77a4ba91e01.js",
       "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
       "static/chunks/117-34528c493c9407bc.js",
       "static/chunks/main-app-31ace144c85ec042.js",
       "static/css/2ed4ce15e4205a7a.css",
-      "static/css/595ba2846a9d2487.css",
+      "static/css/3ccfe2b11b1052f1.css",
       "static/chunks/app/layout-78916d2ed35b18ce.js"
+    ],
+    "/education/ges/page": [
+      "static/chunks/webpack-8449c77a4ba91e01.js",
+      "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
+      "static/chunks/117-34528c493c9407bc.js",
+      "static/chunks/main-app-31ace144c85ec042.js",
+      "static/chunks/717-3f7128701c4741f4.js",
+      "static/chunks/116-2e7093817279796d.js",
+      "static/chunks/387-884f82ebd401cf45.js",
+      "static/chunks/715-a70b7a79f4837810.js",
+      "static/chunks/194-617d2718b648da79.js",
+      "static/chunks/37-36c47b7d483cb8b3.js",
+      "static/chunks/app/education/ges/page-e18f8e9ac6d84925.js"
     ],
     "/hdb/page": [
       "static/chunks/webpack-8449c77a4ba91e01.js",
@@ -33,10 +35,13 @@
       "static/chunks/117-34528c493c9407bc.js",
       "static/chunks/main-app-31ace144c85ec042.js",
       "static/chunks/717-3f7128701c4741f4.js",
-      "static/chunks/195-e0fe1b9315003fcc.js",
-      "static/chunks/796-75392a9b073da345.js",
-      "static/chunks/123-726110eb3b5dbb0d.js",
-      "static/chunks/app/hdb/page-50ac50b4adbc45c2.js"
+      "static/chunks/116-2e7093817279796d.js",
+      "static/chunks/387-884f82ebd401cf45.js",
+      "static/chunks/715-a70b7a79f4837810.js",
+      "static/chunks/137-d602391db0d810eb.js",
+      "static/chunks/37-36c47b7d483cb8b3.js",
+      "static/chunks/889-1e30f3b2a438ece0.js",
+      "static/chunks/app/hdb/page-1dc75fbf90bcd54b.js"
     ],
     "/page": [
       "static/chunks/webpack-8449c77a4ba91e01.js",
@@ -46,23 +51,37 @@
       "static/chunks/717-3f7128701c4741f4.js",
       "static/chunks/app/page-4c91e915645f7078.js"
     ],
-    "/transport/coe/page": [
-      "static/chunks/webpack-8449c77a4ba91e01.js",
-      "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
-      "static/chunks/117-34528c493c9407bc.js",
-      "static/chunks/main-app-31ace144c85ec042.js",
-      "static/chunks/717-3f7128701c4741f4.js",
-      "static/chunks/195-e0fe1b9315003fcc.js",
-      "static/chunks/app/transport/coe/page-6f027e009b9710f6.js"
-    ],
     "/environment/climate/page": [
       "static/chunks/webpack-8449c77a4ba91e01.js",
       "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
       "static/chunks/117-34528c493c9407bc.js",
       "static/chunks/main-app-31ace144c85ec042.js",
       "static/chunks/717-3f7128701c4741f4.js",
-      "static/chunks/195-e0fe1b9315003fcc.js",
-      "static/chunks/app/environment/climate/page-0f12900dac7800fb.js"
+      "static/chunks/116-2e7093817279796d.js",
+      "static/chunks/387-884f82ebd401cf45.js",
+      "static/chunks/app/environment/climate/page-07fa4c07d1a30737.js"
+    ],
+    "/transport/coe/page": [
+      "static/chunks/webpack-8449c77a4ba91e01.js",
+      "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
+      "static/chunks/117-34528c493c9407bc.js",
+      "static/chunks/main-app-31ace144c85ec042.js",
+      "static/chunks/717-3f7128701c4741f4.js",
+      "static/chunks/116-2e7093817279796d.js",
+      "static/chunks/387-884f82ebd401cf45.js",
+      "static/chunks/app/transport/coe/page-c0b8ca8e6bde20c3.js"
+    ],
+    "/demographics/birth-rates/page": [
+      "static/chunks/webpack-8449c77a4ba91e01.js",
+      "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
+      "static/chunks/117-34528c493c9407bc.js",
+      "static/chunks/main-app-31ace144c85ec042.js",
+      "static/chunks/717-3f7128701c4741f4.js",
+      "static/chunks/116-2e7093817279796d.js",
+      "static/chunks/715-a70b7a79f4837810.js",
+      "static/chunks/194-617d2718b648da79.js",
+      "static/chunks/137-d602391db0d810eb.js",
+      "static/chunks/app/demographics/birth-rates/page-4b86aec3c1b000c5.js"
     ]
   }
 }
