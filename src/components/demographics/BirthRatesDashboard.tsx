@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
+import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Link from 'next/link';
 import { ArrowLeft, Baby } from 'lucide-react';
@@ -66,7 +66,7 @@ export default function BirthRatesDashboard({ data }: BirthRatesDashboardProps) 
             Birth Rates & Fertility
           </h1>
           <p className="text-lg md:text-xl text-[#243324]/70 max-w-2xl font-sans leading-relaxed">
-            Analyze Singapore's Total Fertility Rate (TFR) and age-specific fertility trends from 1960 to present.
+            Analyze Singapore's Total Fertility Rate (TFR), ethnic breakdowns, marriage ages, and birth orders from 1960 to present.
           </p>
         </motion.div>
 
@@ -103,6 +103,8 @@ export default function BirthRatesDashboard({ data }: BirthRatesDashboardProps) 
         </div>
 
         <div className="grid grid-cols-1 gap-8">
+          
+          {/* TFR Overview */}
           <Card className="shadow-sm border-[#243324]/10 bg-white/60 backdrop-blur-md">
             <CardHeader>
               <CardTitle className="font-serif text-2xl text-[#243324]">Total Fertility Rate (TFR)</CardTitle>
@@ -115,54 +117,75 @@ export default function BirthRatesDashboard({ data }: BirthRatesDashboardProps) 
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#243324" opacity={0.1} vertical={false} />
-                    <XAxis 
-                      dataKey="year" 
-                      stroke="#243324" 
-                      opacity={0.5}
-                      tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }}
-                      tickLine={false}
-                      axisLine={false}
-                      dy={10}
-                    />
-                    <YAxis 
-                      stroke="#243324" 
-                      opacity={0.5}
-                      tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }}
-                      tickLine={false}
-                      axisLine={false}
-                      dx={-10}
-                      domain={[0, 'auto']}
-                    />
-                    <RechartsTooltip 
-                      contentStyle={{ backgroundColor: '#FBF9F5', borderColor: 'rgba(36, 51, 36, 0.1)', borderRadius: '8px', color: '#243324', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
-                      itemStyle={{ color: '#243324' }}
-                    />
+                    <XAxis dataKey="year" stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dy={10} />
+                    <YAxis stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dx={-10} domain={[0, 'auto']} />
+                    <RechartsTooltip contentStyle={{ backgroundColor: '#FBF9F5', borderColor: 'rgba(36, 51, 36, 0.1)', borderRadius: '8px', color: '#243324', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} itemStyle={{ color: '#243324' }} />
                     <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                    <Line 
-                      type="monotone" 
-                      name="Total Fertility Rate"
-                      dataKey="Total Fertility Rate (TFR)" 
-                      stroke="#3B4D36" 
-                      strokeWidth={3}
-                      dot={false}
-                      activeDot={{ r: 6, fill: "#E8DCC4", stroke: "#3B4D36", strokeWidth: 2 }}
-                    />
-                    <Line 
-                      type="dashed" 
-                      name="Replacement Level (2.1)"
-                      dataKey={() => 2.1} 
-                      stroke="#E85D04" 
-                      strokeWidth={2}
-                      strokeDasharray="5 5"
-                      dot={false}
-                      activeDot={false}
-                    />
+                    <Line type="monotone" name="Total Fertility Rate" dataKey="Total Fertility Rate (TFR)" stroke="#3B4D36" strokeWidth={3} dot={false} activeDot={{ r: 6, fill: "#E8DCC4", stroke: "#3B4D36", strokeWidth: 2 }} />
+                    <Line type="dashed" name="Replacement Level (2.1)" dataKey={() => 2.1} stroke="#E85D04" strokeWidth={2} strokeDasharray="5 5" dot={false} activeDot={false} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
             </CardContent>
           </Card>
 
+          {/* Median Age of First Marriage overlay */}
+          <Card className="shadow-sm border-[#243324]/10 bg-white/60 backdrop-blur-md">
+            <CardHeader>
+              <CardTitle className="font-serif text-2xl text-[#243324]">Marriage Age vs Fertility</CardTitle>
+              <CardDescription className="text-base text-[#243324]/70 font-sans">
+                Comparing the median age of first marriage (Resident Grooms & Brides) against the Total Fertility Rate.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[400px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#243324" opacity={0.1} vertical={false} />
+                    <XAxis dataKey="year" stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dy={10} />
+                    
+                    <YAxis yAxisId="left" stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dx={-10} domain={[0, 'auto']} name="TFR" />
+                    <YAxis yAxisId="right" orientation="right" stroke="#7e9e7e" opacity={0.5} tick={{ fill: '#7e9e7e', opacity: 1, fontSize: 12 }} tickLine={false} axisLine={false} dx={10} domain={['auto', 'auto']} name="Age" />
+                    
+                    <RechartsTooltip contentStyle={{ backgroundColor: '#FBF9F5', borderColor: 'rgba(36, 51, 36, 0.1)', borderRadius: '8px', color: '#243324', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} itemStyle={{ color: '#243324' }} />
+                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                    
+                    <Line yAxisId="left" type="monotone" name="Total Fertility Rate" dataKey="Total Fertility Rate (TFR)" stroke="#3B4D36" strokeWidth={3} dot={false} />
+                    <Line yAxisId="right" type="monotone" name="Median Age (Grooms)" dataKey="Marriage Age - Resident Grooms" stroke="#7e9e7e" strokeWidth={2} strokeDasharray="4 4" dot={false} />
+                    <Line yAxisId="right" type="monotone" name="Median Age (Brides)" dataKey="Marriage Age - Resident Brides" stroke="#b08d57" strokeWidth={2} strokeDasharray="4 4" dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* TFR by Ethnic Group */}
+          <Card className="shadow-sm border-[#243324]/10 bg-white/60 backdrop-blur-md">
+            <CardHeader>
+              <CardTitle className="font-serif text-2xl text-[#243324]">TFR by Ethnic Group</CardTitle>
+              <CardDescription className="text-base text-[#243324]/70 font-sans">
+                Fertility rate trends among Chinese, Malays, and Indians in Singapore.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[400px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#243324" opacity={0.1} vertical={false} />
+                    <XAxis dataKey="year" stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dy={10} />
+                    <YAxis stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dx={-10} domain={[0, 'auto']} />
+                    <RechartsTooltip contentStyle={{ backgroundColor: '#FBF9F5', borderColor: 'rgba(36, 51, 36, 0.1)', borderRadius: '8px', color: '#243324', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} itemStyle={{ color: '#243324' }} />
+                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                    <Line type="monotone" name="Chinese" dataKey="Chinese" stroke="#bc4b51" strokeWidth={2} dot={false} />
+                    <Line type="monotone" name="Malays" dataKey="Malays" stroke="#5b8e7d" strokeWidth={2} dot={false} />
+                    <Line type="monotone" name="Indians" dataKey="Indians" stroke="#f4a259" strokeWidth={2} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Age-Specific Fertility Rates */}
           <Card className="shadow-sm border-[#243324]/10 bg-white/60 backdrop-blur-md">
             <CardHeader>
               <CardTitle className="font-serif text-2xl text-[#243324]">Age-Specific Fertility Rates</CardTitle>
@@ -175,27 +198,9 @@ export default function BirthRatesDashboard({ data }: BirthRatesDashboardProps) 
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#243324" opacity={0.1} vertical={false} />
-                    <XAxis 
-                      dataKey="year" 
-                      stroke="#243324" 
-                      opacity={0.5}
-                      tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }}
-                      tickLine={false}
-                      axisLine={false}
-                      dy={10}
-                    />
-                    <YAxis 
-                      stroke="#243324" 
-                      opacity={0.5}
-                      tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }}
-                      tickLine={false}
-                      axisLine={false}
-                      dx={-10}
-                    />
-                    <RechartsTooltip 
-                      contentStyle={{ backgroundColor: '#FBF9F5', borderColor: 'rgba(36, 51, 36, 0.1)', borderRadius: '8px', color: '#243324', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
-                      itemStyle={{ color: '#243324' }}
-                    />
+                    <XAxis dataKey="year" stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dy={10} />
+                    <YAxis stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dx={-10} />
+                    <RechartsTooltip contentStyle={{ backgroundColor: '#FBF9F5', borderColor: 'rgba(36, 51, 36, 0.1)', borderRadius: '8px', color: '#243324', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} itemStyle={{ color: '#243324' }} />
                     <Legend wrapperStyle={{ paddingTop: '20px' }} />
                     <Line type="monotone" name="20-24 Years" dataKey="20 - 24 Years" stroke="#8cb369" strokeWidth={2} dot={false} />
                     <Line type="monotone" name="25-29 Years" dataKey="25 - 29 Years" stroke="#f4e285" strokeWidth={2} dot={false} />
@@ -207,6 +212,36 @@ export default function BirthRatesDashboard({ data }: BirthRatesDashboardProps) 
               </div>
             </CardContent>
           </Card>
+
+          {/* Live Births by Birth Order */}
+          <Card className="shadow-sm border-[#243324]/10 bg-white/60 backdrop-blur-md">
+            <CardHeader>
+              <CardTitle className="font-serif text-2xl text-[#243324]">Live Births by Birth Order</CardTitle>
+              <CardDescription className="text-base text-[#243324]/70 font-sans">
+                Visualizing whether couples are having fewer children over time.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[500px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#243324" opacity={0.1} vertical={false} />
+                    <XAxis dataKey="year" stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dy={10} />
+                    <YAxis stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dx={-10} />
+                    <RechartsTooltip contentStyle={{ backgroundColor: '#FBF9F5', borderColor: 'rgba(36, 51, 36, 0.1)', borderRadius: '8px', color: '#243324', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} itemStyle={{ color: '#243324' }} />
+                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                    <Area type="monotone" stackId="1" name="1st Child" dataKey="    1st Live-Birth" stroke="#5b8e7d" fill="#5b8e7d" fillOpacity={0.6} />
+                    <Area type="monotone" stackId="1" name="2nd Child" dataKey="    2nd Live-Birth" stroke="#8cb369" fill="#8cb369" fillOpacity={0.6} />
+                    <Area type="monotone" stackId="1" name="3rd Child" dataKey="    3rd Live-Birth" stroke="#f4e285" fill="#f4e285" fillOpacity={0.6} />
+                    <Area type="monotone" stackId="1" name="4th Child" dataKey="    4th Live-Birth" stroke="#f4a259" fill="#f4a259" fillOpacity={0.6} />
+                    <Area type="monotone" stackId="1" name="5th Child" dataKey="    5th Live-Birth" stroke="#bc4b51" fill="#bc4b51" fillOpacity={0.6} />
+                    <Area type="monotone" stackId="1" name="6th+ Child" dataKey="    6th & Subsequent Live-Births" stroke="#8a3e42" fill="#8a3e42" fillOpacity={0.6} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
         </div>
       </div>
     </div>
