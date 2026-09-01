@@ -23,17 +23,22 @@ jobs:
       - name: Build Next.js
         run: npm run build
 
-      - name: Setup SSH and Rsync to VM
+      - name: Package files
+        run: tar -czf deploy.tar.gz .next public package.json package-lock.json scripts
+
+      - name: Setup SSH and SCP to VM
+        env:
+          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "$SSH_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
           
-          # Use rsync to copy files (without --delete so we don't accidentally remove the 170MB historical JSON on the VM!)
-          rsync -avz .next public package.json package-lock.json scripts ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:~/apps/sg-dataviz/
+          # Copy the single compressed file natively
+          scp deploy.tar.gz ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:~/apps/sg-dataviz/
 
-      - name: Restart PM2 over SSH
+      - name: Extract and Restart PM2 over SSH
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -44,6 +49,11 @@ jobs:
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             
             cd ~/apps/sg-dataviz
+            
+            # Extract the files and remove the archive
+            tar -xzf deploy.tar.gz
+            rm deploy.tar.gz
+            
             npm ci --omit=dev
             
             # Start or restart the app with PM2
