@@ -26,10 +26,10 @@ export async function GET(request: Request) {
 
     const data = await response.json();
     const allLiveRecords = normalizeHdbData(data.result.records);
+    const recentLiveRecords = allLiveRecords.filter(r => r.month >= '2026-09');
     
-    // We previously used a 170MB JSON file for historical data, but GitHub limits block it.
-    // So we'll rely entirely on the 5000 most recent records fetched dynamically from data.gov.sg!
-    let allRecords = [...allLiveRecords];
+    const historicalRecords = await getHistoricalData();
+    let allRecords = [...recentLiveRecords, ...historicalRecords];
 
     // Filter Logic
     const townsParam = searchParams.get('towns');
