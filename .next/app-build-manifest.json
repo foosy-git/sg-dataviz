@@ -16,6 +16,16 @@
       "static/css/ce9adfa0fb35a4b1.css",
       "static/chunks/app/layout-78916d2ed35b18ce.js"
     ],
+    "/environment/climate/page": [
+      "static/chunks/webpack-8449c77a4ba91e01.js",
+      "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
+      "static/chunks/117-34528c493c9407bc.js",
+      "static/chunks/main-app-31ace144c85ec042.js",
+      "static/chunks/717-3f7128701c4741f4.js",
+      "static/chunks/71-3614386a0a7d7fe8.js",
+      "static/chunks/894-b87ea929f317683c.js",
+      "static/chunks/app/environment/climate/page-4396f0afa4115e7f.js"
+    ],
     "/transport/coe/page": [
       "static/chunks/webpack-8449c77a4ba91e01.js",
       "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
@@ -26,15 +36,13 @@
       "static/chunks/894-b87ea929f317683c.js",
       "static/chunks/app/transport/coe/page-31441f6860d2a6b4.js"
     ],
-    "/environment/climate/page": [
+    "/page": [
       "static/chunks/webpack-8449c77a4ba91e01.js",
       "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
       "static/chunks/117-34528c493c9407bc.js",
       "static/chunks/main-app-31ace144c85ec042.js",
       "static/chunks/717-3f7128701c4741f4.js",
-      "static/chunks/71-3614386a0a7d7fe8.js",
-      "static/chunks/894-b87ea929f317683c.js",
-      "static/chunks/app/environment/climate/page-4396f0afa4115e7f.js"
+      "static/chunks/app/page-4c91e915645f7078.js"
     ],
     "/hdb/page": [
       "static/chunks/webpack-8449c77a4ba91e01.js",
@@ -74,15 +82,7 @@
       "static/chunks/194-617d2718b648da79.js",
       "static/chunks/137-d602391db0d810eb.js",
       "static/chunks/645-a57588efd6ca88aa.js",
-      "static/chunks/app/demographics/birth-rates/page-4a20b96a77a1902c.js"
-    ],
-    "/page": [
-      "static/chunks/webpack-8449c77a4ba91e01.js",
-      "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
-      "static/chunks/117-34528c493c9407bc.js",
-      "static/chunks/main-app-31ace144c85ec042.js",
-      "static/chunks/717-3f7128701c4741f4.js",
-      "static/chunks/app/page-4c91e915645f7078.js"
+      "static/chunks/app/demographics/birth-rates/page-1a786fafb1810d93.js"
     ]
   }
 }

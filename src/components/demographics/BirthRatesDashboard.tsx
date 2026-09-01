@@ -230,12 +230,12 @@ export default function BirthRatesDashboard({ data }: BirthRatesDashboardProps) 
                     <YAxis stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dx={-10} />
                     <RechartsTooltip contentStyle={{ backgroundColor: '#FBF9F5', borderColor: 'rgba(36, 51, 36, 0.1)', borderRadius: '8px', color: '#243324', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} itemStyle={{ color: '#243324' }} />
                     <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                    <Area type="monotone" stackId="1" name="1st Child" dataKey="    1st Live-Birth" stroke="#5b8e7d" fill="#5b8e7d" fillOpacity={0.6} />
-                    <Area type="monotone" stackId="1" name="2nd Child" dataKey="    2nd Live-Birth" stroke="#8cb369" fill="#8cb369" fillOpacity={0.6} />
-                    <Area type="monotone" stackId="1" name="3rd Child" dataKey="    3rd Live-Birth" stroke="#f4e285" fill="#f4e285" fillOpacity={0.6} />
-                    <Area type="monotone" stackId="1" name="4th Child" dataKey="    4th Live-Birth" stroke="#f4a259" fill="#f4a259" fillOpacity={0.6} />
-                    <Area type="monotone" stackId="1" name="5th Child" dataKey="    5th Live-Birth" stroke="#bc4b51" fill="#bc4b51" fillOpacity={0.6} />
-                    <Area type="monotone" stackId="1" name="6th+ Child" dataKey="    6th & Subsequent Live-Births" stroke="#8a3e42" fill="#8a3e42" fillOpacity={0.6} />
+                    <Area type="monotone" stackId="1" name="1st Child" dataKey="1st Live-Birth" stroke="#5b8e7d" fill="#5b8e7d" fillOpacity={0.6} />
+                    <Area type="monotone" stackId="1" name="2nd Child" dataKey="2nd Live-Birth" stroke="#8cb369" fill="#8cb369" fillOpacity={0.6} />
+                    <Area type="monotone" stackId="1" name="3rd Child" dataKey="3rd Live-Birth" stroke="#f4e285" fill="#f4e285" fillOpacity={0.6} />
+                    <Area type="monotone" stackId="1" name="4th Child" dataKey="4th Live-Birth" stroke="#f4a259" fill="#f4a259" fillOpacity={0.6} />
+                    <Area type="monotone" stackId="1" name="5th Child" dataKey="5th Live-Birth" stroke="#bc4b51" fill="#bc4b51" fillOpacity={0.6} />
+                    <Area type="monotone" stackId="1" name="6th+ Child" dataKey="6th & Subsequent Live-Births" stroke="#8a3e42" fill="#8a3e42" fillOpacity={0.6} />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
