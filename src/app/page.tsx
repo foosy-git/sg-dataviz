@@ -7,7 +7,7 @@ export default function Home() {
   const dashboards = [
     {
       title: 'HDB Horizon',
-      description: 'Interactive exploration of HDB resale data from 2000 to present. Analyze market trends, estate values, and the impact of lease decay.',
+      description: 'Interactive exploration of HDB resale data from 2017 to present. Analyze market trends, estate values, and the impact of lease decay.',
       icon: Building2,
       href: '/hdb',
       status: 'Live',

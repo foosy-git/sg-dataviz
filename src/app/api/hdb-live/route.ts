@@ -38,8 +38,8 @@ export async function GET(request: Request) {
     const flatTypesParam = searchParams.get('flatTypes');
     const minLease = Number(searchParams.get('minLease')) || 0;
     const maxLease = Number(searchParams.get('maxLease')) || 99;
-    const startMonth = searchParams.get('startMonth') || '2000-01';
-    const endMonth = searchParams.get('endMonth') || '2026-12';
+    const startMonth = searchParams.get('startMonth') || '2017-01';
+    const endMonth = searchParams.get('endMonth') || '2030-12';
     const page = Number(searchParams.get('page')) || 0;
     const sortKey = searchParams.get('sortKey') || 'month';
     const sortDir = searchParams.get('sortDir') || 'desc';
