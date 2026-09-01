@@ -27,17 +27,6 @@
       "static/chunks/512-9ecf8ddf0efa4173.js",
       "static/chunks/app/education/ges/page-d68e37c3e5477e5f.js"
     ],
-    "/hdb/page": [
-      "static/chunks/webpack-8449c77a4ba91e01.js",
-      "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
-      "static/chunks/117-34528c493c9407bc.js",
-      "static/chunks/main-app-31ace144c85ec042.js",
-      "static/chunks/717-3f7128701c4741f4.js",
-      "static/chunks/195-e0fe1b9315003fcc.js",
-      "static/chunks/796-75392a9b073da345.js",
-      "static/chunks/123-726110eb3b5dbb0d.js",
-      "static/chunks/app/hdb/page-a7daadad049a276f.js"
-    ],
     "/environment/climate/page": [
       "static/chunks/webpack-8449c77a4ba91e01.js",
       "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
@@ -63,6 +52,17 @@
       "static/chunks/717-3f7128701c4741f4.js",
       "static/chunks/195-e0fe1b9315003fcc.js",
       "static/chunks/app/transport/coe/page-6f027e009b9710f6.js"
+    ],
+    "/hdb/page": [
+      "static/chunks/webpack-8449c77a4ba91e01.js",
+      "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
+      "static/chunks/117-34528c493c9407bc.js",
+      "static/chunks/main-app-31ace144c85ec042.js",
+      "static/chunks/717-3f7128701c4741f4.js",
+      "static/chunks/195-e0fe1b9315003fcc.js",
+      "static/chunks/796-75392a9b073da345.js",
+      "static/chunks/123-726110eb3b5dbb0d.js",
+      "static/chunks/app/hdb/page-18483af28262b483.js"
     ]
   }
 }
