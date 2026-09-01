@@ -27,9 +27,6 @@ jobs:
             
             npm ci --omit=dev
             
-            # Download the lightweight 2017+ data
-            node scripts/fetchHistorical.js
-            
             # Start or restart the app with PM2
             pm2 restart "sg-dataviz" || pm2 start "npm run start" --name "sg-dataviz"
             pm2 save
