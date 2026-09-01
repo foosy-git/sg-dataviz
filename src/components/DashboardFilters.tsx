@@ -67,13 +67,13 @@ export default function DashboardFilters({
     setSelectedFlatTypes([]);
     setMinLease(0);
     setMaxLease(99);
-    setStartMonth('2000-01');
-    setEndMonth('2026-12');
+    setStartMonth('2017-01');
+    setEndMonth('2030-12');
     setLocalSearch('');
     setSearch('');
   };
 
-  const hasFilters = selectedTowns.length > 0 || selectedFlatTypes.length > 0 || minLease > 0 || maxLease < 99 || startMonth !== '2000-01' || endMonth !== '2026-12' || search !== '';
+  const hasFilters = selectedTowns.length > 0 || selectedFlatTypes.length > 0 || minLease > 0 || maxLease < 99 || startMonth !== '2017-01' || endMonth !== '2030-12' || search !== '';
 
   return (
     <Card className="shadow-sm border-[#243324]/10 bg-white/60 backdrop-blur-md">
@@ -99,14 +99,6 @@ export default function DashboardFilters({
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="space-y-6">
-            <div className="space-y-3">
-              <p className="text-sm font-sans font-semibold text-[#243324]">Date Range (Month-Year)</p>
-              <div className="flex items-center gap-4">
-                <Input type="month" value={startMonth} onChange={(e) => setStartMonth(e.target.value)} className="w-40 border-[#243324]/20 focus-visible:ring-[#3B4D36]" />
-                <span className="text-[#243324]/60 text-sm">to</span>
-                <Input type="month" value={endMonth} onChange={(e) => setEndMonth(e.target.value)} className="w-40 border-[#243324]/20 focus-visible:ring-[#3B4D36]" />
-              </div>
-            </div>
 
             <div className="space-y-4">
               <div className="flex justify-between items-center">

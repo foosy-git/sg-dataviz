@@ -21,8 +21,8 @@ export default function Dashboard() {
   const [selectedFlatTypes, setSelectedFlatTypes] = useState<string[]>([]);
   const [minLease, setMinLease] = useState<number>(0);
   const [maxLease, setMaxLease] = useState<number>(99);
-  const [startMonth, setStartMonth] = useState<string>('2023-01');
-  const [endMonth, setEndMonth] = useState<string>('2026-12');
+  const [startMonth, setStartMonth] = useState<string>('2017-01');
+  const [endMonth, setEndMonth] = useState<string>('2030-12');
   const [page, setPage] = useState(0);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' }>({ key: 'month', direction: 'desc' });
   const [search, setSearch] = useState<string>('');
@@ -113,7 +113,7 @@ export default function Dashboard() {
               Singapore Public Housing Report
             </h1>
             <p className="text-lg md:text-xl text-[#243324]/70 max-w-2xl mx-auto font-sans mb-16 leading-relaxed">
-              An interactive exploration of HDB resale data from 2000 to present. Analyze market trends, estate values, and the impact of lease decay.
+              An interactive exploration of HDB resale data from 2017 to present. Analyze market trends, estate values, and the impact of lease decay.
             </p>
           </motion.div>
 
