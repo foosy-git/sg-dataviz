@@ -2,9 +2,6 @@ const fs = require('fs');
 const path = require('path');
 
 const RESOURCE_IDS = [
-  '8c00bf08-9124-479e-aeca-7cc411d884c4', // 2000-2012
-  '83b2fc37-ce8c-4df4-968b-370fd818138b', // 2012-2014
-  '1b702208-44bf-4829-b620-4615ee19b57c', // 2015-2016
   'd_8b84c4ee58e3cfc0ece0d773c8ca6abc', // 2017-Present
 ];
 
