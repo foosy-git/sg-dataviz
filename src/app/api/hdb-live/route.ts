@@ -26,6 +26,8 @@ export async function GET(request: Request) {
 
     const data = await response.json();
     const allLiveRecords = normalizeHdbData(data.result.records);
+    
+    // Only pull live API records from Sep 2026 onwards to prevent overlapping with our static historical JSON file
     const recentLiveRecords = allLiveRecords.filter(r => r.month >= '2026-09');
     
     const historicalRecords = await getHistoricalData();

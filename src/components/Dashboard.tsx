@@ -21,7 +21,7 @@ export default function Dashboard() {
   const [selectedFlatTypes, setSelectedFlatTypes] = useState<string[]>([]);
   const [minLease, setMinLease] = useState<number>(0);
   const [maxLease, setMaxLease] = useState<number>(99);
-  const [startMonth, setStartMonth] = useState<string>('2000-01');
+  const [startMonth, setStartMonth] = useState<string>('2016-01');
   const [endMonth, setEndMonth] = useState<string>('2026-12');
   const [page, setPage] = useState(0);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' }>({ key: 'month', direction: 'desc' });
