@@ -21,6 +21,9 @@ jobs:
             
             cd ~/apps/sg-dataviz
             
+            # Remove the old untracked .next folder to prevent git pull from failing
+            rm -rf .next
+            
             # Pull the pre-built code directly from GitHub
             git reset --hard
             git pull origin main
