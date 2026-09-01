@@ -33,10 +33,9 @@ jobs:
           mkdir -p ~/.ssh
           echo "$SSH_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
           
           # Copy the single compressed file natively
-          scp deploy.tar.gz ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:~/apps/sg-dataviz/
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa deploy.tar.gz ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:~/apps/sg-dataviz/
 
       - name: Extract and Restart PM2 over SSH
         uses: appleboy/ssh-action@master
