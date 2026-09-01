@@ -37,7 +37,6 @@ jobs:
             # Build the Next.js production assets
             npm run build
             
-            # Start or restart the app with PM2 on port 3000
-            # Next.js defaults to 3000. If you want port 80, you should use Nginx as a reverse proxy.
-            pm2 start npm --name "sg-dataviz" -- run start || pm2 restart "sg-dataviz"
+            # Start or restart the app with PM2
+            pm2 restart "sg-dataviz" || pm2 start "npm run start" --name "sg-dataviz"
             pm2 save
