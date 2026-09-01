@@ -3,39 +3,13 @@ name: Deploy Next.js to GCP VM
 on:
   push:
     branches: ["main"]
-  workflow_dispatch: # Allows manual trigger from GitHub UI
+  workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install Dependencies
-        run: npm ci || npm install
-
-      - name: Build Next.js
-        run: npm run build
-
-      - name: Package files
-        run: tar -czf deploy.tar.gz .next public package.json package-lock.json scripts
-
-      - name: Deploy Tarball via SCP Action
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "deploy.tar.gz"
-          target: "apps/sg-dataviz"
-
-      - name: Extract and Restart PM2 over SSH
+      - name: Pull and Restart on VM
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -47,12 +21,9 @@ jobs:
             
             cd ~/apps/sg-dataviz
             
-            # Remove old build cache to prevent corrupted JSON manifests
-            rm -rf .next
-            
-            # Extract the new build and remove the archive
-            tar -xzf deploy.tar.gz
-            rm deploy.tar.gz
+            # Pull the pre-built code directly from GitHub
+            git reset --hard
+            git pull origin main
             
             npm ci --omit=dev
             
