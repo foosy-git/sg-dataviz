@@ -6,36 +6,45 @@ on:
   workflow_dispatch: # Allows manual trigger from GitHub UI
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Execute Deployment over SSH
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: npm ci || npm install
+
+      - name: Build Next.js
+        run: npm run build
+
+      - name: Deploy to VM via SCP
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: ".next,public,package.json,package-lock.json,scripts"
+          target: "~/apps/sg-dataviz"
+          overwrite: true
+
+      - name: Restart PM2 over SSH
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          # Important: Ensure Node.js and PM2 are in the PATH of the non-interactive SSH session
           script: |
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             
-            mkdir -p ~/apps/sg-dataviz
             cd ~/apps/sg-dataviz
-            
-            # Pull latest code (clone if first time)
-            if [ ! -d ".git" ]; then
-              git clone https://github.com/${{ github.repository }}.git .
-            else
-              git reset --hard
-              git pull origin main
-            fi
-            
-            # Install dependencies
-            npm ci || npm install
-            
-            # Build the Next.js production assets
-            npm run build
+            npm ci --omit=dev
             
             # Start or restart the app with PM2
             pm2 restart "sg-dataviz" || pm2 start "npm run start" --name "sg-dataviz"
