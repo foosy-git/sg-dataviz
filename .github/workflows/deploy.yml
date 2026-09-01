@@ -23,15 +23,15 @@ jobs:
       - name: Build Next.js
         run: npm run build
 
-      - name: Deploy to VM via SCP
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: ".next,public,package.json,package-lock.json,scripts"
-          target: "apps/sg-dataviz"
-          overwrite: true
+      - name: Setup SSH and Rsync to VM
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+          
+          # Use rsync to copy files (without --delete so we don't accidentally remove the 170MB historical JSON on the VM!)
+          rsync -avz .next public package.json package-lock.json scripts ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:~/apps/sg-dataviz/
 
       - name: Restart PM2 over SSH
         uses: appleboy/ssh-action@master
