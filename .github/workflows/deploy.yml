@@ -30,7 +30,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: ".next,public,package.json,package-lock.json,scripts"
-          target: "~/apps/sg-dataviz"
+          target: "apps/sg-dataviz"
           overwrite: true
 
       - name: Restart PM2 over SSH
