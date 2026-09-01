@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Link from 'next/link';
 import { ArrowLeft, Baby } from 'lucide-react';
@@ -25,8 +25,9 @@ export default function BirthRatesDashboard({ data }: BirthRatesDashboardProps) 
     return true;
   });
 
-  const latestData = data[data.length - 1] || {};
-  const tfr = latestData['Total Fertility Rate (TFR)'];
+  // Find the latest year that actually has a TFR value
+  const latestTfrData = [...data].reverse().find(d => d['Total Fertility Rate (TFR)'] !== null && d['Total Fertility Rate (TFR)'] !== undefined) || {};
+  const tfr = latestTfrData['Total Fertility Rate (TFR)'];
 
   return (
     <div className="min-h-screen bg-[#FBF9F5] pb-20">
@@ -73,7 +74,7 @@ export default function BirthRatesDashboard({ data }: BirthRatesDashboardProps) 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card className="bg-[#E8DCC4]/30 border-none shadow-sm">
             <CardContent className="p-6">
-              <p className="text-sm font-semibold text-[#243324]/60 uppercase tracking-wider mb-2 font-sans">Latest TFR ({latestData.year})</p>
+              <p className="text-sm font-semibold text-[#243324]/60 uppercase tracking-wider mb-2 font-sans">Latest TFR ({latestTfrData.year || 'N.A.'})</p>
               <p className="text-4xl font-serif text-[#243324]">{tfr ? tfr.toFixed(2) : 'N.A.'}</p>
               <p className="text-sm mt-2 text-[#243324]/70">Replacement level is 2.1</p>
             </CardContent>
@@ -213,34 +214,7 @@ export default function BirthRatesDashboard({ data }: BirthRatesDashboardProps) 
             </CardContent>
           </Card>
 
-          {/* Live Births by Birth Order */}
-          <Card className="shadow-sm border-[#243324]/10 bg-white/60 backdrop-blur-md">
-            <CardHeader>
-              <CardTitle className="font-serif text-2xl text-[#243324]">Live Births by Birth Order</CardTitle>
-              <CardDescription className="text-base text-[#243324]/70 font-sans">
-                Visualizing whether couples are having fewer children over time.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[500px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#243324" opacity={0.1} vertical={false} />
-                    <XAxis dataKey="year" stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dy={10} />
-                    <YAxis stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dx={-10} />
-                    <RechartsTooltip contentStyle={{ backgroundColor: '#FBF9F5', borderColor: 'rgba(36, 51, 36, 0.1)', borderRadius: '8px', color: '#243324', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} itemStyle={{ color: '#243324' }} />
-                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                    <Area type="monotone" stackId="1" name="1st Child" dataKey="1st Live-Birth" stroke="#5b8e7d" fill="#5b8e7d" fillOpacity={0.6} />
-                    <Area type="monotone" stackId="1" name="2nd Child" dataKey="2nd Live-Birth" stroke="#8cb369" fill="#8cb369" fillOpacity={0.6} />
-                    <Area type="monotone" stackId="1" name="3rd Child" dataKey="3rd Live-Birth" stroke="#f4e285" fill="#f4e285" fillOpacity={0.6} />
-                    <Area type="monotone" stackId="1" name="4th Child" dataKey="4th Live-Birth" stroke="#f4a259" fill="#f4a259" fillOpacity={0.6} />
-                    <Area type="monotone" stackId="1" name="5th Child" dataKey="5th Live-Birth" stroke="#bc4b51" fill="#bc4b51" fillOpacity={0.6} />
-                    <Area type="monotone" stackId="1" name="6th+ Child" dataKey="6th & Subsequent Live-Births" stroke="#8a3e42" fill="#8a3e42" fillOpacity={0.6} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
+
 
         </div>
       </div>
