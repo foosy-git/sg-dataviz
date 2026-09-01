@@ -1,101 +1,114 @@
-import Image from "next/image";
+import Link from 'next/link';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Building2, Train, Users, Leaf, ArrowRight, LineChart, GraduationCap, Car, Activity } from 'lucide-react';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const dashboards = [
+    {
+      title: 'HDB Horizon',
+      description: 'Interactive exploration of HDB resale data from 2000 to present. Analyze market trends, estate values, and the impact of lease decay.',
+      icon: Building2,
+      href: '/hdb',
+      status: 'Live',
+      color: 'bg-emerald-500/10 text-emerald-700',
+    },
+    {
+      title: 'COE Bidding Analytics',
+      description: 'Track COE premium trends, quota supply, and bidding demand across all vehicle categories in Singapore since 2010.',
+      icon: Car,
+      href: '/transport/coe',
+      status: 'Live',
+      color: 'bg-blue-500/10 text-blue-700',
+    },
+    {
+      title: 'Education & Careers',
+      description: 'Analyze graduate employment survey data, starting salaries, and employment rates across autonomous universities.',
+      icon: GraduationCap,
+      href: '/education/ges',
+      status: 'Live',
+      color: 'bg-indigo-500/10 text-indigo-700',
+    },
+    {
+      title: 'Climate Change & Weather',
+      description: 'Track Singapore\'s rising surface temperatures, historical rainfall patterns, and long-term climate shifts up to 2026.',
+      icon: Leaf,
+      href: '/environment/climate',
+      status: 'Live',
+      color: 'bg-green-500/10 text-green-700',
+    },
+  ];
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  return (
+    <main className="min-h-screen bg-[#FBF9F5] text-[#243324] font-sans selection:bg-[#E8DCC4] selection:text-[#1F2B1D]">
+      {/* Header */}
+      <header className="sticky top-0 z-50 w-full bg-[#FBF9F5]/90 backdrop-blur-xl border-b border-[#243324]/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <LineChart className="w-6 h-6" />
+            <span className="font-serif font-medium text-xl tracking-tight">SG DataViz</span>
+          </div>
+          <Badge variant="outline" className="bg-[#E8DCC4]/30 border-[#243324]/10 text-[#243324]/70 font-normal">
+            data.gov.sg Portal
+          </Badge>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      </header>
+
+      {/* Hero Section */}
+      <section className="pt-24 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center space-y-6">
+        <h1 className="font-serif text-5xl md:text-7xl tracking-tight text-[#1F2B1D] max-w-4xl mx-auto leading-tight">
+          Unlock the story of Singapore through open data.
+        </h1>
+        <p className="text-lg md:text-xl text-[#243324]/70 max-w-2xl mx-auto font-light leading-relaxed">
+          A centralized portal for interactive, editorial-grade visualizations built on public datasets from data.gov.sg. 
+          Explore trends, uncover insights, and understand the nation.
+        </p>
+      </section>
+
+      {/* Dashboard Grid */}
+      <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-24">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {dashboards.map((dashboard, i) => (
+            <Link key={i} href={dashboard.href} className={dashboard.href === '#' ? 'pointer-events-none' : 'group'}>
+              <Card className={`h-full transition-all duration-300 border-[#243324]/10 shadow-sm ${dashboard.href !== '#' ? 'hover:shadow-md hover:border-[#243324]/20 hover:-translate-y-1 bg-white' : 'bg-[#243324]/[0.02] opacity-80'}`}>
+                <CardHeader>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className={`p-3 rounded-xl ${dashboard.color}`}>
+                      <dashboard.icon className="w-6 h-6" />
+                    </div>
+                    {dashboard.status === 'Live' ? (
+                      <Badge className="bg-[#243324] hover:bg-[#243324] text-white">
+                        {dashboard.status}
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="border-[#243324]/20 text-[#243324]/50">
+                        {dashboard.status}
+                      </Badge>
+                    )}
+                  </div>
+                  <CardTitle className="font-serif text-2xl group-hover:text-emerald-700 transition-colors">
+                    {dashboard.title}
+                  </CardTitle>
+                  <CardDescription className="text-base text-[#243324]/70 leading-relaxed mt-2">
+                    {dashboard.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className={`flex items-center gap-2 text-sm font-medium ${dashboard.href !== '#' ? 'text-[#243324]' : 'text-[#243324]/40'}`}>
+                    {dashboard.href !== '#' ? 'Launch Dashboard' : 'In Development'}
+                    <ArrowRight className={`w-4 h-4 ${dashboard.href !== '#' ? 'group-hover:translate-x-1 transition-transform' : ''}`} />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-[#243324]/5 py-12 text-center text-[#243324]/50 text-sm">
+        <p>© {new Date().getFullYear()} SG DataViz Portal. Not affiliated with the Singapore Government.</p>
       </footer>
-    </div>
+    </main>
   );
 }

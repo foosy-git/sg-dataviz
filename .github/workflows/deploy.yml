@@ -1,0 +1,43 @@
+name: Deploy Next.js to GCP VM
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Execute Deployment over SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          # Important: Ensure Node.js and PM2 are in the PATH of the non-interactive SSH session
+          script: |
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            
+            mkdir -p ~/apps/sg-dataviz
+            cd ~/apps/sg-dataviz
+            
+            # Pull latest code (clone if first time)
+            if [ ! -d ".git" ]; then
+              git clone https://github.com/${{ github.repository }}.git .
+            else
+              git reset --hard
+              git pull origin main
+            fi
+            
+            # Install dependencies
+            npm ci || npm install
+            
+            # Build the Next.js production assets
+            npm run build
+            
+            # Start or restart the app with PM2 on port 3000
+            # Next.js defaults to 3000. If you want port 80, you should use Nginx as a reverse proxy.
+            pm2 start npm --name "sg-dataviz" -- run start || pm2 restart "sg-dataviz"
+            pm2 save

@@ -1,0 +1,26 @@
+[
+  {
+    "month": "2016-12",
+    "town": "ANG MO KIO",
+    "flat_type": "3 ROOM",
+    "block": "216",
+    "street_name": "ANG MO KIO AVE 1",
+    "storey_range": "04 TO 06",
+    "floor_area_sqm": "73",
+    "flat_model": "New Generation",
+    "lease_commence_date": "1976",
+    "resale_price": "275000"
+  },
+  {
+    "month": "2015-01",
+    "town": "BEDOK",
+    "flat_type": "4 ROOM",
+    "block": "112",
+    "street_name": "BEDOK NTH RD",
+    "storey_range": "07 TO 09",
+    "floor_area_sqm": "92",
+    "flat_model": "New Generation",
+    "lease_commence_date": "1978",
+    "resale_price": "380000"
+  }
+]
