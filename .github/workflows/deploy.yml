@@ -26,16 +26,14 @@ jobs:
       - name: Package files
         run: tar -czf deploy.tar.gz .next public package.json package-lock.json scripts
 
-      - name: Setup SSH and SCP to VM
-        env:
-          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          
-          # Copy the single compressed file natively
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa deploy.tar.gz ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:~/apps/sg-dataviz/
+      - name: Deploy Tarball via SCP Action
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "deploy.tar.gz"
+          target: "apps/sg-dataviz"
 
       - name: Extract and Restart PM2 over SSH
         uses: appleboy/ssh-action@master
