@@ -49,7 +49,10 @@ jobs:
             
             cd ~/apps/sg-dataviz
             
-            # Extract the files and remove the archive
+            # Remove old build cache to prevent corrupted JSON manifests
+            rm -rf .next
+            
+            # Extract the new build and remove the archive
             tar -xzf deploy.tar.gz
             rm deploy.tar.gz
             
