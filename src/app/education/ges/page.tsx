@@ -1,15 +1,21 @@
 import GESDashboard from '@/components/education/GESDashboard';
-import fs from 'fs';
-import path from 'path';
 
-export default function GESPage() {
-  // Read the JSON file directly on the server
-  const filePath = path.join(process.cwd(), 'public', 'graduate-employment.json');
-  const fileContents = fs.readFileSync(filePath, 'utf8');
+
+export const revalidate = 86400; // Cache for 24 hours
+
+export default async function GESPage() {
+  const GES_API_URL = 'https://data.gov.sg/api/action/datastore_search?resource_id=d_3c55210de27fcccda2ed0c63fdd2b352&limit=5000';
   let rawData = [];
+  
   try {
-    rawData = JSON.parse(fileContents);
-  } catch(e) {}
+    const res = await fetch(GES_API_URL, { next: { revalidate: 86400 } });
+    const json = await res.json();
+    if (json.success && json.result && json.result.records) {
+      rawData = json.result.records;
+    }
+  } catch (e) {
+    console.error('Failed to fetch GES data:', e);
+  }
 
   // Parse numeric fields
   const data = rawData.map((d: any) => {
