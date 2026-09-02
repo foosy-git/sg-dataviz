@@ -21,6 +21,17 @@ interface Props {
 }
 
 export default function SingaporeStoryDashboard({ initialData }: Props) {
+  if (!initialData || initialData.length === 0) {
+    return (
+      <div className="flex flex-col justify-center items-center h-screen bg-[#FBF9F5] p-4 text-center">
+        <h2 className="text-2xl font-serif text-[#243324] mb-2">Data Unavailable</h2>
+        <p className="text-[#243324]/70 font-sans">
+          We could not load the timeline data. Please try again later.
+        </p>
+      </div>
+    );
+  }
+
   const years = initialData.map(d => d.year);
   const minYear = Math.min(...years);
   const maxYear = Math.max(...years);
@@ -48,6 +59,26 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
     return initialData.find(d => d.year === currentYear) || initialData[initialData.length - 1];
   }, [currentYear, initialData]);
 
+  const indexedData = useMemo(() => {
+    if (!initialData || initialData.length === 0) return [];
+    const getBase = (key: keyof TimelineYearData) => initialData.find(d => d[key] !== null)?.[key] as number || 1;
+    
+    const baseIncome = getBase('medianIncome');
+    const baseTFR = getBase('birthRate');
+    const baseCOE = getBase('coePremium');
+    const baseHDB = getBase('hdbPrice');
+    const baseTemp = getBase('temperature');
+
+    return initialData.map(d => ({
+      ...d,
+      IncomeIdx: d.medianIncome ? Number(((d.medianIncome / baseIncome) * 100).toFixed(1)) : null,
+      TFRIdx: d.birthRate ? Number(((d.birthRate / baseTFR) * 100).toFixed(1)) : null,
+      COEIdx: d.coePremium ? Number(((d.coePremium / baseCOE) * 100).toFixed(1)) : null,
+      HDBIdx: d.hdbPrice ? Number(((d.hdbPrice / baseHDB) * 100).toFixed(1)) : null,
+      TempIdx: d.temperature ? Number(((d.temperature / baseTemp) * 100).toFixed(1)) : null,
+    }));
+  }, [initialData]);
+
   // Formatters
   const fCurrency = (val: number | null) => val ? `$${val.toLocaleString()}` : 'N.A.';
   const fNum = (val: number | null) => val ? val.toLocaleString() : 'N.A.';
@@ -65,7 +96,7 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 mb-16 text-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 mb-8 text-center">
         <h1 className="font-serif text-5xl md:text-6xl tracking-tight text-[#1F2B1D] mb-4">The Singapore Story</h1>
         <p className="text-lg text-[#243324]/70 max-w-2xl mx-auto font-light">
           Drag the timeline to explore how Singapore's macroeconomic indicators have evolved together over the last two decades.
@@ -74,15 +105,15 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Timeline Control */}
-        <Card className="bg-white border-[#243324]/10 shadow-sm mb-12 overflow-hidden relative">
+        <Card className="bg-white border-[#243324]/10 shadow-sm mb-8 overflow-hidden relative">
           <div className="absolute inset-0 pointer-events-none opacity-5 bg-[url('/merlion-bg.jpg')] bg-center bg-contain bg-no-repeat mix-blend-multiply" />
-          <CardContent className="p-8 md:p-12 relative z-10">
-            <div className="flex flex-col items-center gap-8">
+          <CardContent className="p-6 md:p-8 relative z-10">
+            <div className="flex flex-col items-center gap-6">
               <motion.div 
                 key={currentYear}
-                initial={{ scale: 0.9, opacity: 0.5 }}
+                initial={{ scale: 0.95, opacity: 0.7 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="text-7xl md:text-9xl font-serif text-[#1F2B1D] tracking-tighter font-bold"
+                className="text-6xl md:text-7xl font-serif text-[#1F2B1D] tracking-tighter font-bold"
               >
                 {currentYear}
               </motion.div>
@@ -117,7 +148,7 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
         </Card>
 
         {/* KPI Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {/* Economy */}
           <Card className="bg-amber-500/5 border-amber-500/20 shadow-sm">
             <CardHeader className="pb-2">
@@ -202,24 +233,45 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
         {/* Master Chart */}
         <Card className="bg-white border-[#243324]/10 shadow-sm">
           <CardHeader>
-            <CardTitle className="font-serif text-2xl text-[#243324]">Historical Context</CardTitle>
-            <CardDescription className="text-base">Median Household Income over time, highlighting the currently selected year.</CardDescription>
+            <CardTitle className="font-serif text-2xl text-[#243324]">Macro Convergence Index</CardTitle>
+            <CardDescription className="text-base text-[#243324]/70">
+              All metrics normalized to a base index of 100 at their starting year. This reveals the true relative growth trajectories of living costs, wealth, and demographics.
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-[300px] w-full">
+            <div className="h-[400px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={initialData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                <LineChart data={indexedData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#243324" opacity={0.1} vertical={false} />
                   <XAxis dataKey="year" stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v.toLocaleString()}`} width={80} />
+                  <YAxis stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} tickFormatter={(v) => v === 100 ? 'Base 100' : v} width={70} />
                   <RechartsTooltip 
                     contentStyle={{ backgroundColor: '#FBF9F5', borderColor: 'rgba(36, 51, 36, 0.1)', borderRadius: '8px' }}
-                    labelStyle={{ color: '#243324', fontWeight: 'bold', marginBottom: '4px' }}
+                    labelStyle={{ color: '#243324', fontWeight: 'bold', marginBottom: '8px' }}
+                    formatter={(value: number, name: string) => {
+                      return [`Index: ${value}`, name];
+                    }}
                   />
-                  <ReferenceLine x={currentYear} stroke="#1F2B1D" strokeWidth={2} strokeDasharray="3 3" />
-                  <Line type="monotone" dataKey="medianIncome" name="Median Income" stroke="#d97706" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
+                  <ReferenceLine x={currentYear} stroke="#1F2B1D" strokeWidth={1} strokeDasharray="3 3" />
+                  <ReferenceLine y={100} stroke="#243324" strokeWidth={2} strokeOpacity={0.2} />
+                  
+                  {/* Lines for each metric */}
+                  <Line type="monotone" dataKey="IncomeIdx" name="Median Income" stroke="#d97706" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
+                  <Line type="monotone" dataKey="TFRIdx" name="Fertility Rate" stroke="#e11d48" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
+                  <Line type="monotone" dataKey="COEIdx" name="COE Premium" stroke="#2563eb" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
+                  <Line type="monotone" dataKey="HDBIdx" name="HDB Resale" stroke="#059669" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
+                  <Line type="monotone" dataKey="TempIdx" name="Temperature" stroke="#16a34a" strokeWidth={3} dot={false} strokeOpacity={0.4} activeDot={{ r: 4 }} />
                 </LineChart>
               </ResponsiveContainer>
+              
+              {/* Custom Legend */}
+              <div className="flex flex-wrap justify-center gap-6 mt-4 pt-4 border-t border-[#243324]/5">
+                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-amber-500" /><span className="text-sm font-medium text-amber-900">Income</span></div>
+                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-rose-500" /><span className="text-sm font-medium text-rose-900">Fertility</span></div>
+                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-blue-600" /><span className="text-sm font-medium text-blue-900">COE</span></div>
+                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-emerald-600" /><span className="text-sm font-medium text-emerald-900">HDB</span></div>
+                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-green-600 opacity-50" /><span className="text-sm font-medium text-green-900">Climate</span></div>
+              </div>
             </div>
           </CardContent>
         </Card>

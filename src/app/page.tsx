@@ -70,18 +70,19 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="relative pt-24 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
+        {/* Merlion Background - Constrained to top area */}
         <div 
-          className="absolute inset-0 pointer-events-none z-0" 
+          className="absolute inset-x-0 top-0 h-[400px] pointer-events-none z-0" 
           style={{
             backgroundImage: "url('/merlion-bg.jpg')",
-            backgroundPosition: 'center',
+            backgroundPosition: 'center top',
             backgroundSize: 'contain',
             backgroundRepeat: 'no-repeat',
             opacity: 0.05,
             mixBlendMode: 'multiply'
           }}
         />
-        <div className="relative z-10 space-y-6 mb-12">
+        <div className="relative z-10 space-y-6 mb-12 mt-8">
           <h1 className="font-serif text-5xl md:text-7xl tracking-tight text-[#1F2B1D] max-w-4xl mx-auto leading-tight">
             Unlock the story of Singapore through open data.
           </h1>
