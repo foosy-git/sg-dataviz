@@ -37,12 +37,16 @@ export default function IncomeDashboard({ initialData }: IncomeDashboardProps) {
       return (
         <div className="bg-[#FBF9F5] border border-[#243324]/10 p-3 rounded-lg shadow-md">
           <p className="font-serif font-medium text-[#243324] mb-2">{label}</p>
-          {payload.map((entry: any, index: number) => (
-            <p key={index} className="text-sm font-sans flex items-center gap-2" style={{ color: entry.color }}>
-              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }}></span>
-              {entry.name}: ${entry.value?.toLocaleString()}
-            </p>
-          ))}
+          {payload.map((entry: any, index: number) => {
+            const isPercent = entry.name === 'Unemployment Rate';
+            const valueStr = isPercent ? `${entry.value}%` : `$${entry.value?.toLocaleString()}`;
+            return (
+              <p key={index} className="text-sm font-sans flex items-center gap-2" style={{ color: entry.color }}>
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }}></span>
+                {entry.name}: {valueStr}
+              </p>
+            );
+          })}
         </div>
       );
     }
@@ -252,6 +256,29 @@ export default function IncomeDashboard({ initialData }: IncomeDashboardProps) {
                     <RechartsTooltip contentStyle={{ backgroundColor: '#FBF9F5', borderColor: 'rgba(36, 51, 36, 0.1)', borderRadius: '8px' }} />
                     <Bar dataKey="value" name="Average Income" fill="#3B4D36" radius={[4, 4, 0, 0]} />
                   </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white border-[#243324]/10 shadow-sm col-span-1 lg:col-span-2">
+            <CardHeader className="pb-4">
+              <CardTitle className="font-serif text-2xl text-[#243324]">Resident Unemployment Rate</CardTitle>
+              <CardDescription className="text-base text-[#243324]/70 font-sans">
+                Seasonally adjusted unemployment rate for Singapore residents aged 15 years and over.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#243324" opacity={0.1} vertical={false} />
+                    <XAxis dataKey="year" stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dy={10} minTickGap={30} />
+                    <YAxis stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dx={-10} tickFormatter={(v) => `${v}%`} />
+                    <RechartsTooltip content={<CustomTooltip />} />
+                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                    <Line type="monotone" name="Unemployment Rate" dataKey="unemployment" stroke="#9333ea" strokeWidth={2.5} dot={{ r: 0 }} activeDot={{ r: 6 }} connectNulls />
+                  </LineChart>
                 </ResponsiveContainer>
               </div>
             </CardContent>

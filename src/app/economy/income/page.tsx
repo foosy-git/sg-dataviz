@@ -11,14 +11,15 @@ export const revalidate = 86400; // Cache for 24 hours
 
 export default async function HouseholdIncomePage() {
   try {
-    const [medianRes, decileRes, cpiRes, dwellingRes] = await Promise.all([
+    const [medianRes, decileRes, cpiRes, dwellingRes, unempRes] = await Promise.all([
       fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_c74ebe613db891d25e4836aaf98d7a47&limit=100'),
       fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_b37bc6f05c76337ad51aefddf0b7c888&limit=100'),
       fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_b7c2e74824c179995d15d73eac845ba1&limit=500'),
-      fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_ce5d8bb5c34f6b78b5b2f1fab09ccbce&limit=100')
+      fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_ce5d8bb5c34f6b78b5b2f1fab09ccbce&limit=100'),
+      fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_285a079d823a1cc22dffb9cac325f81a&limit=10')
     ]);
 
-    if (!medianRes.ok || !decileRes.ok || !cpiRes.ok || !dwellingRes.ok) {
+    if (!medianRes.ok || !decileRes.ok || !cpiRes.ok || !dwellingRes.ok || !unempRes.ok) {
       return <ErrorState />;
     }
 
@@ -26,11 +27,13 @@ export default async function HouseholdIncomePage() {
     const decileData = await decileRes.json();
     const cpiData = await cpiRes.json();
     const dwellingData = await dwellingRes.json();
+    const unempData = await unempRes.json();
 
     const rawMedians = medianData.result?.records || [];
     const rawDeciles = decileData.result?.records || [];
     const rawCPI = cpiData.result?.records || [];
     const rawDwelling = dwellingData.result?.records || [];
+    const rawUnemp = unempData.result?.records || [];
 
     const generalCPI = rawCPI.filter((r: any) => r.category === 'General');
     const baseCpiRecord = generalCPI.find((r: any) => r.year === '2008');
@@ -66,11 +69,22 @@ export default async function HouseholdIncomePage() {
       const d9 = rawDeciles.find((r: any) => r.Dollar === '9th')?.[year];
       const d10 = rawDeciles.find((r: any) => r.Dollar === '10th (Highest)')?.[year];
 
+      // Unemployment Rate
+      let unemployment = null;
+      if (rawUnemp.length > 0) {
+        const series = rawUnemp.find((r: any) => r.DataSeries && r.DataSeries.includes('Resident Unemployment Rate'));
+        if (series && series[year]) {
+          const val = series[year];
+          unemployment = (val === 'na' || val === 'n.a.' || val === '-' || !val) ? null : parseFloat(val);
+        }
+      }
+
       return {
         year,
         median: nominalMedian,
         realMedian: realMedian ? Math.round(realMedian) : null,
         average: medRow ? Number(medRow.ResidentEmployedHouseholds_Average) : null,
+        unemployment,
         
         // Housing
         hdb1_2: dwellRow ? Number(dwellRow.HDB1_and2_RoomFlats1) : null,
