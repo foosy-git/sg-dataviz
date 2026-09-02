@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
-import { Baby, Wallet, Building2, Car, Leaf, LineChart as LineChartIcon, Play, Pause } from 'lucide-react';
+import { Baby, Wallet, Building2, Car, Leaf, LineChart as LineChartIcon, Play, Pause, TrendingUp, Users } from 'lucide-react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip as RechartsTooltip, CartesianGrid, ReferenceLine } from 'recharts';
 import Link from 'next/link';
 
@@ -132,39 +132,59 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
         {/* KPI Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {/* Economy */}
-          <Card className="bg-amber-500/5 border-amber-500/20 shadow-sm">
+          <Card className="bg-amber-500/5 border-amber-500/20 shadow-sm flex flex-col">
             <CardHeader className="pb-2">
-              <div className="flex items-center gap-2 text-amber-700/80 mb-2">
-                <Wallet className="w-5 h-5" />
-                <span className="text-xs font-bold uppercase tracking-wider">Economy</span>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2 text-amber-700/80">
+                  <TrendingUp className="w-5 h-5" />
+                  <span className="text-xs font-bold uppercase tracking-wider">Economy</span>
+                </div>
               </div>
               <CardTitle className="font-serif text-xl text-amber-900">Median Income</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1 flex flex-col justify-between">
               <div className="text-4xl md:text-5xl font-serif text-amber-950 font-medium">
                 {fCurrency(currentData.medianIncome)}
+              </div>
+              <div className="h-16 mt-4 w-full opacity-70">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={initialData}>
+                    <YAxis hide domain={['dataMin - 100', 'dataMax + 100']} />
+                    <RechartsTooltip cursor={false} contentStyle={{ fontSize: '12px', borderRadius: '8px' }} labelStyle={{ display: 'none' }} formatter={(val: any) => [fCurrency(val), 'Income']} />
+                    <Line type="monotone" dataKey="medianIncome" stroke="#d97706" strokeWidth={2.5} dot={false} connectNulls={false} />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
             </CardContent>
           </Card>
 
           {/* Demographics */}
-          <Card className="bg-rose-500/5 border-rose-500/20 shadow-sm">
+          <Card className="bg-rose-500/5 border-rose-500/20 shadow-sm flex flex-col">
             <CardHeader className="pb-2">
               <div className="flex items-center gap-2 text-rose-700/80 mb-2">
-                <Baby className="w-5 h-5" />
+                <Users className="w-5 h-5" />
                 <span className="text-xs font-bold uppercase tracking-wider">Demographics</span>
               </div>
               <CardTitle className="font-serif text-xl text-rose-900">Total Fertility Rate</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1 flex flex-col justify-between">
               <div className="text-4xl md:text-5xl font-serif text-rose-950 font-medium">
-                {fNum(currentData.birthRate)}
+                {currentData.birthRate ? currentData.birthRate.toFixed(2) : 'N.A.'}
+              </div>
+              <div className="h-16 mt-4 w-full opacity-70">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={initialData}>
+                    <YAxis hide domain={['dataMin - 0.1', 'dataMax + 0.1']} />
+                    <RechartsTooltip cursor={false} contentStyle={{ fontSize: '12px', borderRadius: '8px' }} labelStyle={{ display: 'none' }} formatter={(val: any) => [Number(val).toFixed(2), 'TFR']} />
+                    <Line type="monotone" dataKey="birthRate" stroke="#e11d48" strokeWidth={2.5} dot={false} connectNulls={false} />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
             </CardContent>
           </Card>
 
           {/* Housing */}
-          <Card className="bg-emerald-500/5 border-emerald-500/20 shadow-sm">
+          <Card className="bg-emerald-500/5 border-emerald-500/20 shadow-sm flex flex-col">
             <CardHeader className="pb-2">
               <div className="flex items-center gap-2 text-emerald-700/80 mb-2">
                 <Building2 className="w-5 h-5" />
@@ -172,15 +192,24 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
               </div>
               <CardTitle className="font-serif text-xl text-emerald-900">Average HDB Resale</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1 flex flex-col justify-between">
               <div className="text-4xl md:text-5xl font-serif text-emerald-950 font-medium">
                 {fCurrency(currentData.hdbPrice)}
+              </div>
+              <div className="h-16 mt-4 w-full opacity-70">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={initialData}>
+                    <YAxis hide domain={['dataMin - 10000', 'dataMax + 10000']} />
+                    <RechartsTooltip cursor={false} contentStyle={{ fontSize: '12px', borderRadius: '8px' }} labelStyle={{ display: 'none' }} formatter={(val: any) => [fCurrency(val), 'Price']} />
+                    <Line type="monotone" dataKey="hdbPrice" stroke="#059669" strokeWidth={2.5} dot={false} connectNulls={false} />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
             </CardContent>
           </Card>
 
           {/* Transport */}
-          <Card className="bg-blue-500/5 border-blue-500/20 shadow-sm">
+          <Card className="bg-blue-500/5 border-blue-500/20 shadow-sm flex flex-col">
             <CardHeader className="pb-2">
               <div className="flex items-center gap-2 text-blue-700/80 mb-2">
                 <Car className="w-5 h-5" />
@@ -188,15 +217,24 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
               </div>
               <CardTitle className="font-serif text-xl text-blue-900">Average COE (Cat A)</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1 flex flex-col justify-between">
               <div className="text-4xl md:text-5xl font-serif text-blue-950 font-medium">
                 {fCurrency(currentData.coePremium)}
+              </div>
+              <div className="h-16 mt-4 w-full opacity-70">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={initialData}>
+                    <YAxis hide domain={['dataMin - 2000', 'dataMax + 2000']} />
+                    <RechartsTooltip cursor={false} contentStyle={{ fontSize: '12px', borderRadius: '8px' }} labelStyle={{ display: 'none' }} formatter={(val: any) => [fCurrency(val), 'Premium']} />
+                    <Line type="monotone" dataKey="coePremium" stroke="#2563eb" strokeWidth={2.5} dot={false} connectNulls={false} />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
             </CardContent>
           </Card>
 
           {/* Environment */}
-          <Card className="bg-green-500/5 border-green-500/20 shadow-sm">
+          <Card className="bg-green-500/5 border-green-500/20 shadow-sm flex flex-col">
             <CardHeader className="pb-2">
               <div className="flex items-center gap-2 text-green-700/80 mb-2">
                 <Leaf className="w-5 h-5" />
@@ -204,15 +242,24 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
               </div>
               <CardTitle className="font-serif text-xl text-green-900">Mean Temperature</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1 flex flex-col justify-between">
               <div className="text-4xl md:text-5xl font-serif text-green-950 font-medium">
                 {fTemp(currentData.temperature)}
+              </div>
+              <div className="h-16 mt-4 w-full opacity-70">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={initialData}>
+                    <YAxis hide domain={['dataMin - 0.2', 'dataMax + 0.2']} />
+                    <RechartsTooltip cursor={false} contentStyle={{ fontSize: '12px', borderRadius: '8px' }} labelStyle={{ display: 'none' }} formatter={(val: any) => [fTemp(val), 'Temp']} />
+                    <Line type="monotone" dataKey="temperature" stroke="#16a34a" strokeWidth={2.5} dot={false} connectNulls={false} />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
             </CardContent>
           </Card>
 
           {/* Employment */}
-          <Card className="bg-purple-500/5 border-purple-500/20 shadow-sm">
+          <Card className="bg-purple-500/5 border-purple-500/20 shadow-sm flex flex-col">
             <CardHeader className="pb-2">
               <div className="flex items-center gap-2 text-purple-700/80 mb-2">
                 <Wallet className="w-5 h-5" />
@@ -220,71 +267,22 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
               </div>
               <CardTitle className="font-serif text-xl text-purple-900">Graduate Employment</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1 flex flex-col justify-between">
               <div className="text-4xl md:text-5xl font-serif text-purple-950 font-medium">
                 {fPct(currentData.employment)}
+              </div>
+              <div className="h-16 mt-4 w-full opacity-70">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={initialData}>
+                    <YAxis hide domain={['dataMin - 1', 'dataMax + 1']} />
+                    <RechartsTooltip cursor={false} contentStyle={{ fontSize: '12px', borderRadius: '8px' }} labelStyle={{ display: 'none' }} formatter={(val: any) => [fPct(val), 'Employed']} />
+                    <Line type="monotone" dataKey="employment" stroke="#9333ea" strokeWidth={2.5} dot={false} connectNulls={false} />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
             </CardContent>
           </Card>
         </div>
-
-        {/* Master Chart */}
-        <Card className="bg-white border-[#243324]/10 shadow-sm">
-          <CardHeader>
-            <CardTitle className="font-serif text-2xl text-[#243324]">Macro Convergence Index</CardTitle>
-            <CardDescription className="text-base text-[#243324]/70">
-              Visualizing the wider upward/downward trends. Each statistic uses its own proportional axis to maximize visibility of its relative movement over time.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[400px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={initialData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#243324" opacity={0.1} vertical={false} />
-                  <XAxis dataKey="year" stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} />
-                  
-                  {/* Independent Y-Axes for maximum trend visibility */}
-                  <YAxis yAxisId="income" hide domain={['dataMin - 500', 'dataMax + 500']} />
-                  <YAxis yAxisId="tfr" hide domain={['dataMin - 0.1', 'dataMax + 0.1']} />
-                  <YAxis yAxisId="coe" hide domain={['dataMin - 5000', 'dataMax + 5000']} />
-                  <YAxis yAxisId="hdb" hide domain={['dataMin - 20000', 'dataMax + 20000']} />
-                  <YAxis yAxisId="temp" hide domain={['dataMin - 0.2', 'dataMax + 0.2']} />
-                  <YAxis yAxisId="emp" hide domain={['dataMin - 2', 'dataMax + 2']} />
-
-                  <RechartsTooltip 
-                    contentStyle={{ backgroundColor: '#FBF9F5', borderColor: 'rgba(36, 51, 36, 0.1)', borderRadius: '8px' }}
-                    labelStyle={{ color: '#243324', fontWeight: 'bold', marginBottom: '8px' }}
-                    formatter={(value: number, name: string) => {
-                      if (name === 'Median Income' || name === 'COE Premium' || name === 'HDB Resale') return [fCurrency(value), name];
-                      if (name === 'Temperature') return [fTemp(value), name];
-                      if (name === 'Graduate Employment') return [fPct(value), name];
-                      return [value, name];
-                    }}
-                  />
-                  <ReferenceLine x={currentYear} stroke="#1F2B1D" strokeWidth={1} strokeDasharray="3 3" yAxisId="income" />
-                  
-                  {/* Lines for each metric with connectNulls=false */}
-                  <Line yAxisId="income" type="monotone" dataKey="medianIncome" name="Median Income" stroke="#d97706" strokeWidth={3} dot={false} activeDot={{ r: 6 }} connectNulls={false} />
-                  <Line yAxisId="tfr" type="monotone" dataKey="birthRate" name="Fertility Rate" stroke="#e11d48" strokeWidth={3} dot={false} activeDot={{ r: 6 }} connectNulls={false} />
-                  <Line yAxisId="coe" type="monotone" dataKey="coePremium" name="COE Premium" stroke="#2563eb" strokeWidth={3} dot={false} activeDot={{ r: 6 }} connectNulls={false} />
-                  <Line yAxisId="hdb" type="monotone" dataKey="hdbPrice" name="HDB Resale" stroke="#059669" strokeWidth={3} dot={false} activeDot={{ r: 6 }} connectNulls={false} />
-                  <Line yAxisId="temp" type="monotone" dataKey="temperature" name="Temperature" stroke="#16a34a" strokeWidth={3} dot={false} strokeOpacity={0.4} activeDot={{ r: 4 }} connectNulls={false} />
-                  <Line yAxisId="emp" type="monotone" dataKey="employment" name="Graduate Employment" stroke="#9333ea" strokeWidth={3} dot={false} activeDot={{ r: 6 }} connectNulls={false} />
-                </LineChart>
-              </ResponsiveContainer>
-              
-              {/* Custom Legend */}
-              <div className="flex flex-wrap justify-center gap-6 mt-4 pt-4 border-t border-[#243324]/5">
-                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-amber-500" /><span className="text-sm font-medium text-amber-900">Income</span></div>
-                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-rose-500" /><span className="text-sm font-medium text-rose-900">Fertility</span></div>
-                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-blue-600" /><span className="text-sm font-medium text-blue-900">COE</span></div>
-                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-emerald-600" /><span className="text-sm font-medium text-emerald-900">HDB</span></div>
-                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-green-600 opacity-50" /><span className="text-sm font-medium text-green-900">Climate</span></div>
-                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-purple-600" /><span className="text-sm font-medium text-purple-900">Careers</span></div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
