@@ -12,16 +12,15 @@ export default async function SingaporeStoryPage() {
     }
 
     const fetchOpts = { headers, next: { revalidate: 86400 } };
-    const [birthRes, incomeRes, coeRes, climateRes, empRes] = await Promise.all([
+    const [birthRes, incomeRes, coeRes, climateRes] = await Promise.all([
       fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_e39eeaeadb571c0d0725ef1eec48d166&limit=100', fetchOpts),
       fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_c74ebe613db891d25e4836aaf98d7a47&limit=100', fetchOpts),
       fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_69b3380ad7e51aff3a7dcc84eba52b8a&limit=50000', fetchOpts),
-      fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_755290a24afe70c8f9e8bcbf9f251573&limit=10000', fetchOpts),
-      fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_3c55210de27fcccda2ed0c63fdd2b352&limit=10000', fetchOpts)
+      fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_755290a24afe70c8f9e8bcbf9f251573&limit=10000', fetchOpts)
     ]);
 
-    if (!birthRes.ok || !incomeRes.ok || !coeRes.ok || !climateRes.ok || !empRes.ok) {
-      console.error('API Error Status:', birthRes.status, incomeRes.status, coeRes.status, climateRes.status, empRes.status);
+    if (!birthRes.ok || !incomeRes.ok || !coeRes.ok || !climateRes.ok) {
+      console.error('API Error Status:', birthRes.status, incomeRes.status, coeRes.status, climateRes.status);
       throw new Error('Failed to fetch data from data.gov.sg');
     }
 
@@ -29,7 +28,6 @@ export default async function SingaporeStoryPage() {
     const incomeData = (await incomeRes.json()).result?.records || [];
     const coeData = (await coeRes.json()).result?.records || [];
     const climateData = (await climateRes.json()).result?.records || [];
-    const empData = (await empRes.json()).result?.records || [];
 
     const hdbData = await getHistoricalData();
 
@@ -40,8 +38,7 @@ export default async function SingaporeStoryPage() {
       if (!yearsMap[y]) yearsMap[y] = { 
         year: y, birthRate: null, medianIncome: null, 
         coeSum: 0, coeCount: 0, hdbSum: 0, hdbCount: 0, 
-        tempSum: 0, tempCount: 0,
-        empSum: 0, empCount: 0 
+        tempSum: 0, tempCount: 0
       };
     };
 
@@ -94,16 +91,6 @@ export default async function SingaporeStoryPage() {
       yearsMap[row.year].hdbCount += 1;
     }
 
-    // 6. GES Employment Rate
-    for (const row of empData) {
-      if (row.year && row.employment_rate_ft_perm && row.employment_rate_ft_perm !== 'na') {
-        const y = parseInt(row.year);
-        initYear(y);
-        yearsMap[y].empSum += parseFloat(row.employment_rate_ft_perm);
-        yearsMap[y].empCount += 1;
-      }
-    }
-
     // Finalize aggregations
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const timelineData = Object.values(yearsMap).map((d: any) => ({
@@ -112,8 +99,8 @@ export default async function SingaporeStoryPage() {
       medianIncome: d.medianIncome,
       coePremium: d.coeCount > 0 ? Math.round(d.coeSum / d.coeCount) : null,
       hdbPrice: d.hdbCount > 0 ? Math.round(d.hdbSum / d.hdbCount) : null,
+      hdbVolume: d.hdbCount > 0 ? d.hdbCount : null,
       temperature: d.tempCount > 0 ? Number((d.tempSum / d.tempCount).toFixed(2)) : null,
-      employment: d.empCount > 0 ? Number((d.empSum / d.empCount).toFixed(1)) : null,
     })).sort((a, b) => a.year - b.year);
 
     // Limit to 2000-2026

@@ -268,27 +268,27 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
             </CardContent>
           </Card>
 
-          {/* Employment */}
+          {/* HDB Volume */}
           <Card className="bg-purple-500/5 border-purple-500/20 shadow-sm flex flex-col">
             <CardHeader className="pb-2">
               <div className="flex items-center gap-2 text-purple-700/80 mb-2">
-                <Wallet className="w-5 h-5" />
-                <span className="text-xs font-bold uppercase tracking-wider">Careers</span>
+                <Building2 className="w-5 h-5" />
+                <span className="text-xs font-bold uppercase tracking-wider">Housing</span>
               </div>
-              <CardTitle className="font-serif text-xl text-purple-900">Graduate Employment</CardTitle>
+              <CardTitle className="font-serif text-xl text-purple-900">Resale Volume</CardTitle>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col justify-between">
               <div className="text-4xl md:text-5xl font-serif text-purple-950 font-medium">
-                {fPct(currentData.employment)}
+                {currentData.hdbVolume ? currentData.hdbVolume.toLocaleString() : 'N.A.'}
               </div>
               <div className="h-16 mt-4 w-full opacity-70">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={initialData}>
                     <XAxis hide dataKey="year" type="number" domain={['dataMin', 'dataMax']} />
-                    <YAxis hide domain={['dataMin - 1', 'dataMax + 1']} />
-                    <RechartsTooltip cursor={false} contentStyle={{ fontSize: '12px', borderRadius: '8px' }} labelStyle={{ display: 'none' }} formatter={(val: any) => [fPct(val), 'Employed']} />
-                    <Line type="monotone" dataKey="employment" stroke="#9333ea" strokeWidth={2.5} dot={false} connectNulls={false} />
-                    {currentData.employment !== null && <ReferenceDot x={currentYear} y={currentData.employment} r={5} fill="#9333ea" stroke="#fff" strokeWidth={2} />}
+                    <YAxis hide domain={['dataMin - 1000', 'dataMax + 1000']} />
+                    <RechartsTooltip cursor={false} contentStyle={{ fontSize: '12px', borderRadius: '8px' }} labelStyle={{ display: 'none' }} formatter={(val: any) => [val.toLocaleString(), 'Transactions']} />
+                    <Line type="monotone" dataKey="hdbVolume" stroke="#9333ea" strokeWidth={2.5} dot={false} connectNulls={false} />
+                    {currentData.hdbVolume !== null && <ReferenceDot x={currentYear} y={currentData.hdbVolume} r={5} fill="#9333ea" stroke="#fff" strokeWidth={2} />}
                   </LineChart>
                 </ResponsiveContainer>
               </div>
