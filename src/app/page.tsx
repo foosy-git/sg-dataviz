@@ -81,7 +81,7 @@ export default function Home() {
             mixBlendMode: 'multiply'
           }}
         />
-        <div className="relative z-10 space-y-6">
+        <div className="relative z-10 space-y-6 mb-12">
           <h1 className="font-serif text-5xl md:text-7xl tracking-tight text-[#1F2B1D] max-w-4xl mx-auto leading-tight">
             Unlock the story of Singapore through open data.
           </h1>
@@ -89,6 +89,25 @@ export default function Home() {
             A centralized portal for interactive, editorial-grade visualizations built on public datasets from data.gov.sg. 
             Explore trends, uncover insights, and understand the nation.
           </p>
+        </div>
+        
+        {/* Featured Banner */}
+        <div className="relative z-10 max-w-4xl mx-auto">
+          <Link href="/singapore-story">
+            <Card className="bg-[#1F2B1D] text-[#FBF9F5] border-none shadow-xl hover:-translate-y-1 transition-transform overflow-hidden group">
+              <div className="absolute inset-0 opacity-10 bg-[url('/merlion-bg.jpg')] bg-center bg-cover mix-blend-screen group-hover:scale-105 transition-transform duration-700" />
+              <CardContent className="p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+                <div className="text-left space-y-2">
+                  <Badge className="bg-amber-500/20 text-amber-200 hover:bg-amber-500/30 border-none mb-2">New Feature</Badge>
+                  <h2 className="font-serif text-3xl md:text-4xl font-medium tracking-tight">The Singapore Story</h2>
+                  <p className="text-[#FBF9F5]/70 text-lg">A unified, interactive timeline of our nation's macroeconomic progression.</p>
+                </div>
+                <div className="flex-shrink-0 flex items-center justify-center w-16 h-16 rounded-full bg-[#FBF9F5]/10 group-hover:bg-[#FBF9F5]/20 transition-colors">
+                  <ArrowRight className="w-8 h-8" />
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
       </section>
 
