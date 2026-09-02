@@ -64,9 +64,7 @@ export default function Home() {
             <LineChart className="w-6 h-6" />
             <span className="font-serif font-medium text-xl tracking-tight">SG DataViz</span>
           </div>
-          <Badge variant="outline" className="bg-[#E8DCC4]/30 border-[#243324]/10 text-[#243324]/70 font-normal">
-            data.gov.sg Portal
-          </Badge>
+
         </div>
       </header>
 
