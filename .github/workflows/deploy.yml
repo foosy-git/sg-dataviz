@@ -15,6 +15,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command_timeout: 30m
           script: |
             set -e
             cd ~/apps/sg-dataviz
@@ -29,7 +30,8 @@ jobs:
             # Use npm install instead of npm ci to prevent lockfile conflicts across node versions
             npm install --omit=dev
             
-            # Build the Next.js app for production
+            # Disable telemetry and build the Next.js app for production
+            export NEXT_TELEMETRY_DISABLED=1
             npm run build
             
             # Start or restart the app with PM2
