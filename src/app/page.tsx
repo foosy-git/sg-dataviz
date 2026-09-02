@@ -122,8 +122,9 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-[#243324]/5 py-12 text-center text-[#243324]/50 text-sm">
+      <footer className="border-t border-[#243324]/5 py-12 text-center text-[#243324]/50 text-sm flex flex-col items-center justify-center gap-2">
         <p>© {new Date().getFullYear()} SG DataViz Portal. Not affiliated with the Singapore Government.</p>
+        <p>Data sourced from <a href="https://data.gov.sg" target="_blank" rel="noopener noreferrer" className="underline hover:text-[#243324]/80">data.gov.sg</a></p>
       </footer>
     </main>
   );

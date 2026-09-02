@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import FeedbackWidget from "@/components/ui/FeedbackWidget";
 
 const sans = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-sans" });
 const serif = Fraunces({ subsets: ["latin"], variable: "--font-serif" });
@@ -20,6 +21,7 @@ export default function RootLayout({
     <html lang="en" className={cn(sans.variable, serif.variable)}>
       <body className="antialiased font-sans bg-[#FBF9F5] text-[#243324] selection:bg-[#E8DCC4] selection:text-[#1F2B1D]">
         {children}
+        <FeedbackWidget />
       </body>
     </html>
   );

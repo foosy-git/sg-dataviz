@@ -13,18 +13,8 @@
       "static/chunks/117-34528c493c9407bc.js",
       "static/chunks/main-app-31ace144c85ec042.js",
       "static/css/2ed4ce15e4205a7a.css",
-      "static/css/34c97de565f7a33b.css",
-      "static/chunks/app/layout-78916d2ed35b18ce.js"
-    ],
-    "/environment/climate/page": [
-      "static/chunks/webpack-8449c77a4ba91e01.js",
-      "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
-      "static/chunks/117-34528c493c9407bc.js",
-      "static/chunks/main-app-31ace144c85ec042.js",
-      "static/chunks/754-0b6c5e6403b191be.js",
-      "static/chunks/972-361bd75ae198d8a9.js",
-      "static/chunks/448-a08c9470e59fd19d.js",
-      "static/chunks/app/environment/climate/page-b10dd437773c56fe.js"
+      "static/css/8a25f7e0ab48c8eb.css",
+      "static/chunks/app/layout-a6782bfea85b4ab1.js"
     ],
     "/page": [
       "static/chunks/webpack-8449c77a4ba91e01.js",
@@ -33,16 +23,6 @@
       "static/chunks/main-app-31ace144c85ec042.js",
       "static/chunks/972-361bd75ae198d8a9.js",
       "static/chunks/app/page-00a1477e5bf68efc.js"
-    ],
-    "/transport/coe/page": [
-      "static/chunks/webpack-8449c77a4ba91e01.js",
-      "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
-      "static/chunks/117-34528c493c9407bc.js",
-      "static/chunks/main-app-31ace144c85ec042.js",
-      "static/chunks/754-0b6c5e6403b191be.js",
-      "static/chunks/972-361bd75ae198d8a9.js",
-      "static/chunks/448-a08c9470e59fd19d.js",
-      "static/chunks/app/transport/coe/page-dbab9c8bd5c00e21.js"
     ],
     "/hdb/page": [
       "static/chunks/webpack-8449c77a4ba91e01.js",
@@ -57,6 +37,26 @@
       "static/chunks/37-36c47b7d483cb8b3.js",
       "static/chunks/421-c8b17dc74c1dacd1.js",
       "static/chunks/app/hdb/page-69fdde289a36adf7.js"
+    ],
+    "/transport/coe/page": [
+      "static/chunks/webpack-8449c77a4ba91e01.js",
+      "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
+      "static/chunks/117-34528c493c9407bc.js",
+      "static/chunks/main-app-31ace144c85ec042.js",
+      "static/chunks/754-0b6c5e6403b191be.js",
+      "static/chunks/972-361bd75ae198d8a9.js",
+      "static/chunks/448-a08c9470e59fd19d.js",
+      "static/chunks/app/transport/coe/page-dbab9c8bd5c00e21.js"
+    ],
+    "/environment/climate/page": [
+      "static/chunks/webpack-8449c77a4ba91e01.js",
+      "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
+      "static/chunks/117-34528c493c9407bc.js",
+      "static/chunks/main-app-31ace144c85ec042.js",
+      "static/chunks/754-0b6c5e6403b191be.js",
+      "static/chunks/972-361bd75ae198d8a9.js",
+      "static/chunks/448-a08c9470e59fd19d.js",
+      "static/chunks/app/environment/climate/page-b10dd437773c56fe.js"
     ],
     "/demographics/birth-rates/page": [
       "static/chunks/webpack-8449c77a4ba91e01.js",
