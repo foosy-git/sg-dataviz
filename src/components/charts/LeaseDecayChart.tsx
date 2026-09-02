@@ -30,6 +30,7 @@ export default function LeaseDecayChart({ data, isAggregated }: { data: any[], i
             name="Remaining Lease" 
             domain={['dataMin', 99]} 
             tick={{ fontSize: 12 }}
+            minTickGap={30}
             label={{ value: "Remaining Lease (Years)", position: "bottom", offset: 0 }}
           />
           <YAxis 
@@ -50,7 +51,7 @@ export default function LeaseDecayChart({ data, isAggregated }: { data: any[], i
               return [value, name];
             }}
           />
-          <Scatter name="Transactions" data={chartData} fill="#8884d8" opacity={0.5} />
+          <Scatter name="Transactions" data={chartData} fill="#8884d8" opacity={0.5} activeShape={{ r: 6 }} />
         </ScatterChart>
       </ResponsiveContainer>
     </div>

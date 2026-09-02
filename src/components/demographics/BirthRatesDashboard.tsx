@@ -48,7 +48,7 @@ export default function BirthRatesDashboard({ data }: BirthRatesDashboardProps) 
             
             <div className="text-xs font-medium px-2.5 py-1 rounded-full bg-[#E8DCC4]/30 text-[#243324]/60 border border-[#243324]/5 flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              Live Data Sync
+              Updated Daily
             </div>
           </div>
         </div>
@@ -67,7 +67,7 @@ export default function BirthRatesDashboard({ data }: BirthRatesDashboardProps) 
             Birth Rates & Fertility
           </h1>
           <p className="text-lg md:text-xl text-[#243324]/70 max-w-2xl font-sans leading-relaxed">
-            Analyze Singapore's Total Fertility Rate (TFR), ethnic breakdowns, marriage ages, and birth orders from 1960 to present.
+            Analyze Singapore's Total Fertility Rate (TFR), ethnic breakdowns, and marriage ages from 1960 to present.
           </p>
         </motion.div>
 
@@ -75,7 +75,7 @@ export default function BirthRatesDashboard({ data }: BirthRatesDashboardProps) 
           <Card className="bg-[#E8DCC4]/30 border-none shadow-sm">
             <CardContent className="p-6">
               <p className="text-sm font-semibold text-[#243324]/60 uppercase tracking-wider mb-2 font-sans">Latest TFR ({latestTfrData.year || 'N.A.'})</p>
-              <p className="text-4xl font-serif text-[#243324]">{tfr ? tfr.toFixed(2) : 'N.A.'}</p>
+              <p className="text-4xl font-serif text-[#243324]">{tfr !== undefined && tfr !== null ? Number(tfr).toFixed(2) : 'N.A.'}</p>
               <p className="text-sm mt-2 text-[#243324]/70">Replacement level is 2.1</p>
             </CardContent>
           </Card>
@@ -89,7 +89,9 @@ export default function BirthRatesDashboard({ data }: BirthRatesDashboardProps) 
                 </div>
                 <Select value={timeRange} onValueChange={setTimeRange}>
                   <SelectTrigger className="w-[180px] bg-white">
-                    <SelectValue placeholder="Select timeframe" />
+                    <SelectValue placeholder="Select timeframe">
+                      {timeRange === 'all' ? '1960 - Present' : timeRange === 'since2000' ? '2000 - Present' : timeRange === 'last20' ? 'Last 20 Years' : timeRange === 'last10' ? 'Last 10 Years' : 'Select timeframe'}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">1960 - Present</SelectItem>
@@ -136,6 +138,8 @@ export default function BirthRatesDashboard({ data }: BirthRatesDashboardProps) 
               <CardTitle className="font-serif text-2xl text-[#243324]">Marriage Age vs Fertility</CardTitle>
               <CardDescription className="text-base text-[#243324]/70 font-sans">
                 Comparing the median age of first marriage (Resident Grooms & Brides) against the Total Fertility Rate.
+                <br />
+                <span className="text-sm font-medium mt-1 inline-block">Note: Left axis shows TFR (0-8), right axis shows median age (24-32)</span>
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -200,7 +204,7 @@ export default function BirthRatesDashboard({ data }: BirthRatesDashboardProps) 
                   <LineChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#243324" opacity={0.1} vertical={false} />
                     <XAxis dataKey="year" stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dy={10} />
-                    <YAxis stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dx={-10} />
+                    <YAxis stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dx={-10} label={{ value: 'births per 1,000 females', angle: -90, position: 'insideLeft', offset: 0, style: { fill: '#243324', opacity: 0.7, fontSize: 12 } }} />
                     <RechartsTooltip contentStyle={{ backgroundColor: '#FBF9F5', borderColor: 'rgba(36, 51, 36, 0.1)', borderRadius: '8px', color: '#243324', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} itemStyle={{ color: '#243324' }} />
                     <Legend wrapperStyle={{ paddingTop: '20px' }} />
                     <Line type="monotone" name="20-24 Years" dataKey="20 - 24 Years" stroke="#8cb369" strokeWidth={2} dot={false} />
@@ -218,6 +222,9 @@ export default function BirthRatesDashboard({ data }: BirthRatesDashboardProps) 
 
         </div>
       </div>
+      <footer className="py-8 text-center text-[#243324]/40 font-sans mt-12 border-t border-[#243324]/10">
+        <p>Data sourced from <a href="https://data.gov.sg" target="_blank" rel="noopener noreferrer" className="underline hover:text-[#243324]/70">data.gov.sg</a>.</p>
+      </footer>
     </div>
   );
 }

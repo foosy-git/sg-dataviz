@@ -1,13 +1,21 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Building2, Train, Users, Leaf, ArrowRight, LineChart, GraduationCap, Car, Activity, Baby } from 'lucide-react';
+import { Building2, Train, Users, Leaf, ArrowRight, LineChart, GraduationCap, Car, Activity, Baby, Wallet } from 'lucide-react';
 
 export default function Home() {
   const dashboards = [
     {
+      title: 'Household Income & Wealth',
+      description: 'Analyze Singapore\'s household earnings, median vs average income, and observe the wealth gap across different deciles over the past 20+ years.',
+      icon: Wallet,
+      href: '/economy/income',
+      status: 'Live',
+      color: 'bg-amber-500/10 text-amber-700',
+    },
+    {
       title: 'Birth Rates & Fertility',
-      description: 'Analyze Singapore\'s historical fertility trends and demographic shifts from 1960 to today.',
+      description: 'Analyze Singapore\'s historical fertility trends and demographic shifts from 1960 onwards.',
       icon: Baby,
       href: '/demographics/birth-rates',
       status: 'Live',
@@ -15,7 +23,7 @@ export default function Home() {
     },
     {
       title: 'HDB Horizon',
-      description: 'Interactive exploration of HDB resale data from 2017 to present. Analyze market trends, estate values, and the impact of lease decay.',
+      description: 'Interactive exploration of HDB resale data from 2017 onwards. Analyze market trends, estate values, and the impact of lease decay.',
       icon: Building2,
       href: '/hdb',
       status: 'Live',
@@ -23,7 +31,7 @@ export default function Home() {
     },
     {
       title: 'COE Bidding Analytics',
-      description: 'Track COE premium trends, quota supply, and bidding demand across all vehicle categories in Singapore since 2010.',
+      description: 'Track COE premium trends, quota supply, and bidding demand across all vehicle categories in Singapore from 2010 onwards.',
       icon: Car,
       href: '/transport/coe',
       status: 'Live',
@@ -39,7 +47,7 @@ export default function Home() {
     },
     {
       title: 'Climate Change & Weather',
-      description: 'Track Singapore\'s rising surface temperatures, historical rainfall patterns, and long-term climate shifts up to 2026.',
+      description: 'Track Singapore\'s rising surface temperatures, historical rainfall patterns, and long-term climate shifts onwards.',
       icon: Leaf,
       href: '/environment/climate',
       status: 'Live',
@@ -75,9 +83,9 @@ export default function Home() {
 
       {/* Dashboard Grid */}
       <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-24">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
           {dashboards.map((dashboard, i) => (
-            <Link key={i} href={dashboard.href} className={dashboard.href === '#' ? 'pointer-events-none' : 'group'}>
+            <Link key={i} href={dashboard.href} className={`group md:col-span-3 lg:col-span-2 ${dashboard.href === '#' ? 'pointer-events-none' : ''}`}>
               <Card className={`h-full transition-all duration-300 border-[#243324]/10 shadow-sm ${dashboard.href !== '#' ? 'hover:shadow-md hover:border-[#243324]/20 hover:-translate-y-1 bg-white' : 'bg-[#243324]/[0.02] opacity-80'}`}>
                 <CardHeader>
                   <div className="flex items-center justify-between mb-4">

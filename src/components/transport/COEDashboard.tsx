@@ -73,7 +73,7 @@ export default function COEDashboard({ initialData }: { initialData: any[] }) {
   const formatCurrency = (val: any) => `$${val?.toLocaleString()}`;
 
   return (
-    <div className="min-h-screen bg-[#FBF9F5] pb-20">
+    <div className="min-h-screen bg-[#FBF9F5] pb-12">
       {/* Standardized Navbar */}
       <header className="sticky top-0 z-50 w-full border-b border-[#243324]/10 bg-[#FBF9F5]/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -92,6 +92,12 @@ export default function COEDashboard({ initialData }: { initialData: any[] }) {
               </h1>
             </div>
           </div>
+          <div className="flex items-center gap-3">
+            <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80 bg-[#E8DCC4]/30 text-[#243324] shadow-sm font-sans whitespace-nowrap">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#3B4D36] mr-2 animate-pulse"></span>
+              Updated Daily
+            </div>
+          </div>
         </div>
       </header>
 
@@ -107,8 +113,9 @@ export default function COEDashboard({ initialData }: { initialData: any[] }) {
         </div>
 
         {/* Top Metrics Cards */}
-        <h2 className="text-lg font-serif mb-4 text-[#243324] border-b border-[#243324]/10 pb-2">
-          Latest Results: {latestBiddingDate}
+        <h2 className="text-lg font-serif mb-4 text-[#243324] border-b border-[#243324]/10 pb-2 flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
+          <span>Latest Results: {latestBiddingDate}</span>
+          <span className="text-sm font-sans text-[#243324]/60 font-normal">Showing top categories. C & D have lower premiums.</span>
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12">
           {['Category A', 'Category B', 'Category E'].map(cat => {
@@ -267,6 +274,10 @@ export default function COEDashboard({ initialData }: { initialData: any[] }) {
 
         </div>
       </div>
+      
+      <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8 text-center text-sm text-[#243324]/50">
+        Data sourced from <a href="https://data.gov.sg" target="_blank" rel="noopener noreferrer" className="underline hover:text-[#243324]">data.gov.sg</a>
+      </footer>
     </div>
   );
 }

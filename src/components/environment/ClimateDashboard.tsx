@@ -128,6 +128,11 @@ export default function ClimateDashboard({ initialData }: { initialData: any[] }
               </h1>
             </div>
           </div>
+          
+          <div className="text-xs font-medium px-2.5 py-1 rounded-full bg-[#E8DCC4]/30 text-[#243324]/60 border border-[#243324]/5 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            Updated Daily
+          </div>
         </div>
       </header>
 
@@ -165,7 +170,7 @@ export default function ClimateDashboard({ initialData }: { initialData: any[] }
             <CardContent className="p-6">
               <div className="flex items-center gap-3 mb-2 text-[#243324]/60">
                 <CloudRain className="w-4 h-4" />
-                <span className="text-xs font-semibold uppercase tracking-wider">Total Rainfall</span>
+                <span className="text-xs font-semibold uppercase tracking-wider">Total Rainfall {latestYearData.year === '2026' ? '(Year-to-Date)' : ''}</span>
               </div>
               <div className="text-3xl font-serif text-[#243324] mb-2 flex items-baseline gap-1">
                 {latestYearData.total_rain} <span className="text-sm font-sans font-normal text-gray-500">mm</span>
@@ -281,7 +286,7 @@ export default function ClimateDashboard({ initialData }: { initialData: any[] }
                       axisLine={false} 
                       tickLine={false} 
                       tick={{ fontSize: 12, fill: '#24332480' }} 
-                      tickFormatter={(v) => `${v}°C`}
+                      tickFormatter={(v) => `${Number(v).toFixed(2)}°C`}
                     />
                     <Tooltip 
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
@@ -368,6 +373,9 @@ export default function ClimateDashboard({ initialData }: { initialData: any[] }
 
         </div>
       </div>
+      <footer className="py-8 text-center text-[#243324]/40 font-sans mt-12 border-t border-[#243324]/10">
+        <p>Data sourced from <a href="https://data.gov.sg" target="_blank" rel="noopener noreferrer" className="underline hover:text-[#243324]/70">data.gov.sg</a>.</p>
+      </footer>
     </div>
   );
 }

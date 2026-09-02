@@ -1,7 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Filter } from 'lucide-react';
+import { Filter, ChevronDown, ChevronUp } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useState, useEffect } from 'react';
 
@@ -44,6 +44,7 @@ export default function DashboardFilters({
 }: DashboardFiltersProps) {
 
   const [localSearch, setLocalSearch] = useState(search);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -73,85 +74,120 @@ export default function DashboardFilters({
     setSearch('');
   };
 
+  const handleMinLeaseChange = (val: number) => {
+    setMinLease(val);
+    if (val > maxLease) setMaxLease(val);
+  };
+
+  const handleMaxLeaseChange = (val: number) => {
+    setMaxLease(val);
+    if (val < minLease) setMinLease(val);
+  };
+
+  const handleStartMonthChange = (val: string) => {
+    setStartMonth(val);
+    if (endMonth && val > endMonth) setEndMonth(val);
+  };
+
+  const handleEndMonthChange = (val: string) => {
+    setEndMonth(val);
+    if (startMonth && val < startMonth) setStartMonth(val);
+  };
+
   const hasFilters = selectedTowns.length > 0 || selectedFlatTypes.length > 0 || minLease > 0 || maxLease < 99 || startMonth !== '' || endMonth !== '' || search !== '';
 
   return (
     <Card className="shadow-sm border-[#243324]/10 bg-white/60 backdrop-blur-md">
       <CardContent className="p-6">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-6">
-          <div className="flex items-center gap-3">
-            <Filter className="w-5 h-5 text-[#3B4D36]" />
-            <h2 className="font-serif text-xl text-[#243324]">Parameters</h2>
+          <div className="flex items-center justify-between w-full lg:w-auto">
+            <div className="flex items-center gap-3">
+              <Filter className="w-5 h-5 text-[#3B4D36]" />
+              <h2 className="font-serif text-xl text-[#243324]">Parameters</h2>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="lg:hidden p-2 text-[#243324]" 
+              onClick={() => setIsMobileOpen(!isMobileOpen)}
+            >
+              {isMobileOpen ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+            </Button>
           </div>
           {hasFilters && (
-            <Button variant="outline" size="sm" onClick={clearFilters} className="h-8 px-3 text-xs font-sans font-medium border-[#243324]/20 text-[#243324] hover:bg-[#243324] hover:text-[#FBF9F5]">Clear All</Button>
+            <Button variant="outline" size="sm" onClick={clearFilters} className="h-8 px-3 text-xs font-sans font-medium border-[#243324]/20 text-[#243324] hover:bg-[#243324] hover:text-[#FBF9F5] hidden lg:block">Clear All</Button>
           )}
         </div>
         
-        <div className="mb-8 w-full max-w-xl">
-          <Input 
-            placeholder="Search block, street, model, town..." 
-            value={localSearch} 
-            onChange={(e) => setLocalSearch(e.target.value)} 
-            className="border-[#243324]/20 focus-visible:ring-[#3B4D36] bg-white/50"
-          />
-        </div>
+        <div className={`space-y-8 ${isMobileOpen ? 'block' : 'hidden lg:block'}`}>
+          <div className="w-full max-w-xl">
+            <Input 
+              placeholder="Search block, street, model, town..." 
+              value={localSearch} 
+              onChange={(e) => setLocalSearch(e.target.value)} 
+              className="border-[#243324]/20 focus-visible:ring-[#3B4D36] bg-white/50"
+            />
+          </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="space-y-6">
-            <div className="space-y-3">
-              <p className="text-sm font-sans font-semibold text-[#243324]">Date Range (Month-Year)</p>
-              <div className="flex items-center gap-4">
-                <Input type="month" value={startMonth} onChange={(e) => setStartMonth(e.target.value)} className="w-40 border-[#243324]/20 focus-visible:ring-[#3B4D36]" />
-                <span className="text-[#243324]/60 text-sm">to</span>
-                <Input type="month" value={endMonth} onChange={(e) => setEndMonth(e.target.value)} className="w-40 border-[#243324]/20 focus-visible:ring-[#3B4D36]" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <p className="text-sm font-sans font-semibold text-[#243324]">Date Range (Month-Year)</p>
+                <div className="flex items-center gap-4">
+                  <Input type="month" value={startMonth} onChange={(e) => handleStartMonthChange(e.target.value)} className="w-40 border-[#243324]/20 focus-visible:ring-[#3B4D36]" />
+                  <span className="text-[#243324]/60 text-sm">to</span>
+                  <Input type="month" value={endMonth} onChange={(e) => handleEndMonthChange(e.target.value)} className="w-40 border-[#243324]/20 focus-visible:ring-[#3B4D36]" />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <p className="text-sm font-sans font-semibold text-[#243324]">Remaining Lease (Years)</p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <Input type="number" min={0} max={99} value={minLease} onChange={(e) => handleMinLeaseChange(Number(e.target.value) || 0)} className="w-24 border-[#243324]/20 focus-visible:ring-[#3B4D36]" placeholder="Min" />
+                  <span className="text-[#243324]/60 text-sm">to</span>
+                  <Input type="number" min={0} max={99} value={maxLease} onChange={(e) => handleMaxLeaseChange(Number(e.target.value) || 99)} className="w-24 border-[#243324]/20 focus-visible:ring-[#3B4D36]" placeholder="Max" />
+                </div>
               </div>
             </div>
 
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <p className="text-sm font-sans font-semibold text-[#243324]">Remaining Lease (Years)</p>
+            <div className="space-y-6">
+               <div className="space-y-3">
+                <p className="text-sm font-sans font-semibold text-[#243324]">Flat Types</p>
+                <div className="flex flex-wrap gap-2">
+                  {flatTypesList.map(type => (
+                    <Badge 
+                      key={type} 
+                      className={`cursor-pointer transition-colors ${selectedFlatTypes.includes(type) ? "bg-[#243324] text-[#FBF9F5] hover:bg-[#3B4D36]" : "bg-[#E8DCC4]/40 text-[#243324] hover:bg-[#E8DCC4] border-transparent"}`}
+                      onClick={() => toggleFlatType(type)}
+                    >
+                      {type}
+                    </Badge>
+                  ))}
+                </div>
               </div>
-              <div className="flex items-center gap-4">
-                <Input type="number" min={0} max={99} value={minLease} onChange={(e) => setMinLease(Number(e.target.value) || 0)} className="w-24 border-[#243324]/20 focus-visible:ring-[#3B4D36]" placeholder="Min" />
-                <span className="text-[#243324]/60 text-sm">to</span>
-                <Input type="number" min={0} max={99} value={maxLease} onChange={(e) => setMaxLease(Number(e.target.value) || 99)} className="w-24 border-[#243324]/20 focus-visible:ring-[#3B4D36]" placeholder="Max" />
+
+              <div className="space-y-3">
+                <p className="text-sm font-sans font-semibold text-[#243324]">Towns / Estates</p>
+                <div className="flex flex-wrap gap-2 max-h-[200px] overflow-y-auto p-1 scrollbar-thin">
+                  {townsList.map(town => (
+                    <Badge 
+                      key={town} 
+                      variant="outline"
+                      className={`cursor-pointer transition-colors ${selectedTowns.includes(town) ? "bg-[#243324] text-[#FBF9F5] border-[#243324] hover:bg-[#3B4D36]" : "border-[#243324]/20 text-[#243324] hover:bg-[#E8DCC4]/50"}`}
+                      onClick={() => toggleTown(town)}
+                    >
+                      {town}
+                    </Badge>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
-
-          <div className="space-y-6">
-             <div className="space-y-3">
-              <p className="text-sm font-sans font-semibold text-[#243324]">Flat Types</p>
-              <div className="flex flex-wrap gap-2">
-                {flatTypesList.map(type => (
-                  <Badge 
-                    key={type} 
-                    className={`cursor-pointer transition-colors ${selectedFlatTypes.includes(type) ? "bg-[#243324] text-[#FBF9F5] hover:bg-[#3B4D36]" : "bg-[#E8DCC4]/40 text-[#243324] hover:bg-[#E8DCC4] border-transparent"}`}
-                    onClick={() => toggleFlatType(type)}
-                  >
-                    {type}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <p className="text-sm font-sans font-semibold text-[#243324]">Towns / Estates</p>
-              <div className="flex flex-wrap gap-2 max-h-[200px] overflow-y-auto p-1 scrollbar-thin">
-                {townsList.map(town => (
-                  <Badge 
-                    key={town} 
-                    variant="outline"
-                    className={`cursor-pointer transition-colors ${selectedTowns.includes(town) ? "bg-[#243324] text-[#FBF9F5] border-[#243324] hover:bg-[#3B4D36]" : "border-[#243324]/20 text-[#243324] hover:bg-[#E8DCC4]/50"}`}
-                    onClick={() => toggleTown(town)}
-                  >
-                    {town}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          </div>
+          {hasFilters && (
+            <Button variant="outline" size="sm" onClick={clearFilters} className="w-full mt-6 h-8 text-xs font-sans font-medium border-[#243324]/20 text-[#243324] hover:bg-[#243324] hover:text-[#FBF9F5] lg:hidden">Clear All</Button>
+          )}
         </div>
       </CardContent>
     </Card>

@@ -13,75 +13,86 @@
       "static/chunks/117-34528c493c9407bc.js",
       "static/chunks/main-app-31ace144c85ec042.js",
       "static/css/2ed4ce15e4205a7a.css",
-      "static/css/ce9adfa0fb35a4b1.css",
+      "static/css/34c97de565f7a33b.css",
       "static/chunks/app/layout-78916d2ed35b18ce.js"
-    ],
-    "/hdb/page": [
-      "static/chunks/webpack-8449c77a4ba91e01.js",
-      "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
-      "static/chunks/117-34528c493c9407bc.js",
-      "static/chunks/main-app-31ace144c85ec042.js",
-      "static/chunks/717-3f7128701c4741f4.js",
-      "static/chunks/837-100f20f4f92f353f.js",
-      "static/chunks/448-a08c9470e59fd19d.js",
-      "static/chunks/715-a70b7a79f4837810.js",
-      "static/chunks/137-d602391db0d810eb.js",
-      "static/chunks/37-36c47b7d483cb8b3.js",
-      "static/chunks/889-1e30f3b2a438ece0.js",
-      "static/chunks/app/hdb/page-0c3c718db2becdd7.js"
-    ],
-    "/page": [
-      "static/chunks/webpack-8449c77a4ba91e01.js",
-      "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
-      "static/chunks/117-34528c493c9407bc.js",
-      "static/chunks/main-app-31ace144c85ec042.js",
-      "static/chunks/717-3f7128701c4741f4.js",
-      "static/chunks/app/page-4c91e915645f7078.js"
-    ],
-    "/transport/coe/page": [
-      "static/chunks/webpack-8449c77a4ba91e01.js",
-      "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
-      "static/chunks/117-34528c493c9407bc.js",
-      "static/chunks/main-app-31ace144c85ec042.js",
-      "static/chunks/717-3f7128701c4741f4.js",
-      "static/chunks/837-100f20f4f92f353f.js",
-      "static/chunks/448-a08c9470e59fd19d.js",
-      "static/chunks/app/transport/coe/page-eaf624af480e25f2.js"
     ],
     "/environment/climate/page": [
       "static/chunks/webpack-8449c77a4ba91e01.js",
       "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
       "static/chunks/117-34528c493c9407bc.js",
       "static/chunks/main-app-31ace144c85ec042.js",
-      "static/chunks/717-3f7128701c4741f4.js",
-      "static/chunks/837-100f20f4f92f353f.js",
+      "static/chunks/754-0b6c5e6403b191be.js",
+      "static/chunks/972-361bd75ae198d8a9.js",
       "static/chunks/448-a08c9470e59fd19d.js",
-      "static/chunks/app/environment/climate/page-4ebea232e8c1c256.js"
+      "static/chunks/app/environment/climate/page-b10dd437773c56fe.js"
     ],
-    "/education/ges/page": [
+    "/page": [
       "static/chunks/webpack-8449c77a4ba91e01.js",
       "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
       "static/chunks/117-34528c493c9407bc.js",
       "static/chunks/main-app-31ace144c85ec042.js",
-      "static/chunks/717-3f7128701c4741f4.js",
-      "static/chunks/837-100f20f4f92f353f.js",
+      "static/chunks/972-361bd75ae198d8a9.js",
+      "static/chunks/app/page-00a1477e5bf68efc.js"
+    ],
+    "/transport/coe/page": [
+      "static/chunks/webpack-8449c77a4ba91e01.js",
+      "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
+      "static/chunks/117-34528c493c9407bc.js",
+      "static/chunks/main-app-31ace144c85ec042.js",
+      "static/chunks/754-0b6c5e6403b191be.js",
+      "static/chunks/972-361bd75ae198d8a9.js",
       "static/chunks/448-a08c9470e59fd19d.js",
-      "static/chunks/715-a70b7a79f4837810.js",
-      "static/chunks/194-617d2718b648da79.js",
+      "static/chunks/app/transport/coe/page-dbab9c8bd5c00e21.js"
+    ],
+    "/hdb/page": [
+      "static/chunks/webpack-8449c77a4ba91e01.js",
+      "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
+      "static/chunks/117-34528c493c9407bc.js",
+      "static/chunks/main-app-31ace144c85ec042.js",
+      "static/chunks/754-0b6c5e6403b191be.js",
+      "static/chunks/972-361bd75ae198d8a9.js",
+      "static/chunks/448-a08c9470e59fd19d.js",
+      "static/chunks/537-e65cf58851aa0a8f.js",
+      "static/chunks/953-dacb16f78db00cba.js",
       "static/chunks/37-36c47b7d483cb8b3.js",
-      "static/chunks/app/education/ges/page-6b5a53f3b7e68e71.js"
+      "static/chunks/421-c8b17dc74c1dacd1.js",
+      "static/chunks/app/hdb/page-69fdde289a36adf7.js"
     ],
     "/demographics/birth-rates/page": [
       "static/chunks/webpack-8449c77a4ba91e01.js",
       "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
       "static/chunks/117-34528c493c9407bc.js",
       "static/chunks/main-app-31ace144c85ec042.js",
-      "static/chunks/717-3f7128701c4741f4.js",
-      "static/chunks/837-100f20f4f92f353f.js",
-      "static/chunks/715-a70b7a79f4837810.js",
-      "static/chunks/194-617d2718b648da79.js",
-      "static/chunks/137-d602391db0d810eb.js",
-      "static/chunks/app/demographics/birth-rates/page-de204b2df2f190a2.js"
+      "static/chunks/754-0b6c5e6403b191be.js",
+      "static/chunks/972-361bd75ae198d8a9.js",
+      "static/chunks/537-e65cf58851aa0a8f.js",
+      "static/chunks/287-6050a21cbb06f312.js",
+      "static/chunks/953-dacb16f78db00cba.js",
+      "static/chunks/app/demographics/birth-rates/page-8263ad192f49f2d6.js"
+    ],
+    "/education/ges/page": [
+      "static/chunks/webpack-8449c77a4ba91e01.js",
+      "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
+      "static/chunks/117-34528c493c9407bc.js",
+      "static/chunks/main-app-31ace144c85ec042.js",
+      "static/chunks/754-0b6c5e6403b191be.js",
+      "static/chunks/972-361bd75ae198d8a9.js",
+      "static/chunks/448-a08c9470e59fd19d.js",
+      "static/chunks/537-e65cf58851aa0a8f.js",
+      "static/chunks/287-6050a21cbb06f312.js",
+      "static/chunks/37-36c47b7d483cb8b3.js",
+      "static/chunks/app/education/ges/page-7a30677f42d06b9f.js"
+    ],
+    "/economy/income/page": [
+      "static/chunks/webpack-8449c77a4ba91e01.js",
+      "static/chunks/fd9d1056-cf679a521aa5f1e8.js",
+      "static/chunks/117-34528c493c9407bc.js",
+      "static/chunks/main-app-31ace144c85ec042.js",
+      "static/chunks/754-0b6c5e6403b191be.js",
+      "static/chunks/448-a08c9470e59fd19d.js",
+      "static/chunks/537-e65cf58851aa0a8f.js",
+      "static/chunks/287-6050a21cbb06f312.js",
+      "static/chunks/app/economy/income/page-48342c16eae37d68.js"
     ]
   }
 }

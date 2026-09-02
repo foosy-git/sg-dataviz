@@ -63,7 +63,7 @@ export default function MacroTrendChart({ data, isAggregated }: { data: any[], i
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E8DCC4" opacity={0.5} />
-          <XAxis dataKey="month" tick={{ fill: '#243324', fontSize: 12 }} axisLine={{ stroke: '#243324' }} />
+          <XAxis dataKey="month" tick={{ fill: '#243324', fontSize: 12 }} axisLine={{ stroke: '#243324' }} minTickGap={30} />
           <YAxis 
             yAxisId="left" 
             tickFormatter={(value) => {
@@ -97,7 +97,8 @@ export default function MacroTrendChart({ data, isAggregated }: { data: any[], i
                name={town} 
                stroke={COLORS[idx % COLORS.length]} 
                strokeWidth={2} 
-               dot={false} 
+               dot={false}
+               activeDot={{ r: 6 }}
              />
           ))}
 

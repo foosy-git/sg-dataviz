@@ -11,16 +11,29 @@ import {
 } from 'recharts';
 
 export default function GESDashboard({ initialData }: { initialData: any[] }) {
-  const [selectedYear, setSelectedYear] = useState<string>('2024');
+  const [selectedYear, setSelectedYear] = useState<string>(() => {
+    const y = Array.from(new Set(initialData.map(d => String(d.year)))).sort().reverse();
+    return y.length > 0 ? y[0] : '2024';
+  });
 
   const years = useMemo(() => {
-    const y = new Set(initialData.map(d => d.year));
+    const y = new Set(initialData.map(d => String(d.year)));
     return Array.from(y).sort().reverse();
   }, [initialData]);
 
   const yearData = useMemo(() => {
-    return initialData.filter(d => d.year === selectedYear);
+    return initialData.filter(d => String(d.year) === selectedYear);
   }, [initialData, selectedYear]);
+
+  const getUniShort = (name: string) => {
+    if (name.includes('National University of Singapore')) return 'NUS';
+    if (name.includes('Nanyang Technological University')) return 'NTU';
+    if (name.includes('Singapore Management University')) return 'SMU';
+    if (name.includes('Singapore Institute of Technology')) return 'SIT';
+    if (name.includes('Singapore University of Technology and Design')) return 'SUTD';
+    if (name.includes('Singapore University of Social Sciences')) return 'SUSS';
+    return name.split(' ')[0];
+  };
 
   // Top Metrics
   const topMetrics = useMemo(() => {
@@ -73,18 +86,10 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
     initialData.forEach(d => {
       if (d.gross_monthly_median === null) return;
       
-      const yr = trendMap.get(d.year);
+      const yr = trendMap.get(String(d.year));
       if (!yr) return;
 
-      // Extract short name for uni
-      let uniShort = '';
-      if (d.university.includes('National University')) uniShort = 'NUS';
-      else if (d.university.includes('Nanyang')) uniShort = 'NTU';
-      else if (d.university.includes('Management')) uniShort = 'SMU';
-      else if (d.university.includes('Institute of Technology')) uniShort = 'SIT';
-      else if (d.university.includes('Design')) uniShort = 'SUTD';
-      else if (d.university.includes('Social Sciences')) uniShort = 'SUSS';
-      else uniShort = 'Other';
+      const uniShort = getUniShort(d.university);
 
       if (!yr[uniShort]) yr[uniShort] = { sum: 0, count: 0 };
       yr[uniShort].sum += d.gross_monthly_median;
@@ -114,7 +119,7 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
       .sort((a, b) => b.gross_monthly_median - a.gross_monthly_median)
       .slice(0, 10)
       .map(d => ({
-        name: d.degree.length > 50 ? d.degree.substring(0, 50) + '...' : d.degree,
+        name: d.degree.length > 35 ? d.degree.substring(0, 35) + '...' : d.degree,
         fullDegree: d.degree,
         salary: d.gross_monthly_median,
         university: d.university
@@ -129,9 +134,10 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
       .sort((a, b) => b.gross_monthly_median - a.gross_monthly_median)
       .slice(0, 10)
       .map(d => ({
-        name: d.degree.length > 50 ? d.degree.substring(0, 50) + '...' : d.degree,
+        name: d.degree.length > 35 ? d.degree.substring(0, 35) + '...' : d.degree,
         fullDegree: d.degree,
-        range: [d.gross_mthly_25_percentile, d.gross_mthly_75_percentile],
+        min: d.gross_mthly_25_percentile,
+        diff: d.gross_mthly_75_percentile - d.gross_mthly_25_percentile,
         median: d.gross_monthly_median
       }));
   }, [yearData]);
@@ -139,22 +145,23 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
   // Degree Cluster Analysis
   const clusterData = useMemo(() => {
     if (yearData.length === 0) return [];
-    const clusters = {
-      'Computing / IT': ['computer', 'computing', 'software', 'information', 'data'],
-      'Business / Fin': ['business', 'finance', 'accountancy', 'accounting', 'economics'],
-      'Engineering': ['engineering', 'mechanical', 'electrical', 'civil', 'aerospace'],
-      'Healthcare / Med': ['medicine', 'nursing', 'health', 'dental', 'pharmacy', 'therapy'],
-      'Arts / Humanities': ['arts', 'humanities', 'sociology', 'psychology', 'history', 'communication'],
-      'Law': ['law', 'jurisprudence', 'legal']
-    };
     
-    const results = Object.keys(clusters).map(key => ({ name: key, count: 0, sumSalary: 0, sumEmp: 0, median: 0, emp: 0 }));
+    const clusterDefs = [
+      { name: 'Healthcare / Med', keywords: ['medicine', 'nursing', 'health', 'dental', 'pharmacy', 'therapy'] },
+      { name: 'Law', keywords: ['law', 'jurisprudence', 'legal'] },
+      { name: 'Computing / IT', keywords: ['computer science', 'computing', 'software', 'information', 'data', 'security'] },
+      { name: 'Engineering', keywords: ['engineering', 'mechanical', 'electrical', 'civil', 'aerospace', 'mechatronics'] },
+      { name: 'Business / Fin', keywords: ['business', 'finance', 'accountancy', 'accounting', 'economics', 'commerce', 'marketing'] },
+      { name: 'Arts / Humanities', keywords: ['arts', 'humanities', 'sociology', 'psychology', 'history', 'communication', 'literature'] }
+    ];
+    
+    const results = clusterDefs.map(c => ({ name: c.name, count: 0, sumSalary: 0, sumEmp: 0, median: 0, emp: 0 }));
     
     yearData.forEach(d => {
        const deg = d.degree.toLowerCase();
-       for (const [cluster, keywords] of Object.entries(clusters)) {
-          if (keywords.some(kw => deg.includes(kw))) {
-             const idx = results.findIndex(r => r.name === cluster);
+       for (const def of clusterDefs) {
+          if (def.keywords.some(kw => deg.includes(kw))) {
+             const idx = results.findIndex(r => r.name === def.name);
              if (d.gross_monthly_median) {
                 results[idx].count++;
                 results[idx].sumSalary += d.gross_monthly_median;
@@ -200,7 +207,7 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
   };
 
   return (
-    <div className="min-h-screen text-[#243324] font-sans pb-24">
+    <div className="min-h-screen text-[#243324] font-sans pb-12">
       {/* Standardized Navbar */}
       <header className="sticky top-0 z-50 w-full border-b border-[#243324]/10 bg-[#FBF9F5]/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -217,6 +224,12 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
               <h1 className="text-xl font-serif tracking-tight text-[#243324] hidden md:block">
                 Education & Careers
               </h1>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80 bg-[#E8DCC4]/30 text-[#243324] shadow-sm font-sans whitespace-nowrap">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#3B4D36] mr-2 animate-pulse"></span>
+              Updated Daily
             </div>
           </div>
         </div>
@@ -263,7 +276,7 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
                   <h3 className="font-medium text-sm uppercase tracking-wider">Median Salary</h3>
                 </div>
                 <div className="text-4xl font-serif text-[#1F2B1D]">${topMetrics.overallMedian.toLocaleString()}</div>
-                <p className="text-sm text-[#243324]/50 mt-1">Across all degrees in {selectedYear}</p>
+                <p className="text-sm text-[#243324]/50 mt-1">Unweighted across all degree programmes in {selectedYear}</p>
               </CardContent>
             </Card>
 
@@ -274,7 +287,7 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
                   <h3 className="font-medium text-sm uppercase tracking-wider">FT Employment Rate</h3>
                 </div>
                 <div className="text-4xl font-serif text-[#1F2B1D]">{topMetrics.avgEmp.toFixed(1)}%</div>
-                <p className="text-sm text-[#243324]/50 mt-1">Average full-time permanent rate</p>
+                <p className="text-sm text-[#243324]/50 mt-1">Unweighted average full-time permanent rate</p>
               </CardContent>
             </Card>
 
@@ -288,7 +301,7 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
                   {topMetrics.topDegree.degree}
                 </div>
                 <p className="text-sm text-[#243324]/50 mt-1">
-                  ${topMetrics.topDegree.gross_monthly_median.toLocaleString()} • {topMetrics.topDegree.university.split(' ')[0]}
+                  ${topMetrics.topDegree.gross_monthly_median.toLocaleString()} • {getUniShort(topMetrics.topDegree.university)}
                 </p>
               </CardContent>
             </Card>
@@ -381,7 +394,7 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
                   <BarChart data={top10Data.map(d => ({ ...d, salary: Number(d.salary) }))} layout="vertical" margin={{ top: 0, right: 60, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#24332410" />
                     <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#24332480' }} tickFormatter={(v) => `$${v}`} />
-                    <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#243324' }} width={350} />
+                    <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#243324' }} width={250} />
                     <Tooltip content={<CustomTooltip />} cursor={{ fill: '#24332405' }} />
                     <Bar dataKey="salary" fill="#6366f1" radius={[0, 4, 4, 0]} barSize={24}>
                       <LabelList dataKey="salary" position="right" formatter={(v: number) => `$${v}`} style={{ fontSize: 11, fill: '#243324' }} />
@@ -404,9 +417,10 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
                   <BarChart data={salarySpreadData} layout="vertical" margin={{ top: 0, right: 30, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#24332410" />
                     <XAxis type="number" domain={['dataMin - 1000', 'dataMax + 1000']} axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#24332480' }} tickFormatter={(v) => `$${v}`} />
-                    <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#243324' }} width={350} />
+                    <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#243324' }} width={250} />
                     <Tooltip cursor={{ fill: '#24332405' }} />
-                    <Bar dataKey="range" fill="#a855f7" radius={[4, 4, 4, 4]} barSize={16} />
+                    <Bar dataKey="min" stackId="a" fill="transparent" barSize={16} />
+                    <Bar dataKey="diff" stackId="a" fill="#a855f7" radius={[0, 4, 4, 0]} barSize={16} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -445,6 +459,10 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
           
         </div>
       </div>
+      
+      <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8 text-center text-sm text-[#243324]/50">
+        Data sourced from <a href="https://data.gov.sg" target="_blank" rel="noopener noreferrer" className="underline hover:text-[#243324]">data.gov.sg</a>
+      </footer>
     </div>
   );
 }

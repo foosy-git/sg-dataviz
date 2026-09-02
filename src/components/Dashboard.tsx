@@ -12,6 +12,7 @@ import TownHeatmap from './charts/TownHeatmap';
 import GeographicalMap from './charts/GeographicalMap';
 import InvestorTable from './tables/InvestorTable';
 import DashboardFilters from './DashboardFilters';
+import ErrorState from './ui/ErrorState';
 import { motion, useScroll, useSpring } from 'framer-motion';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -40,7 +41,7 @@ export default function Dashboard() {
     search: search
   });
 
-  const { data, error, isLoading } = useSWR(`/api/hdb-live?${queryParams.toString()}`, fetcher);
+  const { data, error, isLoading, isValidating } = useSWR(`/api/hdb-live?${queryParams.toString()}`, fetcher, { keepPreviousData: true });
   const analytics = data?.data;
   
   const townsList = ["ANG MO KIO", "BEDOK", "BISHAN", "BUKIT BATOK", "BUKIT MERAH", "BUKIT PANJANG", "BUKIT TIMAH", "CENTRAL AREA", "CHOA CHU KANG", "CLEMENTI", "GEYLANG", "HOUGANG", "JURONG EAST", "JURONG WEST", "KALLANG/WHAMPOA", "MARINE PARADE", "PASIR RIS", "PUNGGOL", "QUEENSTOWN", "SEMBAWANG", "SENGKANG", "SERANGOON", "TAMPINES", "TOA PAYOH", "WOODLANDS", "YISHUN"];
@@ -53,7 +54,7 @@ export default function Dashboard() {
     restDelta: 0.001,
   });
 
-  if (error) return <div className="flex justify-center items-center h-screen bg-slate-950 text-red-400 font-mono text-sm">Error connecting to data node.</div>;
+  if (error) return <ErrorState />;
 
   return (
     <div className="min-h-screen relative font-sans text-[#243324]">
@@ -82,10 +83,15 @@ export default function Dashboard() {
               </h1>
             </div>
           </div>
-          <Badge variant="outline" className="bg-[#E8DCC4]/30 text-[#243324] border-[#243324]/20 shadow-sm font-sans font-medium whitespace-nowrap">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#3B4D36] mr-2 animate-pulse"></span>
-            Live Data Sync
-          </Badge>
+          <div className="flex items-center gap-3">
+            {isValidating && (
+              <Loader2 className="w-4 h-4 text-[#3B4D36] animate-spin" />
+            )}
+            <Badge variant="outline" className="bg-[#E8DCC4]/30 text-[#243324] border-[#243324]/20 shadow-sm font-sans font-medium whitespace-nowrap">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#3B4D36] mr-2 animate-pulse"></span>
+              Updated Daily
+            </Badge>
+          </div>
         </div>
       </div>
 
@@ -189,7 +195,7 @@ export default function Dashboard() {
                      <div className="text-5xl font-serif text-[#243324] tracking-tight">
                         {analytics?.medianPrice ? (analytics.medianPrice >= 1000000 ? `$${(analytics.medianPrice / 1000000).toFixed(2)}M` : `$${analytics.medianPrice.toLocaleString()}`) : '-'}
                      </div>
-                     <p className="text-sm text-[#243324]/60 font-medium mt-2">Middle price of all flats</p>
+                     <p className="text-sm text-[#243324]/60 font-medium mt-2">Median price of filtered results</p>
                    </CardContent>
                  </Card>
 
@@ -364,7 +370,9 @@ export default function Dashboard() {
             </motion.section>
             
             <footer className="py-12 text-center text-[#243324]/40 font-sans border-t border-[#243324]/10">
-               <p>© {new Date().getFullYear()} HDB Horizon Analytics. Data sourced from data.gov.sg.</p>
+               <p>
+                 © {new Date().getFullYear()} HDB Horizon Analytics. Data sourced from <a href="https://data.gov.sg" target="_blank" rel="noopener noreferrer" className="underline hover:text-[#243324]">data.gov.sg</a>.
+               </p>
             </footer>
           </>
         )}
