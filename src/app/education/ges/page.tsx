@@ -1,7 +1,9 @@
 import GESDashboard from '@/components/education/GESDashboard';
 
 
-export const revalidate = 86400; // Cache for 24 hours
+ // Cache for 24 hours
+
+export const dynamic = 'force-dynamic';
 
 export default async function GESPage() {
   const GES_API_URL = 'https://data.gov.sg/api/action/datastore_search?resource_id=d_3c55210de27fcccda2ed0c63fdd2b352&limit=5000';

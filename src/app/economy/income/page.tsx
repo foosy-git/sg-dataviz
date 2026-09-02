@@ -7,7 +7,9 @@ export const metadata: Metadata = {
   description: 'Analyze Singapore\'s household income trends, median vs average earnings, and the wealth gap.',
 };
 
-export const revalidate = 86400; // Cache for 24 hours
+ // Cache for 24 hours
+
+export const dynamic = 'force-dynamic';
 
 export default async function HouseholdIncomePage() {
   try {

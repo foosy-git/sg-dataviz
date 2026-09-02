@@ -28,6 +28,8 @@ async function getCOEData() {
   });
 }
 
+export const dynamic = 'force-dynamic';
+
 export default async function COEPage() {
   const data = await getCOEData();
   

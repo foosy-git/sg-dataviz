@@ -1,6 +1,8 @@
 import BirthRatesDashboard from '@/components/demographics/BirthRatesDashboard';
 
-export const revalidate = 86400; // Cache for 24 hours
+ // Cache for 24 hours
+
+export const dynamic = 'force-dynamic';
 
 export default async function BirthRatesPage() {
   let fertilityRaw = [];
