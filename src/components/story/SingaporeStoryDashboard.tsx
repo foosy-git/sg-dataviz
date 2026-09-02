@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { Baby, Wallet, Building2, Car, Leaf, LineChart as LineChartIcon, Play, Pause, TrendingUp, Users } from 'lucide-react';
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip as RechartsTooltip, CartesianGrid, ReferenceLine } from 'recharts';
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ReferenceLine, ReferenceDot } from 'recharts';
 import Link from 'next/link';
 
 export interface TimelineYearData {
@@ -149,9 +149,11 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
               <div className="h-16 mt-4 w-full opacity-70">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={initialData}>
+                    <XAxis hide dataKey="year" type="number" domain={['dataMin', 'dataMax']} />
                     <YAxis hide domain={['dataMin - 100', 'dataMax + 100']} />
                     <RechartsTooltip cursor={false} contentStyle={{ fontSize: '12px', borderRadius: '8px' }} labelStyle={{ display: 'none' }} formatter={(val: any) => [fCurrency(val), 'Income']} />
                     <Line type="monotone" dataKey="medianIncome" stroke="#d97706" strokeWidth={2.5} dot={false} connectNulls={false} />
+                    {currentData.medianIncome !== null && <ReferenceDot x={currentYear} y={currentData.medianIncome} r={5} fill="#d97706" stroke="#fff" strokeWidth={2} />}
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -174,9 +176,11 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
               <div className="h-16 mt-4 w-full opacity-70">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={initialData}>
+                    <XAxis hide dataKey="year" type="number" domain={['dataMin', 'dataMax']} />
                     <YAxis hide domain={['dataMin - 0.1', 'dataMax + 0.1']} />
                     <RechartsTooltip cursor={false} contentStyle={{ fontSize: '12px', borderRadius: '8px' }} labelStyle={{ display: 'none' }} formatter={(val: any) => [Number(val).toFixed(2), 'TFR']} />
                     <Line type="monotone" dataKey="birthRate" stroke="#e11d48" strokeWidth={2.5} dot={false} connectNulls={false} />
+                    {currentData.birthRate !== null && <ReferenceDot x={currentYear} y={currentData.birthRate} r={5} fill="#e11d48" stroke="#fff" strokeWidth={2} />}
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -199,9 +203,11 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
               <div className="h-16 mt-4 w-full opacity-70">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={initialData}>
+                    <XAxis hide dataKey="year" type="number" domain={['dataMin', 'dataMax']} />
                     <YAxis hide domain={['dataMin - 10000', 'dataMax + 10000']} />
                     <RechartsTooltip cursor={false} contentStyle={{ fontSize: '12px', borderRadius: '8px' }} labelStyle={{ display: 'none' }} formatter={(val: any) => [fCurrency(val), 'Price']} />
                     <Line type="monotone" dataKey="hdbPrice" stroke="#059669" strokeWidth={2.5} dot={false} connectNulls={false} />
+                    {currentData.hdbPrice !== null && <ReferenceDot x={currentYear} y={currentData.hdbPrice} r={5} fill="#059669" stroke="#fff" strokeWidth={2} />}
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -224,9 +230,11 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
               <div className="h-16 mt-4 w-full opacity-70">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={initialData}>
+                    <XAxis hide dataKey="year" type="number" domain={['dataMin', 'dataMax']} />
                     <YAxis hide domain={['dataMin - 2000', 'dataMax + 2000']} />
                     <RechartsTooltip cursor={false} contentStyle={{ fontSize: '12px', borderRadius: '8px' }} labelStyle={{ display: 'none' }} formatter={(val: any) => [fCurrency(val), 'Premium']} />
                     <Line type="monotone" dataKey="coePremium" stroke="#2563eb" strokeWidth={2.5} dot={false} connectNulls={false} />
+                    {currentData.coePremium !== null && <ReferenceDot x={currentYear} y={currentData.coePremium} r={5} fill="#2563eb" stroke="#fff" strokeWidth={2} />}
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -249,9 +257,11 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
               <div className="h-16 mt-4 w-full opacity-70">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={initialData}>
+                    <XAxis hide dataKey="year" type="number" domain={['dataMin', 'dataMax']} />
                     <YAxis hide domain={['dataMin - 0.2', 'dataMax + 0.2']} />
                     <RechartsTooltip cursor={false} contentStyle={{ fontSize: '12px', borderRadius: '8px' }} labelStyle={{ display: 'none' }} formatter={(val: any) => [fTemp(val), 'Temp']} />
                     <Line type="monotone" dataKey="temperature" stroke="#16a34a" strokeWidth={2.5} dot={false} connectNulls={false} />
+                    {currentData.temperature !== null && <ReferenceDot x={currentYear} y={currentData.temperature} r={5} fill="#16a34a" stroke="#fff" strokeWidth={2} />}
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -274,9 +284,11 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
               <div className="h-16 mt-4 w-full opacity-70">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={initialData}>
+                    <XAxis hide dataKey="year" type="number" domain={['dataMin', 'dataMax']} />
                     <YAxis hide domain={['dataMin - 1', 'dataMax + 1']} />
                     <RechartsTooltip cursor={false} contentStyle={{ fontSize: '12px', borderRadius: '8px' }} labelStyle={{ display: 'none' }} formatter={(val: any) => [fPct(val), 'Employed']} />
                     <Line type="monotone" dataKey="employment" stroke="#9333ea" strokeWidth={2.5} dot={false} connectNulls={false} />
+                    {currentData.employment !== null && <ReferenceDot x={currentYear} y={currentData.employment} r={5} fill="#9333ea" stroke="#fff" strokeWidth={2} />}
                   </LineChart>
                 </ResponsiveContainer>
               </div>
