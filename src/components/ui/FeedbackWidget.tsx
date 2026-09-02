@@ -125,10 +125,11 @@ export default function FeedbackWidget() {
       ) : (
         <button 
           onClick={() => setIsOpen(true)}
-          className="bg-[#243324] hover:bg-[#3B4D36] text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center group"
+          className="bg-[#243324] hover:bg-[#3B4D36] text-white px-5 py-3.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center gap-2.5 group"
           aria-label="Send Feedback"
         >
-          <MessageSquarePlus className="w-6 h-6 group-hover:scale-110 transition-transform" />
+          <MessageSquarePlus className="w-5 h-5 group-hover:scale-110 transition-transform" />
+          <span className="font-medium text-sm pr-1">Feedback</span>
         </button>
       )}
     </div>
