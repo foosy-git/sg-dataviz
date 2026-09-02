@@ -14,7 +14,7 @@ export interface TimelineYearData {
   coePremium: number | null;
   hdbPrice: number | null;
   temperature: number | null;
-  employment: number | null;
+  unemployment: number | null;
 }
 
 interface Props {
@@ -268,27 +268,27 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
             </CardContent>
           </Card>
 
-          {/* HDB Volume */}
+          {/* Unemployment */}
           <Card className="bg-purple-500/5 border-purple-500/20 shadow-sm flex flex-col">
             <CardHeader className="pb-2">
               <div className="flex items-center gap-2 text-purple-700/80 mb-2">
-                <Building2 className="w-5 h-5" />
-                <span className="text-xs font-bold uppercase tracking-wider">Housing</span>
+                <Wallet className="w-5 h-5" />
+                <span className="text-xs font-bold uppercase tracking-wider">Careers</span>
               </div>
-              <CardTitle className="font-serif text-xl text-purple-900">Resale Volume</CardTitle>
+              <CardTitle className="font-serif text-xl text-purple-900">Unemployment Rate</CardTitle>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col justify-between">
               <div className="text-4xl md:text-5xl font-serif text-purple-950 font-medium">
-                {currentData.hdbVolume ? currentData.hdbVolume.toLocaleString() : 'N.A.'}
+                {currentData.unemployment ? `${currentData.unemployment.toFixed(1)}%` : 'N.A.'}
               </div>
               <div className="h-16 mt-4 w-full opacity-70">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={initialData}>
                     <XAxis hide dataKey="year" type="number" domain={['dataMin', 'dataMax']} />
-                    <YAxis hide domain={['dataMin - 1000', 'dataMax + 1000']} />
-                    <RechartsTooltip cursor={false} contentStyle={{ fontSize: '12px', borderRadius: '8px' }} labelStyle={{ display: 'none' }} formatter={(val: any) => [val.toLocaleString(), 'Transactions']} />
-                    <Line type="monotone" dataKey="hdbVolume" stroke="#9333ea" strokeWidth={2.5} dot={false} connectNulls={false} />
-                    {currentData.hdbVolume !== null && <ReferenceDot x={currentYear} y={currentData.hdbVolume} r={5} fill="#9333ea" stroke="#fff" strokeWidth={2} />}
+                    <YAxis hide domain={['dataMin - 0.5', 'dataMax + 0.5']} />
+                    <RechartsTooltip cursor={false} contentStyle={{ fontSize: '12px', borderRadius: '8px' }} labelStyle={{ display: 'none' }} formatter={(val: any) => [`${val.toFixed(1)}%`, 'Unemployed']} />
+                    <Line type="monotone" dataKey="unemployment" stroke="#9333ea" strokeWidth={2.5} dot={false} connectNulls={false} />
+                    {currentData.unemployment !== null && <ReferenceDot x={currentYear} y={currentData.unemployment} r={5} fill="#9333ea" stroke="#fff" strokeWidth={2} />}
                   </LineChart>
                 </ResponsiveContainer>
               </div>
