@@ -98,7 +98,6 @@ export default function Home() {
             <Card className="bg-[#1F2B1D] text-[#FBF9F5] border-none shadow-xl hover:-translate-y-1 transition-transform overflow-hidden group">
               <CardContent className="p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
                 <div className="text-left space-y-2">
-                  <Badge className="bg-amber-500/20 text-amber-200 hover:bg-amber-500/30 border-none mb-2">New Feature</Badge>
                   <h2 className="font-serif text-3xl md:text-4xl font-medium tracking-tight">The Singapore Story</h2>
                   <p className="text-[#FBF9F5]/70 text-lg">A unified, interactive timeline of our nation's macroeconomic progression.</p>
                 </div>
