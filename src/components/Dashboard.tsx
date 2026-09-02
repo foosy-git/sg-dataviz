@@ -87,10 +87,6 @@ export default function Dashboard() {
             {isValidating && (
               <Loader2 className="w-4 h-4 text-[#3B4D36] animate-spin" />
             )}
-            <Badge variant="outline" className="bg-[#E8DCC4]/30 text-[#243324] border-[#243324]/20 shadow-sm font-sans font-medium whitespace-nowrap">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#3B4D36] mr-2 animate-pulse"></span>
-              Updated Daily
-            </Badge>
           </div>
         </div>
       </div>

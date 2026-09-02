@@ -129,10 +129,7 @@ export default function ClimateDashboard({ initialData }: { initialData: any[] }
             </div>
           </div>
           
-          <div className="text-xs font-medium px-2.5 py-1 rounded-full bg-[#E8DCC4]/30 text-[#243324]/60 border border-[#243324]/5 flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            Updated Daily
-          </div>
+
         </div>
       </header>
 
