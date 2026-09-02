@@ -16,16 +16,18 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            set -e
             cd ~/apps/sg-dataviz
             
             # Remove the old untracked .next folder to prevent git pull from failing
-            rm -rf .next
+            rm -rf .next || true
             
             # Pull the pre-built code directly from GitHub
             git reset --hard
             git pull origin main
             
-            npm ci --omit=dev
+            # Use npm install instead of npm ci to prevent lockfile conflicts across node versions
+            npm install --omit=dev
             
             # Build the Next.js app for production
             npm run build
