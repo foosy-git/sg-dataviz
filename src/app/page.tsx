@@ -69,14 +69,27 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <section className="pt-24 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center space-y-6">
-        <h1 className="font-serif text-5xl md:text-7xl tracking-tight text-[#1F2B1D] max-w-4xl mx-auto leading-tight">
-          Unlock the story of Singapore through open data.
-        </h1>
-        <p className="text-lg md:text-xl text-[#243324]/70 max-w-2xl mx-auto font-light leading-relaxed">
-          A centralized portal for interactive, editorial-grade visualizations built on public datasets from data.gov.sg. 
-          Explore trends, uncover insights, and understand the nation.
-        </p>
+      <section className="relative pt-24 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
+        <div 
+          className="absolute inset-0 pointer-events-none z-0" 
+          style={{
+            backgroundImage: "url('/merlion-bg.jpg')",
+            backgroundPosition: 'center',
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
+            opacity: 0.05,
+            mixBlendMode: 'multiply'
+          }}
+        />
+        <div className="relative z-10 space-y-6">
+          <h1 className="font-serif text-5xl md:text-7xl tracking-tight text-[#1F2B1D] max-w-4xl mx-auto leading-tight">
+            Unlock the story of Singapore through open data.
+          </h1>
+          <p className="text-lg md:text-xl text-[#243324]/70 max-w-2xl mx-auto font-light leading-relaxed">
+            A centralized portal for interactive, editorial-grade visualizations built on public datasets from data.gov.sg. 
+            Explore trends, uncover insights, and understand the nation.
+          </p>
+        </div>
       </section>
 
       {/* Dashboard Grid */}
