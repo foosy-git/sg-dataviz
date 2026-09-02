@@ -72,7 +72,7 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
       }));
   }, [yearData]);
 
-  // Trend Data: Avg Median Salary by Uni over years
+  // Trend Data: Avg Median Salary and FT Employment by Uni over years
   const trendData = useMemo(() => {
     const trendMap = new Map();
     // Pre-fill years
@@ -84,31 +84,33 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
     
     // We group by year and university
     initialData.forEach(d => {
-      if (d.gross_monthly_median === null) return;
-      
       const yr = trendMap.get(String(d.year));
       if (!yr) return;
 
       const uniShort = getUniShort(d.university);
+      if (!yr[`${uniShort}_raw`]) yr[`${uniShort}_raw`] = { sum: 0, count: 0, empSum: 0, empCount: 0 };
 
-      if (!yr[uniShort]) yr[uniShort] = { sum: 0, count: 0 };
-      yr[uniShort].sum += d.gross_monthly_median;
-      yr[uniShort].count += 1;
+      if (d.gross_monthly_median !== null) {
+        yr[`${uniShort}_raw`].sum += d.gross_monthly_median;
+        yr[`${uniShort}_raw`].count += 1;
+      }
+      
+      if (d.employment_rate_ft_perm !== null) {
+        yr[`${uniShort}_raw`].empSum += d.employment_rate_ft_perm;
+        yr[`${uniShort}_raw`].empCount += 1;
+      }
     });
 
-    const result = Array.from(trendMap.values()).map(yr => {
-      const row: any = { year: yr.year };
+    return Array.from(trendMap.values()).map(yr => {
       unis.forEach(u => {
-        if (yr[u] && yr[u].count > 0) {
-          row[u] = Math.round(yr[u].sum / yr[u].count);
-        } else {
-          row[u] = null;
+        if (yr[`${u}_raw`]) {
+          if (yr[`${u}_raw`].count > 0) yr[u] = Math.round(yr[`${u}_raw`].sum / yr[`${u}_raw`].count);
+          if (yr[`${u}_raw`].empCount > 0) yr[`${u}_emp`] = Number((yr[`${u}_raw`].empSum / yr[`${u}_raw`].empCount).toFixed(1));
+          delete yr[`${u}_raw`];
         }
       });
-      return row;
+      return yr;
     });
-
-    return result;
   }, [initialData, years]);
 
   // Top 10 High Paying
@@ -327,6 +329,33 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
                     <Line type="monotone" dataKey="SUTD" stroke="#8b5cf6" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} connectNulls />
                     <Line type="monotone" dataKey="SIT" stroke="#10b981" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} connectNulls />
                     <Line type="monotone" dataKey="SUSS" stroke="#f43f5e" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} connectNulls />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Employment Trend */}
+          <Card className="bg-white border-[#243324]/5 shadow-sm overflow-hidden flex flex-col">
+            <CardHeader className="border-b border-[#243324]/5 bg-gray-50/50 pb-4">
+              <CardTitle className="font-serif text-xl">Employment Stability</CardTitle>
+              <CardDescription>Average Full-Time Permanent Employment Rate (%) over time</CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div style={{ height: 400, width: '100%' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={trendData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#24332410" />
+                    <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#24332480' }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#24332480' }} tickFormatter={(v) => `${v}%`} domain={['dataMin - 5', 100]} />
+                    <Tooltip contentStyle={{ backgroundColor: '#FBF9F5', borderColor: 'rgba(36, 51, 36, 0.1)' }} formatter={(value: number, name: string) => [`${value}%`, name.replace('_emp', '')]} />
+                    <Legend iconType="circle" wrapperStyle={{ fontSize: 12, paddingTop: 20 }} formatter={(value: string) => value.replace('_emp', '')} />
+                    <Line type="monotone" dataKey="SMU_emp" name="SMU" stroke="#0ea5e9" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} connectNulls />
+                    <Line type="monotone" dataKey="NUS_emp" name="NUS" stroke="#f97316" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} connectNulls />
+                    <Line type="monotone" dataKey="NTU_emp" name="NTU" stroke="#ef4444" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} connectNulls />
+                    <Line type="monotone" dataKey="SUTD_emp" name="SUTD" stroke="#8b5cf6" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} connectNulls />
+                    <Line type="monotone" dataKey="SIT_emp" name="SIT" stroke="#10b981" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} connectNulls />
+                    <Line type="monotone" dataKey="SUSS_emp" name="SUSS" stroke="#f43f5e" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} connectNulls />
                   </LineChart>
                 </ResponsiveContainer>
               </div>

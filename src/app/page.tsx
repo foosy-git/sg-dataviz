@@ -96,7 +96,6 @@ export default function Home() {
         <div className="relative z-10 max-w-4xl mx-auto">
           <Link href="/singapore-story">
             <Card className="bg-[#1F2B1D] text-[#FBF9F5] border-none shadow-xl hover:-translate-y-1 transition-transform overflow-hidden group">
-              <div className="absolute inset-0 opacity-10 bg-[url('/merlion-bg.jpg')] bg-center bg-cover mix-blend-screen group-hover:scale-105 transition-transform duration-700" />
               <CardContent className="p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
                 <div className="text-left space-y-2">
                   <Badge className="bg-amber-500/20 text-amber-200 hover:bg-amber-500/30 border-none mb-2">New Feature</Badge>

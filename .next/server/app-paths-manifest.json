@@ -1,14 +1,14 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
   "/api/feedback/route": "app/api/feedback/route.js",
-  "/hdb/page": "app/hdb/page.js",
-  "/page": "app/page.js",
-  "/transport/coe/page": "app/transport/coe/page.js",
-  "/demographics/birth-rates/page": "app/demographics/birth-rates/page.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js",
   "/environment/climate/page": "app/environment/climate/page.js",
-  "/singapore-story/page": "app/singapore-story/page.js",
+  "/hdb/page": "app/hdb/page.js",
+  "/transport/coe/page": "app/transport/coe/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/demographics/birth-rates/page": "app/demographics/birth-rates/page.js",
+  "/economy/income/page": "app/economy/income/page.js",
+  "/page": "app/page.js",
   "/education/ges/page": "app/education/ges/page.js",
-  "/api/hdb-live/route": "app/api/hdb-live/route.js",
-  "/economy/income/page": "app/economy/income/page.js"
+  "/singapore-story/page": "app/singapore-story/page.js",
+  "/api/hdb-live/route": "app/api/hdb-live/route.js"
 }
