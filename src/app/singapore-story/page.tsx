@@ -6,14 +6,20 @@ export const revalidate = 86400; // Cache for 24 hours
 
 export default async function SingaporeStoryPage() {
   try {
+    const headers: Record<string, string> = {};
+    if (process.env.DATAGOV_API_KEY) {
+      headers['api-key'] = process.env.DATAGOV_API_KEY.trim();
+    }
+
     const [birthRes, incomeRes, coeRes, climateRes] = await Promise.all([
-      fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_e39eeaeadb571c0d0725ef1eec48d166&limit=100'),
-      fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_c74ebe613db891d25e4836aaf98d7a47&limit=100'),
-      fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_69b3380ad7e51aff3a7dcc84eba52b8a&limit=50000'),
-      fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_755290a24afe70c8f9e8bcbf9f251573&limit=10000')
+      fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_e39eeaeadb571c0d0725ef1eec48d166&limit=100', { headers }),
+      fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_c74ebe613db891d25e4836aaf98d7a47&limit=100', { headers }),
+      fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_69b3380ad7e51aff3a7dcc84eba52b8a&limit=50000', { headers }),
+      fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_755290a24afe70c8f9e8bcbf9f251573&limit=10000', { headers })
     ]);
 
     if (!birthRes.ok || !incomeRes.ok || !coeRes.ok || !climateRes.ok) {
+      console.error('API Error Status:', birthRes.status, incomeRes.status, coeRes.status, climateRes.status);
       throw new Error('Failed to fetch data from data.gov.sg');
     }
 
