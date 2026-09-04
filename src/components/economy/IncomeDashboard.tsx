@@ -2,14 +2,51 @@
 
 import { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend, LabelList } from 'recharts';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
 import Link from 'next/link';
-import { TrendingUp, DollarSign, Users, Wallet, ArrowLeft } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Users, Wallet, ArrowLeft } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+
+export interface IncomeRecord {
+  year: string;
+  median: number | null;
+  realMedian?: number | null;
+  average: number | null;
+  unemployment?: number | null;
+  hdb1_2?: number | null;
+  hdb3?: number | null;
+  hdb4?: number | null;
+  hdb5_exec?: number | null;
+  condo?: number | null;
+  landed?: number | null;
+  decile1?: number | null;
+  decile2?: number | null;
+  decile3?: number | null;
+  decile4?: number | null;
+  decile5?: number | null;
+  decile6?: number | null;
+  decile7?: number | null;
+  decile8?: number | null;
+  decile9?: number | null;
+  decile10?: number | null;
+  [key: string]: string | number | null | undefined;
+}
+
+interface TooltipEntry {
+  name: string;
+  value?: number | string | null;
+  color?: string;
+  [key: string]: unknown;
+}
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: TooltipEntry[];
+  label?: string;
+}
 
 interface IncomeDashboardProps {
-  initialData: any[];
+  initialData: IncomeRecord[];
 }
 
 export default function IncomeDashboard({ initialData }: IncomeDashboardProps) {
@@ -26,20 +63,23 @@ export default function IncomeDashboard({ initialData }: IncomeDashboardProps) {
   }, [initialData, timeRange]);
 
   const latestData = initialData[initialData.length - 1] || {};
-  const earliestData = initialData[0] || {};
+  const previousData = initialData.length > 1 ? initialData[initialData.length - 2] : null;
 
-  // Calc growth rates
-  const medianGrowth = latestData.median && earliestData.median 
-    ? ((latestData.median - earliestData.median) / earliestData.median * 100).toFixed(1) 
-    : '0';
+  // Calc growth rates vs previous year
+  const medianGrowthNum = latestData.median && previousData?.median 
+    ? ((latestData.median - previousData.median) / previousData.median * 100) 
+    : 0;
+  const isMedianGrowing = medianGrowthNum >= 0;
+  const medianGrowth = Math.abs(medianGrowthNum).toFixed(1);
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-[#FBF9F5] border border-[#243324]/10 p-3 rounded-lg shadow-md">
           <p className="font-serif font-medium text-[#243324] mb-2">{label}</p>
-          {payload.map((entry: any, index: number) => {
-            const valueStr = `$${entry.value?.toLocaleString()}`;
+          {payload.map((entry: TooltipEntry, index: number) => {
+            const numVal = entry.value !== null && entry.value !== undefined ? Number(entry.value) : null;
+            const valueStr = numVal !== null && !isNaN(numVal) ? `$${numVal.toLocaleString()}` : 'N/A';
             return (
               <p key={index} className="text-sm font-sans flex items-center gap-2" style={{ color: entry.color }}>
                 <span className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }}></span>
@@ -94,11 +134,11 @@ export default function IncomeDashboard({ initialData }: IncomeDashboardProps) {
               Household Income & Distribution
             </h1>
             <p className="text-lg md:text-xl text-[#243324]/70 max-w-3xl font-sans leading-relaxed">
-              Analyze Singapore's household earnings, compare median vs average income, and observe the income gap across different deciles over the past 20+ years.
+              Analyze Singapore&apos;s household earnings, compare median vs average income, and observe the income gap across different deciles over the past 20+ years.
             </p>
           </div>
           <div className="flex-shrink-0">
-            <Select value={timeRange} onValueChange={setTimeRange}>
+            <Select value={timeRange} onValueChange={(val) => val && setTimeRange(val)}>
               <SelectTrigger className="w-[180px] bg-white border-[#243324]/20">
                 <SelectValue placeholder="Select timeframe">
                   {timeRange === 'all' ? '2000 - Present' : timeRange === 'last20' ? 'Last 20 Years' : timeRange === 'last10' ? 'Last 10 Years' : 'Select timeframe'}
@@ -122,9 +162,13 @@ export default function IncomeDashboard({ initialData }: IncomeDashboardProps) {
                 <span className="text-xs font-semibold uppercase tracking-wider">Latest Median Income ({latestData.year})</span>
               </div>
               <div className="text-4xl font-serif text-[#243324] mb-2">${latestData.median?.toLocaleString()}</div>
-              <p className="text-sm font-medium text-emerald-600 flex items-center gap-1">
-                <TrendingUp className="w-4 h-4" />
-                +{medianGrowth}% since 2000
+              <p className={`text-sm font-medium flex items-center gap-1 ${isMedianGrowing ? 'text-emerald-600' : 'text-rose-600'}`}>
+                {isMedianGrowing ? (
+                  <TrendingUp className="w-4 h-4" />
+                ) : (
+                  <TrendingDown className="w-4 h-4" />
+                )}
+                {previousData ? `${isMedianGrowing ? '+' : '-'}${medianGrowth}% vs previous year` : 'No prior year data'}
               </p>
             </CardContent>
           </Card>
@@ -168,7 +212,7 @@ export default function IncomeDashboard({ initialData }: IncomeDashboardProps) {
             <CardHeader className="pb-4">
               <CardTitle className="font-serif text-2xl text-[#243324]">The Inflation Gap: Real vs. Nominal Income</CardTitle>
               <CardDescription className="text-base text-[#243324]/70 font-sans">
-                Nominal income is what's on your payslip. Real income is your actual purchasing power (adjusted for inflation, pegged to 2008 prices).
+                Nominal income is what&apos;s on your payslip. Real income is your actual purchasing power (adjusted for inflation, pegged to 2008 prices).
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -254,7 +298,10 @@ export default function IncomeDashboard({ initialData }: IncomeDashboardProps) {
                     <CartesianGrid strokeDasharray="3 3" stroke="#243324" opacity={0.1} vertical={false} />
                     <XAxis dataKey="name" stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 10 }} tickLine={false} axisLine={false} dy={10} angle={-45} textAnchor="end" height={60} />
                     <YAxis stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dx={-10} tickFormatter={(v) => `$${v}`} />
-                    <RechartsTooltip contentStyle={{ backgroundColor: '#FBF9F5', borderColor: 'rgba(36, 51, 36, 0.1)', borderRadius: '8px' }} />
+                    <RechartsTooltip 
+                      content={<CustomTooltip />} 
+                      cursor={{ fill: 'rgba(36, 51, 36, 0.05)' }} 
+                    />
                     <Bar dataKey="value" name="Average Income" fill="#3B4D36" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
