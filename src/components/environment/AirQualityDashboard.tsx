@@ -103,7 +103,7 @@ export default function AirQualityDashboard({ psiData }: { psiData: { psi: any, 
           </div>
           <div className="text-sm font-medium text-[#243324]/60 flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            Live Real-time
+            Live Real-time (hourly)
           </div>
         </div>
       </header>
