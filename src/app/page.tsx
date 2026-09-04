@@ -37,7 +37,7 @@ export default async function Home() {
     // --- LIVING & DEMOGRAPHICS ---
     {
       title: 'HDB Horizon',
-      description: 'National resale price index & YoY trends from 1990, paired with an interactive 2017+ estate and transaction explorer.',
+      description: 'National resale price index, macro YoY trends, and interactive estate transaction explorer.',
       icon: Building2,
       href: '/hdb',
       status: dates.hdb,
