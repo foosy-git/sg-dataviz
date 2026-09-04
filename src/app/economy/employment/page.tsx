@@ -1,6 +1,7 @@
 import EmploymentDashboard from '@/components/economy/EmploymentDashboard';
 import { Metadata } from 'next';
 import ErrorState from '@/components/ui/ErrorState';
+import { buildEmploymentDataset } from '@/lib/employmentData';
 
 export const metadata: Metadata = {
   title: 'Economy & Employment | SG DataViz',
@@ -22,9 +23,11 @@ export default async function EmploymentPage() {
     
     if (!totalSeries || !residentSeries) throw new Error('Missing DataSeries in payload');
 
-    const years = Object.keys(totalSeries).filter(k => !isNaN(Number(k)) && Number(k) > 1990).sort();
+    const years = Object.keys(totalSeries)
+      .filter(k => !isNaN(Number(k)) && Number(k) > 1990)
+      .sort((a, b) => Number(a) - Number(b));
 
-    const formattedData = years.map(year => {
+    const rawSeriesData = years.map(year => {
       const total = totalSeries[year];
       const resident = residentSeries[year];
       return {
@@ -34,9 +37,11 @@ export default async function EmploymentPage() {
       };
     });
 
+    const dataset = buildEmploymentDataset(rawSeriesData);
+
     return (
       <main className="min-h-screen bg-[#FBF9F5]">
-        <EmploymentDashboard data={formattedData} />
+        <EmploymentDashboard data={dataset} />
       </main>
     );
   } catch (error) {

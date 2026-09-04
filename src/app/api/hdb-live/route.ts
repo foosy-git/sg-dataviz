@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { normalizeHdbData, getHistoricalData } from '@/lib/hdb';
+import { normalizeHdbData, getHistoricalData, getHdbResaleIndexData, getHdbAnnualTrendData } from '@/lib/hdb';
 
 const API_URL = 'https://data.gov.sg/api/action/datastore_search';
 const RESOURCE_ID = 'd_8b84c4ee58e3cfc0ece0d773c8ca6abc';
@@ -41,7 +41,9 @@ export async function GET(request: Request) {
         if (response.ok) {
           const data = await response.json();
           const allLiveRecords = normalizeHdbData(data.result?.records || []);
-          recentLiveRecords = allLiveRecords.filter(r => r.month >= '2026-09');
+          recentLiveRecords = historicalRecords.length > 0 
+            ? allLiveRecords.filter(r => r.month >= '2026-09')
+            : allLiveRecords;
         } else {
           console.warn(`Data.gov.sg returned ${response.status}. Falling back to historical data.`);
         }
@@ -164,6 +166,11 @@ export async function GET(request: Request) {
 
     const tableData = allRecords.slice(page * 50, (page + 1) * 50);
 
+    const [resaleIndex, annualTrend] = await Promise.all([
+      getHdbResaleIndexData(),
+      Promise.resolve(getHdbAnnualTrendData())
+    ]);
+
     return NextResponse.json({
       success: true,
       data: {
@@ -174,7 +181,9 @@ export async function GET(request: Request) {
         townHeatmap,
         millionDollar: millionDollar.slice(0, 15),
         leaseDecay,
-        tableData
+        tableData,
+        resaleIndex,
+        annualTrend
       }
     }, {
       headers: {

@@ -1,11 +1,12 @@
 "use client";
 
 import useSWR from 'swr';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, TrendingUp, Building2, Map, LineChart, Activity, DollarSign, ChevronDown, ArrowLeft } from 'lucide-react';
+import OverallMarketTrendChart from './charts/OverallMarketTrendChart';
 import MacroTrendChart from './charts/MacroTrendChart';
 import LeaseDecayChart from './charts/LeaseDecayChart';
 import TownHeatmap from './charts/TownHeatmap';
@@ -14,6 +15,9 @@ import InvestorTable from './tables/InvestorTable';
 import DashboardFilters from './DashboardFilters';
 import ErrorState from './ui/ErrorState';
 import { motion, useScroll, useSpring } from 'framer-motion';
+import fallbackResaleIndex from '../../public/hdb_resale_index.json';
+import fallbackAnnualAvg from '../../public/hdb_historical_avg.json';
+import { HdbResaleIndexPoint, HdbAnnualTrendPoint } from '@/types/hdb';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -46,6 +50,22 @@ export default function Dashboard() {
   
   const townsList = ["ANG MO KIO", "BEDOK", "BISHAN", "BUKIT BATOK", "BUKIT MERAH", "BUKIT PANJANG", "BUKIT TIMAH", "CENTRAL AREA", "CHOA CHU KANG", "CLEMENTI", "GEYLANG", "HOUGANG", "JURONG EAST", "JURONG WEST", "KALLANG/WHAMPOA", "MARINE PARADE", "PASIR RIS", "PUNGGOL", "QUEENSTOWN", "SEMBAWANG", "SENGKANG", "SERANGOON", "TAMPINES", "TOA PAYOH", "WOODLANDS", "YISHUN"];
   const flatTypesList = ["1 ROOM", "2 ROOM", "3 ROOM", "4 ROOM", "5 ROOM", "EXECUTIVE", "MULTI-GENERATION"];
+
+  const fallbackAnnualTrend: HdbAnnualTrendPoint[] = useMemo(() => {
+    const raw = fallbackAnnualAvg as Record<string, number>;
+    const sortedYears = Object.keys(raw).map(Number).sort((a, b) => a - b);
+    return sortedYears.map((year, idx) => {
+      const avg = raw[year.toString()];
+      let yoyChangePercent: number | null = null;
+      if (idx > 0) {
+        const prev = raw[sortedYears[idx - 1].toString()];
+        if (prev) {
+          yoyChangePercent = parseFloat((((avg - prev) / prev) * 100).toFixed(2));
+        }
+      }
+      return { year, averagePrice: avg, yoyChangePercent };
+    });
+  }, []);
 
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
@@ -224,6 +244,14 @@ export default function Dashboard() {
                      <p className="text-sm text-[#243324]/60 font-medium mt-2">Flats sold in this period</p>
                    </CardContent>
                  </Card>
+              </div>
+
+              {/* Overall HDB Resale Market Trend & YoY Growth */}
+              <div className="mb-16">
+                <OverallMarketTrendChart 
+                  resaleIndexData={analytics?.resaleIndex?.length ? analytics.resaleIndex : (fallbackResaleIndex as HdbResaleIndexPoint[])} 
+                  annualTrendData={analytics?.annualTrend?.length ? analytics.annualTrend : fallbackAnnualTrend} 
+                />
               </div>
 
               <Card className="shadow-sm border-[#243324]/10 bg-white/60 backdrop-blur-md">

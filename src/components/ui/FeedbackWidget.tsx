@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MessageSquarePlus, X, Send, Loader2 } from 'lucide-react';
 
 export default function FeedbackWidget() {
@@ -10,6 +10,12 @@ export default function FeedbackWidget() {
   const [email, setEmail] = useState('');
   const [website, setWebsite] = useState(''); // Honeypot field for bot detection
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+  useEffect(() => {
+    const handleOpen = () => setIsOpen(true);
+    window.addEventListener('open-feedback', handleOpen);
+    return () => window.removeEventListener('open-feedback', handleOpen);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

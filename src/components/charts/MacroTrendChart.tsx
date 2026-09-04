@@ -84,9 +84,16 @@ export default function MacroTrendChart({ data, isAggregated }: { data: any[], i
           />
           <Legend wrapperStyle={{ paddingTop: '20px' }} />
           
-          {towns.length === 0 && (
-            <Line yAxisId="left" type="monotone" dataKey="medianPrice" name="Overall Avg Price" stroke="#243324" strokeWidth={3} dot={false} />
-          )}
+          <Line 
+            yAxisId="left" 
+            type="monotone" 
+            dataKey="medianPrice" 
+            name="Overall Median Price" 
+            stroke="#243324" 
+            strokeWidth={3.5} 
+            dot={false} 
+            activeDot={{ r: 7, stroke: '#FBF9F5', strokeWidth: 2 }}
+          />
 
           {towns.map((town, idx) => (
              <Line 
@@ -96,9 +103,10 @@ export default function MacroTrendChart({ data, isAggregated }: { data: any[], i
                dataKey={town} 
                name={town} 
                stroke={COLORS[idx % COLORS.length]} 
-               strokeWidth={2} 
+               strokeWidth={1.5} 
+               strokeOpacity={0.7}
                dot={false}
-               activeDot={{ r: 6 }}
+               activeDot={{ r: 5 }}
              />
           ))}
 

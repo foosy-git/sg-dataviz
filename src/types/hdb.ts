@@ -30,3 +30,18 @@ export interface HdbRecord {
   pricePerSqm: number;
   pricePerSqft: number;
 }
+
+export interface HdbResaleIndexPoint {
+  quarter: string; // YYYY-Q#
+  year: number;
+  index: number;
+  yoy: number | null;
+  qoq: number | null;
+  milestone?: string | null;
+}
+
+export interface HdbAnnualTrendPoint {
+  year: number;
+  averagePrice: number;
+  yoyChangePercent: number | null;
+}

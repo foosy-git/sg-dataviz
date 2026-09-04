@@ -1,4 +1,4 @@
-import { HdbRecord, HdbRecordRaw } from "@/types/hdb";
+import { HdbRecord, HdbRecordRaw, HdbResaleIndexPoint, HdbAnnualTrendPoint } from "@/types/hdb";
 
 const SQM_TO_SQFT = 10.7639;
 
@@ -81,5 +81,113 @@ export async function getHistoricalData(): Promise<HdbRecord[]> {
   } catch (e) {
      console.error('Error reading historical data:', e);
      return [];
+  }
+}
+
+let cachedResaleIndexData: HdbResaleIndexPoint[] | null = null;
+let cachedAnnualTrendData: HdbAnnualTrendPoint[] | null = null;
+
+const HDB_RPI_RESOURCE_ID = 'd_14f63e595975691e7c24a27ae4c07c79';
+
+const MILESTONES: Record<string, string> = {
+  '1996-Q4': '1996 Peak before Asian Financial Crisis',
+  '1998-Q4': 'Asian Financial Crisis Impact',
+  '2008-Q3': 'Global Financial Crisis',
+  '2013-Q2': 'Peak before TDSR & MSR Cooling Measures',
+  '2015-Q3': 'Cooling Measures Consolidation',
+  '2020-Q2': 'COVID-19 Circuit Breaker',
+  '2021-Q4': 'Pandemic Housing Demand Surge (+12.7% YoY)',
+  '2024-Q4': 'Post-pandemic Resale High (+9.7% YoY)',
+  '2026-Q2': 'Market Stabilization & Supply Ramp (-0.05% YoY)'
+};
+
+export async function getHdbResaleIndexData(): Promise<HdbResaleIndexPoint[]> {
+  if (cachedResaleIndexData) {
+    return cachedResaleIndexData;
+  }
+
+  // 1. Try local bundled fallback first
+  try {
+    const filePath = path.join(process.cwd(), 'public', 'hdb_resale_index.json');
+    if (fs.existsSync(filePath)) {
+      const fileContents = fs.readFileSync(filePath, 'utf8');
+      cachedResaleIndexData = JSON.parse(fileContents);
+      return cachedResaleIndexData!;
+    }
+  } catch (err) {
+    console.warn('Error reading local hdb_resale_index.json:', err);
+  }
+
+  // 2. If fallback not loaded, fetch from data.gov.sg
+  try {
+    const url = `https://data.gov.sg/api/action/datastore_search?resource_id=${HDB_RPI_RESOURCE_ID}&limit=1000`;
+    const res = await fetch(url, { next: { revalidate: 86400 } });
+    if (res.ok) {
+      const data = await res.json();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const records = (data.result?.records || []).sort((a: any, b: any) => a.quarter.localeCompare(b.quarter));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      cachedResaleIndexData = records.map((r: any, idx: number) => {
+        const indexVal = parseFloat(r.index);
+        let yoy: number | null = null;
+        let qoq: number | null = null;
+        if (idx >= 4) {
+          const prevYear = parseFloat(records[idx - 4].index);
+          yoy = parseFloat((((indexVal - prevYear) / prevYear) * 100).toFixed(2));
+        }
+        if (idx >= 1) {
+          const prevQ = parseFloat(records[idx - 1].index);
+          qoq = parseFloat((((indexVal - prevQ) / prevQ) * 100).toFixed(2));
+        }
+        return {
+          quarter: r.quarter,
+          year: parseInt(r.quarter.split('-')[0], 10),
+          index: indexVal,
+          yoy,
+          qoq,
+          milestone: MILESTONES[r.quarter] || null
+        };
+      });
+      return cachedResaleIndexData!;
+    }
+  } catch (err) {
+    console.error('Error fetching live HDB Resale Price Index:', err);
+  }
+
+  return [];
+}
+
+export function getHdbAnnualTrendData(): HdbAnnualTrendPoint[] {
+  if (cachedAnnualTrendData) {
+    return cachedAnnualTrendData;
+  }
+  try {
+    const filePath = path.join(process.cwd(), 'public', 'hdb_historical_avg.json');
+    if (!fs.existsSync(filePath)) {
+      return [];
+    }
+    const fileContents = fs.readFileSync(filePath, 'utf8');
+    const rawMap: Record<string, number> = JSON.parse(fileContents);
+    const sortedYears = Object.keys(rawMap).map(Number).sort((a, b) => a - b);
+    
+    cachedAnnualTrendData = sortedYears.map((year, idx) => {
+      const avg = rawMap[year.toString()];
+      let yoyChangePercent: number | null = null;
+      if (idx > 0) {
+        const prevAvg = rawMap[sortedYears[idx - 1].toString()];
+        if (prevAvg) {
+          yoyChangePercent = parseFloat((((avg - prevAvg) / prevAvg) * 100).toFixed(2));
+        }
+      }
+      return {
+        year,
+        averagePrice: avg,
+        yoyChangePercent
+      };
+    });
+    return cachedAnnualTrendData;
+  } catch (err) {
+    console.error('Error reading hdb_historical_avg.json:', err);
+    return [];
   }
 }
