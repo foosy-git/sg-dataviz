@@ -219,9 +219,6 @@ export default function BirthRatesDashboard({ data }: BirthRatesDashboardProps) 
 
         </div>
       </div>
-      <footer className="py-8 text-center text-[#243324]/40 font-sans mt-12 border-t border-[#243324]/10">
-        <p>Data sourced from <a href="https://data.gov.sg" target="_blank" rel="noopener noreferrer" className="underline hover:text-[#243324]/70">data.gov.sg</a>.</p>
-      </footer>
     </div>
   );
 }

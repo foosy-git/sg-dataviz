@@ -269,10 +269,6 @@ export default function COEDashboard({ initialData }: { initialData: any[] }) {
 
         </div>
       </div>
-      
-      <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8 text-center text-sm text-[#243324]/50">
-        Data sourced from <a href="https://data.gov.sg" target="_blank" rel="noopener noreferrer" className="underline hover:text-[#243324]">data.gov.sg</a>
-      </footer>
     </div>
   );
 }

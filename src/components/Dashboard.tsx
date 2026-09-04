@@ -364,12 +364,6 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
             </motion.section>
-            
-            <footer className="py-12 text-center text-[#243324]/40 font-sans border-t border-[#243324]/10">
-               <p>
-                 © {new Date().getFullYear()} HDB Horizon Analytics. Data sourced from <a href="https://data.gov.sg" target="_blank" rel="noopener noreferrer" className="underline hover:text-[#243324]">data.gov.sg</a>.
-               </p>
-            </footer>
           </>
         )}
       </main>
