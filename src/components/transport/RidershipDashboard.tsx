@@ -1,10 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, Train, Bus, Activity, Users } from 'lucide-react';
+import { ArrowLeft, Train, Bus, Activity, Users, TrendingUp, History } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend, AreaChart, Area
+  XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend, AreaChart, Area, ComposedChart, Bar
 } from 'recharts';
 
 export default function RidershipDashboard({ data }: { data: any[] }) {
@@ -22,8 +22,28 @@ export default function RidershipDashboard({ data }: { data: any[] }) {
 
   const chartData = Array.from(yearMap.values()).sort((a, b) => parseInt(a.year) - parseInt(b.year));
 
+  // Compute percentages for the 100% stacked area chart
+  const percentageData = chartData.map(d => {
+    const railTotal = (d.MRT || 0) + (d.LRT || 0);
+    const busTotal = d.Bus || 0;
+    return {
+      year: d.year,
+      RailPct: Number(((railTotal / d.total) * 100).toFixed(1)),
+      BusPct: Number(((busTotal / d.total) * 100).toFixed(1))
+    };
+  });
+
   const latestData = chartData[chartData.length - 1];
+  const prevData = chartData[chartData.length - 2];
+  const peakData = chartData.find(d => d.year === '2019') || chartData[0]; // 2019 is the pre-COVID peak
+  
   const latestYear = latestData.year;
+  
+  // High-interest Metrics
+  const yoyGrowth = (((latestData.total - prevData.total) / prevData.total) * 100).toFixed(1);
+  const isGrowing = parseFloat(yoyGrowth) >= 0;
+
+  const recoveryRate = ((latestData.total / peakData.total) * 100).toFixed(1);
 
   return (
     <div className="min-h-screen bg-[#FBF9F5] pb-20">
@@ -57,7 +77,8 @@ export default function RidershipDashboard({ data }: { data: any[] }) {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        {/* TOP LEVEL KPIS */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
           <Card className="bg-white border-[#243324]/5 shadow-sm">
             <CardContent className="p-6">
               <div className="flex items-center gap-3 mb-2 text-[#243324]/60">
@@ -72,44 +93,66 @@ export default function RidershipDashboard({ data }: { data: any[] }) {
               </div>
             </CardContent>
           </Card>
-          
-          <Card className="bg-white border-[#243324]/5 shadow-sm">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3 mb-2 text-[#243324]/60">
-                <Train className="w-4 h-4" />
-                <span className="text-xs font-semibold uppercase tracking-wider">Rail (MRT + LRT)</span>
-              </div>
-              <div className="text-4xl lg:text-5xl font-serif text-[#243324] mb-2">
-                {((latestData.MRT + latestData.LRT) / 1000000).toFixed(2)}M
-              </div>
-              <div className="text-sm font-medium text-blue-600">
-                {(((latestData.MRT + latestData.LRT) / latestData.total) * 100).toFixed(1)}% of total share
-              </div>
-            </CardContent>
-          </Card>
 
           <Card className="bg-white border-[#243324]/5 shadow-sm">
             <CardContent className="p-6">
               <div className="flex items-center gap-3 mb-2 text-[#243324]/60">
-                <Bus className="w-4 h-4" />
-                <span className="text-xs font-semibold uppercase tracking-wider">Public Bus</span>
+                <TrendingUp className="w-4 h-4" />
+                <span className="text-xs font-semibold uppercase tracking-wider">YoY Growth</span>
               </div>
               <div className="text-4xl lg:text-5xl font-serif text-[#243324] mb-2">
-                {(latestData.Bus / 1000000).toFixed(2)}M
+                {isGrowing ? '+' : ''}{yoyGrowth}%
               </div>
-              <div className="text-sm font-medium text-emerald-600">
-                {((latestData.Bus / latestData.total) * 100).toFixed(1)}% of total share
+              <div className={"text-sm font-medium " + (isGrowing ? "text-emerald-600" : "text-red-600")}>
+                Compared to {prevData.year}
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-white border-[#243324]/5 shadow-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3 mb-2 text-[#243324]/60">
+                <History className="w-4 h-4" />
+                <span className="text-xs font-semibold uppercase tracking-wider">Pandemic Recovery</span>
+              </div>
+              <div className="text-4xl lg:text-5xl font-serif text-[#243324] mb-2">
+                {recoveryRate}%
+              </div>
+              <div className="text-sm font-medium text-blue-600">
+                Of 2019 pre-COVID peak
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-slate-900 border-slate-800 shadow-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3 text-slate-400">
+                  <Train className="w-4 h-4" />
+                  <span className="text-xs font-semibold uppercase tracking-wider">Rail Dominance</span>
+                </div>
+                <Bus className="w-4 h-4 text-slate-600" />
+              </div>
+              <div className="flex items-end gap-2 mb-2">
+                <div className="text-4xl lg:text-5xl font-serif text-white">
+                  {percentageData[percentageData.length - 1].RailPct}%
+                </div>
+                <div className="text-lg text-slate-400 mb-1">vs Bus</div>
+              </div>
+              <div className="text-sm font-medium text-slate-400">
+                Rail share has grown from {percentageData[0].RailPct}% in {percentageData[0].year}
               </div>
             </CardContent>
           </Card>
         </div>
 
+        {/* CHARTS */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
           
           <Card className="bg-white border-[#243324]/5 shadow-sm lg:col-span-2">
             <CardHeader className="border-b border-[#243324]/5 pb-4">
-              <CardTitle className="font-serif text-2xl text-[#243324]">Historical Ridership Growth</CardTitle>
-              <CardDescription>Notice the severe impact of the COVID-19 pandemic in 2020 and the subsequent recovery.</CardDescription>
+              <CardTitle className="font-serif text-2xl text-[#243324]">Historical Ridership Volume</CardTitle>
+              <CardDescription>Notice the severe impact of the COVID-19 pandemic in 2020 and the subsequent recovery curve.</CardDescription>
             </CardHeader>
             <CardContent className="p-6">
               <div className="h-[450px] w-full">
@@ -133,8 +176,34 @@ export default function RidershipDashboard({ data }: { data: any[] }) {
                       formatter={(value: number, name: string) => [`${(value/1000).toFixed(1)}k`, name]}
                     />
                     <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                    <Area type="monotone" dataKey="Bus" stroke="#10b981" fillOpacity={1} fill="url(#colorBus)" strokeWidth={3} activeDot={{ r: 6 }} />
-                    <Area type="monotone" dataKey="MRT" stroke="#3b82f6" fillOpacity={1} fill="url(#colorMRT)" strokeWidth={3} activeDot={{ r: 6 }} />
+                    <Area type="monotone" dataKey="Bus" stackId="1" stroke="#10b981" fillOpacity={1} fill="url(#colorBus)" strokeWidth={2} activeDot={{ r: 6 }} />
+                    <Area type="monotone" dataKey="MRT" stackId="1" stroke="#3b82f6" fillOpacity={1} fill="url(#colorMRT)" strokeWidth={2} activeDot={{ r: 6 }} />
+                    <Area type="monotone" dataKey="LRT" stackId="1" stroke="#8b5cf6" fillOpacity={1} fill="#8b5cf6" strokeWidth={2} activeDot={{ r: 6 }} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white border-[#243324]/5 shadow-sm lg:col-span-2">
+            <CardHeader className="border-b border-[#243324]/5 pb-4">
+              <CardTitle className="font-serif text-2xl text-[#243324]">Mode Share Transition (Rail vs Bus)</CardTitle>
+              <CardDescription>A 100% stacked view illustrating how Singapore transitioned from a bus-centric to a rail-centric commuting culture.</CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="h-[400px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={percentageData} stackOffset="expand" margin={{ top: 20, right: 30, left: 20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#24332410" />
+                    <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#24332480' }} minTickGap={20} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#24332480' }} tickFormatter={(v) => `${(v * 100).toFixed(0)}%`} dx={-10} />
+                    <RechartsTooltip 
+                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                      formatter={(value: number, name: string) => [`${(value * 100).toFixed(1)}%`, name.replace('Pct', ' Share')]}
+                    />
+                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                    <Area type="monotone" dataKey="BusPct" stackId="1" name="Public Bus" stroke="#10b981" fill="#10b981" fillOpacity={0.8} />
+                    <Area type="monotone" dataKey="RailPct" stackId="1" name="Rail (MRT & LRT)" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.8} />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
