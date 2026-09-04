@@ -49,12 +49,20 @@ export default async function Home() {
       color: 'bg-indigo-500/10 text-indigo-700',
     },
     {
-      title: 'Climate, Weather & Air Quality',
-      description: 'Track Singapore\'s real-time air quality (PSI), rising surface temperatures, historical rainfall patterns, and long-term climate shifts.',
+      title: 'Climate Change & Weather',
+      description: 'Track Singapore\'s rising surface temperatures, historical rainfall patterns, and long-term climate shifts.',
       icon: Leaf,
       href: '/environment/climate',
       status: dates.climate,
       color: 'bg-green-500/10 text-green-700',
+    },
+    {
+      title: 'Air Quality & Haze',
+      description: 'Real-time PSI & PM2.5 readings, regional air quality map, and historical haze crisis benchmarks.',
+      icon: Activity,
+      href: '/environment/air-quality',
+      status: 'Live',
+      color: 'bg-slate-500/10 text-slate-700',
     },
   ];
 
