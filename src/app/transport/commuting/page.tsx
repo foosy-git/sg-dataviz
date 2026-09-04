@@ -22,7 +22,7 @@ export default async function CommutingPage() {
     const csvRes = await fetch(pollData.data.url, { next: { revalidate: 86400 } });
     const csvText = await csvRes.text();
 
-    const lines = csvText.split('\\n').map(l => l.trim()).filter(Boolean);
+    const lines = csvText.split('\n').map(l => l.trim()).filter(Boolean);
     // Parse the CSV
     const parsedData = [];
     // Data starts at line 1. Line 0 is header.
