@@ -54,7 +54,7 @@ export async function POST(req: Request) {
     }
 
     // Input validation
-    const validTypes = ['Enhancement', 'Bug', 'Data Issue'];
+    const validTypes = ['Enhancement', 'Bug', 'Data Issue', 'Others'];
     const sanitizedType = validTypes.includes(type) ? type : 'Enhancement';
 
     if (!message || typeof message !== 'string' || message.trim().length === 0) {

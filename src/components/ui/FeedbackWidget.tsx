@@ -88,6 +88,7 @@ export default function FeedbackWidget() {
                     <option value="Enhancement">Enhancement / Idea</option>
                     <option value="Bug">Bug Report</option>
                     <option value="Data Issue">Data Accuracy Issue</option>
+                    <option value="Others">Others</option>
                   </select>
                 </div>
 
