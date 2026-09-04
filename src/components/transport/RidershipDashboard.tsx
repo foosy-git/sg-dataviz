@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, Train, Bus, Activity, Users, TrendingUp, History } from 'lucide-react';
+import { ArrowLeft, Train, Bus, Activity, Users, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend, AreaChart, Area, ComposedChart, Bar
@@ -35,15 +35,12 @@ export default function RidershipDashboard({ data }: { data: any[] }) {
 
   const latestData = chartData[chartData.length - 1];
   const prevData = chartData[chartData.length - 2];
-  const peakData = chartData.find(d => d.year === '2019') || chartData[0]; // 2019 is the pre-COVID peak
   
   const latestYear = latestData.year;
   
   // High-interest Metrics
   const yoyGrowth = (((latestData.total - prevData.total) / prevData.total) * 100).toFixed(1);
   const isGrowing = parseFloat(yoyGrowth) >= 0;
-
-  const recoveryRate = ((latestData.total / peakData.total) * 100).toFixed(1);
 
   return (
     <div className="min-h-screen bg-[#FBF9F5] pb-20">
@@ -89,7 +86,7 @@ export default function RidershipDashboard({ data }: { data: any[] }) {
                 {(latestData.total / 1000000).toFixed(2)}M
               </div>
               <div className="text-sm font-medium text-[#243324]/60">
-                Total average passengers
+                Total average daily journeys
               </div>
             </CardContent>
           </Card>
@@ -112,35 +109,29 @@ export default function RidershipDashboard({ data }: { data: any[] }) {
           <Card className="bg-white border-[#243324]/5 shadow-sm">
             <CardContent className="p-6">
               <div className="flex items-center gap-3 mb-2 text-[#243324]/60">
-                <History className="w-4 h-4" />
-                <span className="text-xs font-semibold uppercase tracking-wider">Pandemic Recovery</span>
+                <Train className="w-4 h-4" />
+                <span className="text-xs font-semibold uppercase tracking-wider">Rail (MRT + LRT)</span>
               </div>
               <div className="text-4xl lg:text-5xl font-serif text-[#243324] mb-2">
-                {recoveryRate}%
+                {((latestData.MRT + latestData.LRT) / 1000000).toFixed(2)}M
               </div>
               <div className="text-sm font-medium text-blue-600">
-                Of 2019 pre-COVID peak
+                {(((latestData.MRT + latestData.LRT) / latestData.total) * 100).toFixed(1)}% of total share
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-slate-900 border-slate-800 shadow-sm">
+          <Card className="bg-white border-[#243324]/5 shadow-sm">
             <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3 text-slate-400">
-                  <Train className="w-4 h-4" />
-                  <span className="text-xs font-semibold uppercase tracking-wider">Rail Dominance</span>
-                </div>
-                <Bus className="w-4 h-4 text-slate-600" />
+              <div className="flex items-center gap-3 mb-2 text-[#243324]/60">
+                <Bus className="w-4 h-4" />
+                <span className="text-xs font-semibold uppercase tracking-wider">Public Bus</span>
               </div>
-              <div className="flex items-end gap-2 mb-2">
-                <div className="text-4xl lg:text-5xl font-serif text-white">
-                  {percentageData[percentageData.length - 1].RailPct}%
-                </div>
-                <div className="text-lg text-slate-400 mb-1">vs Bus</div>
+              <div className="text-4xl lg:text-5xl font-serif text-[#243324] mb-2">
+                {(latestData.Bus / 1000000).toFixed(2)}M
               </div>
-              <div className="text-sm font-medium text-slate-400">
-                Rail share has grown from {percentageData[0].RailPct}% in {percentageData[0].year}
+              <div className="text-sm font-medium text-emerald-600">
+                {((latestData.Bus / latestData.total) * 100).toFixed(1)}% of total share
               </div>
             </CardContent>
           </Card>
