@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -6,9 +7,18 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
 } from 'recharts';
+import { ComposableMap, Geographies, Geography, Marker } from 'react-simple-maps';
+import { useState, useEffect } from 'react';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function AirQualityDashboard({ psiData }: { psiData: { psi: any, pm25: any } }) {
+  const [geoData, setGeoData] = useState<any>(null);
+
+  useEffect(() => {
+    fetch('/sg.geojson')
+      .then(r => r.json())
+      .then(d => setGeoData(d));
+  }, []);
   
   const getPsiData = (val: number | null) => {
     if (val === null || val === undefined) {
@@ -30,8 +40,16 @@ export default function AirQualityDashboard({ psiData }: { psiData: { psi: any, 
     return { status: 'Hazardous', color: 'text-purple-600' };
   };
 
-  const nationalPsi = psiData?.psi?.readings?.psi_twenty_four_hourly?.national ?? null;
-  const nationalPm25hr1 = psiData?.pm25?.readings?.pm25_one_hourly?.national ?? null;
+  // The PSI API no longer provides 'national'. We must calculate it as the max of all regions.
+  const getNationalMax = (readings: any) => {
+    if (!readings) return null;
+    const vals = [readings.north, readings.south, readings.east, readings.west, readings.central].filter(v => v !== undefined && v !== null);
+    if (vals.length === 0) return null;
+    return Math.max(...vals);
+  };
+
+  const nationalPsi = getNationalMax(psiData?.psi?.readings?.psi_twenty_four_hourly) ?? null;
+  const nationalPm25hr1 = getNationalMax(psiData?.pm25?.readings?.pm25_one_hourly) ?? null;
   const nationalInfo = getPsiData(nationalPsi);
   const pm25Info = getPm25Data(nationalPm25hr1);
 
@@ -43,20 +61,22 @@ export default function AirQualityDashboard({ psiData }: { psiData: { psi: any, 
     { name: 'Current', psi: nationalPsi ?? 0, year: new Date().getFullYear() },
   ].sort((a, b) => a.year - b.year);
 
+  // Approximate longitude/latitude for the 5 regions
   const regions = [
-    { id: 'north', label: 'North', top: '15%', left: '50%' },
-    { id: 'west', label: 'West', top: '50%', left: '25%' },
-    { id: 'central', label: 'Central', top: '55%', left: '50%' },
-    { id: 'east', label: 'East', top: '50%', left: '75%' },
-    { id: 'south', label: 'South', top: '85%', left: '55%' },
+    { id: 'north', label: 'North', coords: [103.82, 1.43] },
+    { id: 'west', label: 'West', coords: [103.71, 1.36] },
+    { id: 'central', label: 'Central', coords: [103.82, 1.35] },
+    { id: 'east', label: 'East', coords: [103.94, 1.35] },
+    { id: 'south', label: 'South', coords: [103.82, 1.28] },
   ];
 
+  // Radar chart data for pollutants. We also must calculate the max for these if national is missing.
   const pollutantData = [
-    { subject: 'PM2.5', A: psiData?.psi?.readings?.pm25_sub_index?.national ?? 0, fullMark: 200 },
-    { subject: 'PM10', A: psiData?.psi?.readings?.pm10_sub_index?.national ?? 0, fullMark: 200 },
-    { subject: 'Ozone', A: psiData?.psi?.readings?.o3_sub_index?.national ?? 0, fullMark: 200 },
-    { subject: 'SO2', A: psiData?.psi?.readings?.so2_sub_index?.national ?? 0, fullMark: 200 },
-    { subject: 'CO', A: psiData?.psi?.readings?.co_sub_index?.national ?? 0, fullMark: 200 },
+    { subject: 'PM2.5', A: getNationalMax(psiData?.psi?.readings?.pm25_sub_index) ?? 0, fullMark: 200 },
+    { subject: 'PM10', A: getNationalMax(psiData?.psi?.readings?.pm10_sub_index) ?? 0, fullMark: 200 },
+    { subject: 'Ozone', A: getNationalMax(psiData?.psi?.readings?.o3_sub_index) ?? 0, fullMark: 200 },
+    { subject: 'SO2', A: getNationalMax(psiData?.psi?.readings?.so2_sub_index) ?? 0, fullMark: 200 },
+    { subject: 'CO', A: getNationalMax(psiData?.psi?.readings?.co_sub_index) ?? 0, fullMark: 200 },
   ];
 
   return (
@@ -142,36 +162,71 @@ export default function AirQualityDashboard({ psiData }: { psiData: { psi: any, 
               <CardTitle className="font-serif text-xl text-[#243324]">Regional Air Quality Map</CardTitle>
               <CardDescription>Live 24-hr PSI readings across Singapore</CardDescription>
             </CardHeader>
-            <CardContent className="p-0 relative bg-[#E8DCC4]/10">
-              <div className="relative w-full h-[350px] md:h-[450px] overflow-hidden flex items-center justify-center">
+            <CardContent className="p-0 relative bg-[#e0f2fe]/20">
+              <div className="relative w-full h-[450px] md:h-[600px] overflow-hidden flex items-center justify-center">
                 
-                {/* Abstract Island Shape */}
-                <div className="absolute w-[85%] h-[65%] md:w-[70%] md:h-[55%] bg-[#FBF9F5]/90 shadow-sm border border-[#243324]/10 rounded-[50%_45%_55%_40%_/_50%_40%_60%_50%] transform -rotate-2" />
+                {!geoData && (
+                  <div className="animate-pulse text-[#243324]/50">Loading Map...</div>
+                )}
                 
-                {regions.map((region) => {
-                  const val = psiData?.psi?.readings?.psi_twenty_four_hourly?.[region.id] ?? null;
-                  const info = getPsiData(val);
-                  
-                  return (
-                    <div 
-                      key={region.id}
-                      className="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center"
-                      style={{ top: region.top, left: region.left }}
-                    >
-                      <div className="text-xs font-semibold text-[#243324]/80 uppercase tracking-wider mb-2 bg-[#FBF9F5]/90 px-3 py-0.5 rounded-full backdrop-blur-sm shadow-sm border border-[#243324]/10">
-                        {region.label}
-                      </div>
-                      <div className={"relative flex items-center justify-center w-14 h-14 md:w-16 md:h-16 rounded-full border-[3px] shadow-lg bg-white " + info.border}>
-                        {info.pulse && (
-                          <div className={"absolute inset-0 rounded-full animate-ping opacity-30 " + info.bg} />
-                        )}
-                        <span className={"font-serif text-xl md:text-2xl font-bold " + info.color}>
-                          {val ?? '-'}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
+                {geoData && (
+                  <ComposableMap
+                    projection="geoMercator"
+                    projectionConfig={{
+                      scale: 130000,
+                      center: [103.8198, 1.3521] // Centered on Singapore
+                    }}
+                    width={800}
+                    height={500}
+                    style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}
+                  >
+                    <Geographies geography={geoData}>
+                      {({ geographies }) =>
+                        geographies.map((geo) => (
+                          <Geography
+                            key={geo.rsmKey}
+                            geography={geo}
+                            fill="#f1f5f9"
+                            stroke="#cbd5e1"
+                            strokeWidth={0.5}
+                            style={{
+                              default: { outline: "none" },
+                              hover: { fill: "#f1f5f9", outline: "none" },
+                              pressed: { outline: "none" },
+                            }}
+                          />
+                        ))
+                      }
+                    </Geographies>
+
+                    {regions.map((region) => {
+                      const val = psiData?.psi?.readings?.psi_twenty_four_hourly?.[region.id] ?? null;
+                      const info = getPsiData(val);
+                      
+                      // Using SVG foreignObject to render our nice HTML badges directly onto the map coordinates!
+                      return (
+                        <Marker key={region.id} coordinates={region.coords as [number, number]}>
+                          <foreignObject x="-40" y="-40" width="80" height="80">
+                            <div className="flex flex-col items-center justify-center w-full h-full">
+                              <div className="text-[10px] font-semibold text-[#243324]/80 uppercase tracking-wider mb-1 bg-white/90 px-2 rounded-full backdrop-blur-sm shadow-sm border border-[#243324]/10">
+                                {region.label}
+                              </div>
+                              <div className={"relative flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] shadow-lg bg-white " + info.border}>
+                                {info.pulse && (
+                                  <div className={"absolute inset-0 rounded-full animate-ping opacity-30 " + info.bg} />
+                                )}
+                                <span className={"font-serif text-sm md:text-base font-bold " + info.color}>
+                                  {val ?? '-'}
+                                </span>
+                              </div>
+                            </div>
+                          </foreignObject>
+                        </Marker>
+                      );
+                    })}
+                  </ComposableMap>
+                )}
+                
               </div>
             </CardContent>
           </Card>
@@ -229,9 +284,9 @@ export default function AirQualityDashboard({ psiData }: { psiData: { psi: any, 
                       {
                         historicalHaze.map((entry, index) => {
                           if (entry.name === 'Current') {
-                            return <Cell key={`cell-${index}`} fill="#3b82f6" />;
+                            return <Cell key={'cell-' + index} fill="#3b82f6" />;
                           }
-                          return <Cell key={`cell-${index}`} fill="#f97316" />;
+                          return <Cell key={'cell-' + index} fill="#f97316" />;
                         })
                       }
                     </Bar>
