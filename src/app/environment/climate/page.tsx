@@ -3,17 +3,25 @@ import { Suspense } from 'react';
 
 const TEMP_API = 'https://data.gov.sg/api/action/datastore_search?resource_id=d_755290a24afe70c8f9e8bcbf9f251573&limit=2000';
 const RAIN_API = 'https://data.gov.sg/api/action/datastore_search?resource_id=d_b16d06b83473fdfcc92ed9d37b66ba58&limit=2000';
+const PSI_API = 'https://api.data.gov.sg/v1/environment/psi';
 
 async function getClimateData() {
-  const [tempRes, rainRes] = await Promise.all([
+  const [tempRes, rainRes, psiRes] = await Promise.all([
     fetch(TEMP_API, { next: { revalidate: 3600 } }),
-    fetch(RAIN_API, { next: { revalidate: 3600 } })
+    fetch(RAIN_API, { next: { revalidate: 3600 } }),
+    fetch(PSI_API, { next: { revalidate: 60 } }) // Revalidate PSI every minute
   ]);
   
   if (!tempRes.ok || !rainRes.ok) throw new Error('Failed to fetch Climate data');
   
   const tempData = await tempRes.json();
   const rainData = await rainRes.json();
+  
+  let psi = null;
+  if (psiRes.ok) {
+    const psiJson = await psiRes.json();
+    psi = psiJson.items?.[0] || null;
+  }
   
   // Merge the two datasets by 'month'
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -44,7 +52,7 @@ async function getClimateData() {
   const merged = Array.from(map.values())
     .sort((a, b) => a.month.localeCompare(b.month)); // Oldest first
     
-  return merged;
+  return { merged, psi };
 }
 
 export const dynamic = 'force-dynamic';
@@ -55,7 +63,7 @@ export default async function ClimatePage() {
   return (
     <main className="min-h-screen bg-[#FBF9F5]">
       <Suspense fallback={<div className="p-20 text-center">Loading Climate data...</div>}>
-        <ClimateDashboard initialData={data} />
+        <ClimateDashboard initialData={data.merged} psiData={data.psi} />
       </Suspense>
     </main>
   );

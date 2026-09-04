@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Leaf, Thermometer, CloudRain } from 'lucide-react';
+import { ArrowLeft, Leaf, Thermometer, CloudRain, Wind } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -10,7 +10,7 @@ import {
 } from 'recharts';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function ClimateDashboard({ initialData }: { initialData: any[] }) {
+export default function ClimateDashboard({ initialData, psiData }: { initialData: any[], psiData: any }) {
   
   // Calculate Yearly Averages to smooth out the noise of seasonal months
   const yearlyData = useMemo(() => {
@@ -108,6 +108,30 @@ export default function ClimateDashboard({ initialData }: { initialData: any[] }
   const latestYearData = yearlyData[yearlyData.length - 1] || {};
   const previousYearData = yearlyData[yearlyData.length - 2] || {};
 
+  // Determine PSI Status
+  let psiVal = null;
+  let psiStatus = 'N.A.';
+  let psiColor = 'text-[#243324]/60';
+  if (psiData && psiData.readings && psiData.readings.psi_twenty_four_hourly) {
+    psiVal = psiData.readings.psi_twenty_four_hourly.national;
+    if (psiVal <= 50) {
+      psiStatus = 'Good';
+      psiColor = 'text-emerald-600';
+    } else if (psiVal <= 100) {
+      psiStatus = 'Moderate';
+      psiColor = 'text-amber-600';
+    } else if (psiVal <= 200) {
+      psiStatus = 'Unhealthy';
+      psiColor = 'text-orange-600';
+    } else if (psiVal <= 300) {
+      psiStatus = 'Very Unhealthy';
+      psiColor = 'text-red-600';
+    } else {
+      psiStatus = 'Hazardous';
+      psiColor = 'text-purple-600';
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#FBF9F5] pb-20">
       {/* Standardized Navbar */}
@@ -149,6 +173,20 @@ export default function ClimateDashboard({ initialData }: { initialData: any[] }
           Current Year: {latestYearData.year} YTD
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12">
+          <Card className="bg-white border-[#243324]/5 shadow-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3 mb-2 text-[#243324]/60">
+                <Wind className="w-4 h-4" />
+                <span className="text-xs font-semibold uppercase tracking-wider">Current PSI (National)</span>
+              </div>
+              <div className="text-3xl font-serif text-[#243324] mb-2 flex items-baseline gap-1">
+                {psiVal ?? 'N.A.'}
+              </div>
+              <div className={`text-sm font-medium ${psiColor}`}>
+                {psiStatus}
+              </div>
+            </CardContent>
+          </Card>
           <Card className="bg-white border-[#243324]/5 shadow-sm">
             <CardContent className="p-6">
               <div className="flex items-center gap-3 mb-2 text-[#243324]/60">
