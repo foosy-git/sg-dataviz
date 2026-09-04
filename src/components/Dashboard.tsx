@@ -15,6 +15,7 @@ import InvestorTable from './tables/InvestorTable';
 import DashboardFilters from './DashboardFilters';
 import ErrorState from './ui/ErrorState';
 import { motion, useScroll, useSpring } from 'framer-motion';
+import { BaselineInfoTooltip } from './ui/BaselineInfoTooltip';
 import fallbackResaleIndex from '../../public/hdb_resale_index.json';
 import fallbackAnnualAvg from '../../public/hdb_historical_avg.json';
 import { HdbResaleIndexPoint, HdbAnnualTrendPoint } from '@/types/hdb';
@@ -176,17 +177,18 @@ export default function Dashboard() {
           id="macro-benchmark" 
           className="py-20 px-4 md:px-8 max-w-7xl mx-auto border-b border-[#243324]/10 scroll-mt-20"
         >
-          <div className="mb-10">
+          <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 mb-3">
               <Badge variant="outline" className="bg-[#243324]/5 border-[#243324]/20 text-[#243324] text-xs font-semibold uppercase tracking-wider px-3 py-1">
                 National Macro Benchmark • 1990–Present • Unfiltered
               </Badge>
             </div>
-            <h2 className="text-3xl md:text-4xl font-serif text-[#243324] tracking-tight">
+            <h2 className="text-3xl md:text-5xl font-serif text-[#243324] mb-3 tracking-tight">
               Singapore HDB Macro Market Benchmark
             </h2>
-            <p className="text-[#243324]/75 max-w-3xl text-base md:text-lg mt-2 font-sans leading-relaxed">
-              Official constant-quality HDB Resale Price Index (1Q2009 = 100) and historical annual average resale values across 35+ years of policy and economic cycles. This macro benchmark reflects all of Singapore and is unaffected by localized estate filters.
+            <p className="text-[#243324]/75 max-w-3xl mx-auto text-base md:text-lg font-sans leading-relaxed">
+              Official constant-quality HDB Resale Price Index (2009-Q1 = 100){' '}
+              <BaselineInfoTooltip className="inline-flex align-middle" /> and historical annual average resale values across 35+ years of policy and economic cycles.
             </p>
           </div>
 

@@ -17,6 +17,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Activity, Sparkles } from 'lucide-react';
+import { BaselineInfoTooltip } from '@/components/ui/BaselineInfoTooltip';
 import { HdbResaleIndexPoint, HdbAnnualTrendPoint } from '@/types/hdb';
 
 interface OverallMarketTrendChartProps {
@@ -128,7 +129,7 @@ export default function OverallMarketTrendChart({
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
               <span className="text-[#243324]/70 font-medium">
-                {isIndexMetric ? 'Resale Price Index:' : 'Average Price:'}
+                {isIndexMetric ? 'Resale Price Index (2009-Q1=100):' : 'Average Price:'}
               </span>
               <span className="font-bold text-[#243324]">
                 {isIndexMetric ? (mainVal !== undefined ? `${mainVal.toFixed(1)} pts` : 'N/A') : (mainVal !== undefined ? `$${mainVal?.toLocaleString()}` : 'N/A')}
@@ -164,7 +165,7 @@ export default function OverallMarketTrendChart({
   };
 
   return (
-    <Card className="shadow-sm border-[#243324]/10 bg-white/70 backdrop-blur-md overflow-hidden">
+    <Card className="shadow-sm border-[#243324]/10 bg-white/70 backdrop-blur-md overflow-visible">
       <CardHeader className="border-b border-[#243324]/5 pb-6">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="space-y-1">
@@ -237,9 +238,12 @@ export default function OverallMarketTrendChart({
             <span className="text-[11px] font-sans font-semibold uppercase tracking-wider text-[#243324]/60 block mb-1">
               Latest Index ({latestQuarter?.quarter || '2Q 2026'})
             </span>
-            <div className="text-2xl font-serif font-bold text-[#243324]">
-              {latestQuarter?.index !== undefined ? latestQuarter.index.toFixed(1) : '202.8'}
-              <span className="text-xs font-normal text-[#243324]/60 ml-1 font-sans">(1Q09=100)</span>
+            <div className="text-2xl font-serif font-bold text-[#243324] flex items-center flex-wrap gap-1">
+              <span>{latestQuarter?.index !== undefined ? latestQuarter.index.toFixed(1) : '202.8'}</span>
+              <span className="text-xs font-normal text-[#243324]/60 font-sans inline-flex items-center gap-1">
+                <span>(2009-Q1=100)</span>
+                <BaselineInfoTooltip align="left" />
+              </span>
             </div>
           </div>
 
@@ -428,7 +432,7 @@ export default function OverallMarketTrendChart({
                 yAxisId="left"
                 type="monotone"
                 dataKey={metric === 'index' ? 'index' : 'averagePrice'}
-                name={metric === 'index' ? 'Resale Price Index (1Q09=100)' : 'Average Resale Price ($)'}
+                name={metric === 'index' ? 'Resale Price Index (2009-Q1=100)' : 'Average Resale Price ($)'}
                 stroke="#243324"
                 strokeWidth={3}
                 dot={false}
