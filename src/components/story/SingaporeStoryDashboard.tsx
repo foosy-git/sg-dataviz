@@ -89,7 +89,7 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 mb-8 text-center">
         <h1 className="font-serif text-5xl md:text-6xl tracking-tight text-[#1F2B1D] mb-4">The Singapore Story</h1>
         <p className="text-lg text-[#243324]/70 max-w-2xl mx-auto font-light">
-          Drag the timeline to explore how Singapore's key national indicators have evolved together over the last two decades.
+          Drag the timeline to explore how various indicators have evolved together over the last two decades.
         </p>
       </div>
 
