@@ -66,11 +66,11 @@ export default async function Home() {
       color: 'bg-purple-500/10 text-purple-700',
     },
     {
-      title: 'Commuting to Work',
-      description: 'Analyze how Singapore resident working persons (aged 15+) travel to work, broken down by transport mode and sex.',
+      title: 'Public Transport Ridership',
+      description: 'Track the average daily passenger volume across Singapore\'s MRT, LRT, and Public Bus networks over the past decades.',
       icon: Train,
       href: '/transport/commuting',
-      status: 'Data as of 2015',
+      status: 'Data as of 2024',
       color: 'bg-blue-500/10 text-blue-700',
     },
     {
