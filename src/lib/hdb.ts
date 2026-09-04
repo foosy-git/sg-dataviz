@@ -89,18 +89,6 @@ let cachedAnnualTrendData: HdbAnnualTrendPoint[] | null = null;
 
 const HDB_RPI_RESOURCE_ID = 'd_14f63e595975691e7c24a27ae4c07c79';
 
-const MILESTONES: Record<string, string> = {
-  '1996-Q4': '1996 Peak before Asian Financial Crisis',
-  '1998-Q4': 'Asian Financial Crisis Impact',
-  '2008-Q3': 'Global Financial Crisis',
-  '2013-Q2': 'Peak before TDSR & MSR Cooling Measures',
-  '2015-Q3': 'Cooling Measures Consolidation',
-  '2020-Q2': 'COVID-19 Circuit Breaker',
-  '2021-Q4': 'Pandemic Housing Demand Surge (+12.7% YoY)',
-  '2024-Q4': 'Post-pandemic Resale High (+9.7% YoY)',
-  '2026-Q2': 'Market Stabilization & Supply Ramp (-0.05% YoY)'
-};
-
 export async function getHdbResaleIndexData(): Promise<HdbResaleIndexPoint[]> {
   if (cachedResaleIndexData) {
     return cachedResaleIndexData;
@@ -144,8 +132,7 @@ export async function getHdbResaleIndexData(): Promise<HdbResaleIndexPoint[]> {
           year: parseInt(r.quarter.split('-')[0], 10),
           index: indexVal,
           yoy,
-          qoq,
-          milestone: MILESTONES[r.quarter] || null
+          qoq
         };
       });
       return cachedResaleIndexData!;

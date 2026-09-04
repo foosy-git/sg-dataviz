@@ -16,7 +16,7 @@ import {
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, Activity, Sparkles } from 'lucide-react';
+import { TrendingUp, TrendingDown, Activity } from 'lucide-react';
 import { BaselineInfoTooltip } from '@/components/ui/BaselineInfoTooltip';
 import { HdbResaleIndexPoint, HdbAnnualTrendPoint } from '@/types/hdb';
 
@@ -31,8 +31,6 @@ export default function OverallMarketTrendChart({
 }: OverallMarketTrendChartProps) {
   const [metric, setMetric] = useState<'index' | 'price'>('index');
   const [timeframe, setTimeframe] = useState<'5Y' | '10Y' | '20Y' | 'ALL'>('10Y');
-  const [selectedMilestone, setSelectedMilestone] = useState<string | null>(null);
-  const [showAllMilestones, setShowAllMilestones] = useState<boolean>(false);
 
   // Filtered dataset based on timeframe
   const filteredQuarterlyData = useMemo(() => {
@@ -80,97 +78,6 @@ export default function OverallMarketTrendChart({
   // Active chart data
   const chartData = metric === 'index' ? filteredQuarterlyData : filteredAnnualData;
 
-  // Key historical milestones list with context and stats
-  const keyMilestones = [
-    {
-      label: '1996 Peak',
-      quarter: '1996-Q4',
-      note: 'Pre-Asian Crisis Peak',
-      description: 'Historical all-time peak before the 1997 Asian Financial Crisis. Speculative demand and credit expansion drove rapid capital appreciation.',
-      index: 136.9,
-      yoy: '+18.6%'
-    },
-    {
-      label: '2013 TDSR/MSR',
-      quarter: '2013-Q2',
-      note: 'Cooling Measures Peak',
-      description: 'Post-GFC peak prior to introduction of Total Debt Servicing Ratio (TDSR) and Mortgage Servicing Ratio (MSR) curbs, establishing a 6-year plateau.',
-      index: 149.4,
-      yoy: '+2.7%'
-    },
-    {
-      label: '2020 COVID-19',
-      quarter: '2020-Q2',
-      note: 'Pandemic Onset',
-      description: 'Circuit Breaker period with physical flat viewings suspended. Resale activity briefly halted before triggering a major flight-to-space demand surge.',
-      index: 131.9,
-      yoy: '+0.3%'
-    },
-    {
-      label: '2021 Boom',
-      quarter: '2021-Q4',
-      note: '+12.7% YoY Surge',
-      description: 'Work-from-home demand surge and pandemic BTO construction delays squeezed market supply, resulting in the fastest annual growth in over a decade.',
-      index: 155.7,
-      yoy: '+12.7%'
-    },
-    {
-      label: '2024 High',
-      quarter: '2024-Q4',
-      note: '+9.7% YoY Peak',
-      description: 'Continued post-pandemic momentum and record million-dollar transactions in mature estates, met by additional cooling measures and increased BTO launches.',
-      index: 196.2,
-      yoy: '+9.7%'
-    },
-    {
-      label: '2026 Cooling',
-      quarter: '2026-Q2',
-      note: '-0.05% YoY Stabilization',
-      description: 'Prices stabilize as extensive post-pandemic BTO completions catch up with accumulated buyer demand, returning annual growth to flat equilibrium.',
-      index: 202.8,
-      yoy: '-0.05%'
-    }
-  ];
-
-  const activeMilestoneObj = keyMilestones.find(k => k.quarter === selectedMilestone);
-
-  const handleMilestonesToggle = () => {
-    if (showAllMilestones || selectedMilestone) {
-      setShowAllMilestones(false);
-      setSelectedMilestone(null);
-    } else {
-      setShowAllMilestones(true);
-      setSelectedMilestone(null);
-      setTimeframe('ALL');
-      if (metric !== 'index') {
-        setMetric('index');
-      }
-    }
-  };
-
-  const handleMilestoneClick = (quarter: string) => {
-    if (selectedMilestone === quarter) {
-      setSelectedMilestone(null);
-      return;
-    }
-    setSelectedMilestone(quarter);
-    setShowAllMilestones(false);
-    if (quarter < '2016-Q1') {
-      setTimeframe('ALL');
-    } else if (quarter < '2021-Q1' && timeframe === '5Y') {
-      setTimeframe('10Y');
-    }
-    if (metric !== 'index') {
-      setMetric('index');
-    }
-  };
-
-  const handleNextMilestone = () => {
-    const currentIndex = keyMilestones.findIndex(k => k.quarter === selectedMilestone);
-    const nextIndex = (currentIndex + 1) % keyMilestones.length;
-    handleMilestoneClick(keyMilestones[nextIndex].quarter);
-  };
-
   // Custom tooltip component
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -185,11 +92,6 @@ export default function OverallMarketTrendChart({
         <div className="bg-[#FBF9F5] border border-[#243324]/20 p-4 rounded-xl shadow-lg backdrop-blur-md max-w-xs font-sans">
           <div className="flex items-center justify-between gap-3 border-b border-[#243324]/10 pb-2 mb-2.5">
             <span className="font-serif font-bold text-base text-[#243324]">{label}</span>
-            {dataPoint?.milestone && (
-              <Badge variant="outline" className="bg-[#E8DCC4]/60 border-[#243324]/20 text-[#243324] text-[10px] font-medium px-2">
-                Event
-              </Badge>
-            )}
           </div>
 
           <div className="space-y-2">
@@ -215,12 +117,6 @@ export default function OverallMarketTrendChart({
                 <span className="font-semibold text-[#243324]">
                   {dataPoint.qoq >= 0 ? '+' : ''}{dataPoint.qoq.toFixed(2)}%
                 </span>
-              </div>
-            )}
-
-            {dataPoint?.milestone && (
-              <div className="mt-2.5 pt-2 border-t border-[#243324]/10 text-xs text-[#3B4D36] font-medium bg-[#E8DCC4]/30 p-2 rounded">
-                📌 {dataPoint.milestone}
               </div>
             )}
           </div>
@@ -347,110 +243,6 @@ export default function OverallMarketTrendChart({
       </CardHeader>
 
       <CardContent className="pt-6">
-        {/* Milestone Quick Tags */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-3 mb-2 text-xs scrollbar-thin">
-          <button
-            type="button"
-            onClick={handleMilestonesToggle}
-            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer shrink-0 ${
-              showAllMilestones
-                ? 'bg-[#243324] text-[#FBF9F5] border-[#243324] shadow-xs'
-                : 'bg-[#243324]/5 hover:bg-[#243324]/10 border-[#243324]/15 text-[#243324]'
-            }`}
-            title="Click to view all 6 key historical milestones on the macro timeline"
-            aria-pressed={showAllMilestones}
-          >
-            <Sparkles className={`w-3.5 h-3.5 ${showAllMilestones ? 'text-amber-300' : 'text-amber-600'}`} />
-            <span>Milestones{showAllMilestones ? ' (All)' : ':'}</span>
-          </button>
-          {keyMilestones.map((m) => (
-            <button
-              key={m.quarter}
-              type="button"
-              onClick={() => handleMilestoneClick(m.quarter)}
-              className={`px-2.5 py-1 rounded-full border transition-all shrink-0 text-[11px] font-medium cursor-pointer ${
-                selectedMilestone === m.quarter
-                  ? 'bg-[#3B4D36] text-[#FBF9F5] border-[#3B4D36] shadow-xs'
-                  : 'bg-white/80 border-[#243324]/15 text-[#243324]/80 hover:bg-[#E8DCC4]/40 hover:text-[#243324]'
-              }`}
-              title={m.note}
-            >
-              {m.label}
-            </button>
-          ))}
-          {(selectedMilestone || showAllMilestones) && (
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedMilestone(null);
-                setShowAllMilestones(false);
-              }}
-              className="text-[11px] text-[#243324]/60 hover:text-[#243324] underline ml-1 shrink-0 cursor-pointer"
-            >
-              Clear
-            </button>
-          )}
-        </div>
-
-        {/* Milestone Detail Callout Banner */}
-        {activeMilestoneObj && (
-          <div className="mb-3 p-3.5 bg-[#FAF6F0] border border-amber-600/25 rounded-xl shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs animate-in fade-in duration-150">
-            <div className="flex items-start gap-2.5">
-              <div className="p-1.5 rounded-lg bg-amber-500/15 text-amber-800 shrink-0 mt-0.5">
-                <Sparkles className="w-4 h-4" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-serif font-bold text-sm text-[#243324]">{activeMilestoneObj.label}</span>
-                  <Badge variant="outline" className="bg-white border-amber-600/30 text-amber-900 text-[10px] font-semibold px-2">
-                    {activeMilestoneObj.quarter}
-                  </Badge>
-                  <span className="text-[#243324]/40">·</span>
-                  <span className="font-medium text-[#243324]">Index: <strong>{activeMilestoneObj.index} pts</strong></span>
-                  <span className="text-[#243324]/40">·</span>
-                  <span className="font-semibold text-emerald-800">YoY Change: {activeMilestoneObj.yoy}</span>
-                </div>
-                <p className="text-[#243324]/80 mt-1 leading-relaxed text-xs">
-                  {activeMilestoneObj.description}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
-              <button
-                type="button"
-                onClick={handleNextMilestone}
-                className="px-2.5 py-1 bg-white border border-[#243324]/15 hover:bg-[#E8DCC4]/40 text-[#243324] rounded-lg text-xs font-medium transition-colors cursor-pointer shadow-2xs"
-              >
-                Next Milestone →
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedMilestone(null)}
-                className="p-1 text-[#243324]/50 hover:text-[#243324] transition-colors cursor-pointer text-sm font-bold"
-                aria-label="Dismiss milestone"
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-        )}
-
-        {showAllMilestones && !activeMilestoneObj && (
-          <div className="mb-3 p-3 bg-amber-500/10 border border-amber-500/25 rounded-xl text-xs flex items-center justify-between gap-3 text-amber-900 animate-in fade-in duration-150">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-600 shrink-0" />
-              <span><strong>Showing all 6 key historical market milestones</strong> across the full 1990–Present macro timeline. Click any milestone pill to inspect its policy and market details.</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setShowAllMilestones(false)}
-              className="text-xs font-medium underline hover:text-amber-950 shrink-0 cursor-pointer"
-            >
-              Dismiss
-            </button>
-          </div>
-        )}
 
         {/* The Main Composed Dual-Axis Chart */}
         <div className="h-[420px] w-full mt-2">
@@ -517,46 +309,6 @@ export default function OverallMarketTrendChart({
                   opacity: 0.5
                 }}
               />
-
-              {/* Highlight all milestones if showAllMilestones is active */}
-              {showAllMilestones && keyMilestones.map((m, idx) => (
-                <ReferenceLine
-                  key={m.quarter}
-                  x={m.quarter}
-                  yAxisId="left"
-                  stroke="#d97706"
-                  strokeWidth={1.5}
-                  strokeDasharray="3 3"
-                  isFront={true}
-                  label={{
-                    value: m.label,
-                    position: 'top',
-                    dy: idx % 2 === 1 ? 14 : 0,
-                    fill: '#92400e',
-                    fontSize: 10,
-                    fontWeight: 600
-                  }}
-                />
-              ))}
-
-              {/* Highlight single milestone if selected */}
-              {selectedMilestone && (
-                <ReferenceLine
-                  x={selectedMilestone}
-                  yAxisId="left"
-                  stroke="#b45309"
-                  strokeWidth={2.5}
-                  strokeDasharray="4 4"
-                  isFront={true}
-                  label={{
-                    value: activeMilestoneObj?.label || 'Milestone',
-                    position: 'top',
-                    fill: '#78350f',
-                    fontSize: 11,
-                    fontWeight: 700
-                  }}
-                />
-              )}
 
               <Tooltip content={<CustomTooltip />} />
 

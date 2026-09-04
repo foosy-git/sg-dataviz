@@ -37,7 +37,6 @@ export interface HdbResaleIndexPoint {
   index: number;
   yoy: number | null;
   qoq: number | null;
-  milestone?: string | null;
 }
 
 export interface HdbAnnualTrendPoint {
