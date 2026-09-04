@@ -36,8 +36,9 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
   const years = initialData.map(d => d.year);
   const minYear = Math.min(...years);
   const maxYear = Math.max(...years);
+  const initialYear = years.includes(2025) ? 2025 : maxYear;
   
-  const [currentYear, setCurrentYear] = useState<number>(maxYear);
+  const [currentYear, setCurrentYear] = useState<number>(initialYear);
   const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
