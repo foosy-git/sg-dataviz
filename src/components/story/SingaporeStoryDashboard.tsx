@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
-import { Baby, Wallet, Building2, Car, Leaf, LineChart as LineChartIcon, Play, Pause, TrendingUp, Users } from 'lucide-react';
+import { Baby, Wallet, Building2, Car, Leaf, LineChart as LineChartIcon, Play, Pause, TrendingUp, Users, ArrowLeft } from 'lucide-react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ReferenceLine, ReferenceDot } from 'recharts';
 import Link from 'next/link';
 
@@ -61,20 +61,27 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
   }, [currentYear, initialData]);
 
   // Formatters
-  const fCurrency = (val: number | null) => val ? `$${val.toLocaleString()}` : 'N.A.';
-  const fNum = (val: number | null) => val ? val.toLocaleString() : 'N.A.';
-  const fTemp = (val: number | null) => val ? `${val}°C` : 'N.A.';
-  const fPct = (val: number | null) => val ? `${val}%` : 'N.A.';
+  const fCurrency = (val: number | null) => val ? `$${val.toLocaleString()}` : 'Not Available';
+  const fNum = (val: number | null) => val ? val.toLocaleString() : 'Not Available';
+  const fTemp = (val: number | null) => val ? `${val}°C` : 'Not Available';
+  const fPct = (val: number | null) => val ? `${val}%` : 'Not Available';
 
   return (
     <div className="pb-24">
       {/* Header */}
       <header className="sticky top-0 z-50 w-full bg-[#FBF9F5]/90 backdrop-blur-xl border-b border-[#243324]/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 hover:opacity-70 transition-opacity bg-[#243324] text-[#FBF9F5] px-4 py-2 rounded-full text-sm font-medium">
-            <LineChartIcon className="w-4 h-4" />
-            <span>Back to Portal</span>
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-[#243324]/60 hover:text-[#243324] transition-colors py-1.5 px-3 rounded-md shadow-sm border border-[#243324]/5 bg-white/50">
+              <ArrowLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Back to Portal</span>
+            </Link>
+            <div className="h-6 w-px bg-[#243324]/10 hidden md:block" />
+            <div className="flex items-center gap-2">
+              <LineChartIcon className="w-5 h-5 text-[#3B4D36]" />
+              <h1 className="font-serif text-lg font-medium text-[#243324] tracking-tight">The Singapore Story</h1>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -171,7 +178,7 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
             </CardHeader>
             <CardContent className="flex-1 flex flex-col justify-between">
               <div className="text-4xl md:text-5xl font-serif text-rose-950 font-medium">
-                {currentData.birthRate ? currentData.birthRate.toFixed(2) : 'N.A.'}
+                {currentData.birthRate ? currentData.birthRate.toFixed(2) : 'Not Available'}
               </div>
               <div className="h-16 mt-4 w-full opacity-70">
                 <ResponsiveContainer width="100%" height="100%">
@@ -279,7 +286,7 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
             </CardHeader>
             <CardContent className="flex-1 flex flex-col justify-between">
               <div className="text-4xl md:text-5xl font-serif text-purple-950 font-medium">
-                {currentData.unemployment ? `${currentData.unemployment.toFixed(1)}%` : 'N.A.'}
+                {currentData.unemployment ? `${currentData.unemployment.toFixed(1)}%` : 'Not Available'}
               </div>
               <div className="h-16 mt-4 w-full opacity-70">
                 <ResponsiveContainer width="100%" height="100%">

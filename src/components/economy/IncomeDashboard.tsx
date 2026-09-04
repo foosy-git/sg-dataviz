@@ -3,7 +3,8 @@
 import { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend, LabelList } from 'recharts';
-import { TrendingUp, DollarSign, Users, Wallet } from 'lucide-react';
+import Link from 'next/link';
+import { TrendingUp, DollarSign, Users, Wallet, ArrowLeft } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 
@@ -71,10 +72,12 @@ export default function IncomeDashboard({ initialData }: IncomeDashboardProps) {
       {/* Standardized Navbar */}
       <header className="sticky top-0 z-50 w-full border-b border-[#243324]/10 bg-[#FBF9F5]/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <a href="/" className="flex items-center justify-center w-8 h-8 rounded-full bg-[#243324]/5 hover:bg-[#243324]/10 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#243324]"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
-            </a>
+          <div className="flex items-center gap-4">
+            <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-[#243324]/60 hover:text-[#243324] transition-colors py-1.5 px-3 rounded-md shadow-sm border border-[#243324]/5 bg-white/50">
+              <ArrowLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Back to Portal</span>
+            </Link>
+            <div className="h-6 w-px bg-[#243324]/10 hidden md:block" />
             <div className="flex items-center gap-2">
               <Wallet className="w-5 h-5 text-[#3B4D36]" />
               <h1 className="font-serif text-lg font-medium text-[#243324] tracking-tight">
@@ -82,7 +85,6 @@ export default function IncomeDashboard({ initialData }: IncomeDashboardProps) {
               </h1>
             </div>
           </div>
-
         </div>
       </header>
 
