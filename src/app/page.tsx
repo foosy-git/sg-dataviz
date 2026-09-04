@@ -76,7 +76,7 @@ export default async function Home() {
       description: 'Real-time PSI & PM2.5 readings, regional air quality map, and historical haze crisis benchmarks.',
       icon: Activity,
       href: '/environment/air-quality',
-      status: 'Live',
+      status: 'Live (hourly)',
       color: 'bg-slate-500/10 text-slate-700',
     },
     {
