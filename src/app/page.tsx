@@ -8,55 +8,15 @@ import { fetchDatasetDates } from '@/lib/fetchDates';
 export default async function Home() {
   const dates = await fetchDatasetDates();
   const dashboards = [
+    // --- ECONOMY & CAREERS ---
     {
-      title: 'Household Income & Distribution',
-      description: 'Analyze Singapore\'s household earnings, median vs average income, and observe the income gap across different deciles over the past 20+ years.',
+      title: 'Household Income & Wealth',
+      description: 'Analyze Singapore\'s household income trends, median vs average earnings, and the wealth gap.',
       icon: Wallet,
       href: '/economy/income',
       status: dates.income,
       color: 'bg-amber-500/10 text-amber-700',
     },
-    {
-      title: 'Birth Rates & Fertility',
-      description: 'Analyze Singapore\'s historical fertility trends and demographic shifts from 1960 onwards.',
-      icon: Baby,
-      href: '/demographics/birth-rates',
-      status: dates.birth,
-      color: 'bg-rose-500/10 text-rose-700',
-    },
-    {
-      title: 'HDB Horizon',
-      description: 'Interactive exploration of HDB resale data from 2017 onwards. Analyze market trends, estate values, and the impact of lease decay.',
-      icon: Building2,
-      href: '/hdb',
-      status: dates.hdb,
-      color: 'bg-emerald-500/10 text-emerald-700',
-    },
-    {
-      title: 'COE Bidding Analytics',
-      description: 'Track COE premium trends, quota supply, and bidding demand across all vehicle categories in Singapore from 2010 onwards.',
-      icon: Car,
-      href: '/transport/coe',
-      status: dates.coe,
-      color: 'bg-blue-500/10 text-blue-700',
-    },
-    {
-      title: 'Education & Careers',
-      description: 'Analyze graduate employment survey data, starting salaries, and employment rates across autonomous universities.',
-      icon: GraduationCap,
-      href: '/education/ges',
-      status: dates.ges,
-      color: 'bg-indigo-500/10 text-indigo-700',
-    },
-    {
-      title: 'Climate Change & Weather',
-      description: 'Track Singapore\'s rising surface temperatures, historical rainfall patterns, and long-term climate shifts.',
-      icon: Leaf,
-      href: '/environment/climate',
-      status: dates.climate,
-      color: 'bg-green-500/10 text-green-700',
-    },
-
     {
       title: 'Economy & Employment',
       description: 'Tracking Singapore\'s overall and resident unemployment rates, illustrating the impact of economic cycles.',
@@ -66,6 +26,34 @@ export default async function Home() {
       color: 'bg-purple-500/10 text-purple-700',
     },
     {
+      title: 'Education & Careers',
+      description: 'Analyze graduate employment survey data, starting salaries, and employment rates across autonomous universities.',
+      icon: GraduationCap,
+      href: '/education/ges',
+      status: dates.ges,
+      color: 'bg-indigo-500/10 text-indigo-700',
+    },
+
+    // --- LIVING & DEMOGRAPHICS ---
+    {
+      title: 'HDB Horizon',
+      description: 'Interactive exploration of HDB resale data from 2017 onwards. Analyze market trends, estate values, and the impact of lease decay.',
+      icon: Building2,
+      href: '/hdb',
+      status: dates.hdb,
+      color: 'bg-emerald-500/10 text-emerald-700',
+    },
+    {
+      title: 'Birth Rates & Fertility',
+      description: 'Analyze Singapore\'s historical fertility trends and demographic shifts from 1960 onwards.',
+      icon: Baby,
+      href: '/demographics/birth-rates',
+      status: dates.birth,
+      color: 'bg-rose-500/10 text-rose-700',
+    },
+
+    // --- TRANSPORT ---
+    {
       title: 'Public Transport Ridership',
       description: 'Track the average daily passenger volume across Singapore\'s MRT, LRT, and Public Bus networks over the past decades.',
       icon: Train,
@@ -74,14 +62,31 @@ export default async function Home() {
       color: 'bg-blue-500/10 text-blue-700',
     },
     {
-      title: 'Air Quality & Haze',
+      title: 'COE Bidding Analytics',
+      description: 'Track COE premium trends, quota supply, and bidding demand across all vehicle categories in Singapore from 2010 onwards.',
+      icon: Car,
+      href: '/transport/coe',
+      status: dates.coe,
+      color: 'bg-cyan-500/10 text-cyan-700',
+    },
 
+    // --- ENVIRONMENT ---
+    {
+      title: 'Air Quality & Haze',
       description: 'Real-time PSI & PM2.5 readings, regional air quality map, and historical haze crisis benchmarks.',
       icon: Activity,
       href: '/environment/air-quality',
       status: 'Live',
       color: 'bg-slate-500/10 text-slate-700',
     },
+    {
+      title: 'Climate Change & Weather',
+      description: 'Track Singapore\'s rising surface temperatures, historical rainfall patterns, and long-term climate shifts.',
+      icon: Leaf,
+      href: '/environment/climate',
+      status: dates.climate,
+      color: 'bg-green-500/10 text-green-700',
+    }
   ];
 
   return (
