@@ -120,8 +120,8 @@ export default async function Home() {
           <h1 className="font-serif text-5xl md:text-7xl tracking-tight text-[#1F2B1D] max-w-4xl mx-auto leading-tight">
             Unlock the story of Singapore through open data.
           </h1>
-          <p className="text-lg md:text-xl text-[#243324]/70 max-w-2xl mx-auto font-light leading-relaxed">
-            A centralized portal for interactive, editorial-grade visualizations built on public datasets from data.gov.sg. 
+          <p className="text-lg md:text-xl text-[#243324]/70 max-w-4xl mx-auto font-light leading-relaxed">
+            A centralized portal for interactive visualizations built on public datasets from data.gov.sg. 
             Explore trends, uncover insights, and understand the nation.
           </p>
         </div>
