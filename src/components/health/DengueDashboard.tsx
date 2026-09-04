@@ -3,18 +3,17 @@
 import Link from 'next/link';
 import { ArrowLeft, Activity, Bug, AlertTriangle, Syringe, Skull, MapPin } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend, LineChart, Line, ComposedChart, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
 } from 'recharts';
 
-export default function DengueDashboard({ data }: { data: any[] }) {
+export default function DengueDashboard({ data, liveClusters = [] }: { data: any[], liveClusters?: any[] }) {
   const latestData = data[data.length - 1];
   
-  // Find highest outbreak year
   const maxCases = Math.max(...data.map(d => d.cases));
   const peakYear = data.find(d => d.cases === maxCases)?.year;
 
-  // Mocking seasonality data for the radar chart (Dengue peaks mid-year)
   const seasonalityData = [
     { month: 'Jan', cases: 1200 },
     { month: 'Feb', cases: 900 },
@@ -30,9 +29,8 @@ export default function DengueDashboard({ data }: { data: any[] }) {
     { month: 'Dec', cases: 1400 },
   ];
 
-  // Mock active clusters data
-  const activeClusters = 42;
-  const topCluster = "Boon Lay / Jurong West";
+  const activeClustersCount = liveClusters.length;
+  const topCluster = liveClusters.length > 0 ? liveClusters[0] : null;
 
   return (
     <div className="min-h-screen bg-[#FBF9F5] pb-20">
@@ -70,6 +68,21 @@ export default function DengueDashboard({ data }: { data: any[] }) {
           <Card className="bg-white border-[#243324]/5 shadow-sm">
             <CardContent className="p-6">
               <div className="flex items-center gap-3 mb-2 text-[#243324]/60">
+                <MapPin className="w-4 h-4" />
+                <span className="text-xs font-semibold uppercase tracking-wider">Active Clusters</span>
+              </div>
+              <div className="text-4xl font-serif text-[#243324] mb-2">
+                {activeClustersCount}
+              </div>
+              <div className="text-sm font-medium text-red-600 truncate" title={topCluster?.LOCALITY}>
+                {topCluster ? `Red Alert: ${topCluster.LOCALITY.split('/')[0]}` : 'No active clusters'}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white border-[#243324]/5 shadow-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3 mb-2 text-[#243324]/60">
                 <Bug className="w-4 h-4" />
                 <span className="text-xs font-semibold uppercase tracking-wider">Total Cases ({latestData.year})</span>
               </div>
@@ -78,21 +91,6 @@ export default function DengueDashboard({ data }: { data: any[] }) {
               </div>
               <div className="text-sm font-medium text-[#243324]/60">
                 Endemic tracking
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-white border-[#243324]/5 shadow-sm">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3 mb-2 text-[#243324]/60">
-                <MapPin className="w-4 h-4" />
-                <span className="text-xs font-semibold uppercase tracking-wider">Active Clusters</span>
-              </div>
-              <div className="text-4xl font-serif text-[#243324] mb-2">
-                {activeClusters}
-              </div>
-              <div className="text-sm font-medium text-red-600">
-                Red Alert: {topCluster}
               </div>
             </CardContent>
           </Card>
@@ -130,7 +128,7 @@ export default function DengueDashboard({ data }: { data: any[] }) {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
           
-          <Card className="bg-white border-[#243324]/5 shadow-sm mb-12 lg:col-span-2">
+          <Card className="bg-white border-[#243324]/5 shadow-sm lg:col-span-2">
             <CardHeader className="border-b border-[#243324]/5 pb-4">
               <CardTitle className="font-serif text-2xl text-[#243324]">Dengue Cases Over Time</CardTitle>
               <CardDescription>Notice the cyclical pattern of major outbreaks every few years</CardDescription>
@@ -176,8 +174,45 @@ export default function DengueDashboard({ data }: { data: any[] }) {
               </div>
             </CardContent>
           </Card>
-
         </div>
+
+        {liveClusters.length > 0 && (
+          <div className="mb-12">
+            <h2 className="font-serif text-3xl text-[#243324] mb-6">Live Dengue Clusters</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {liveClusters.slice(0, 10).map((cluster: any, idx: number) => (
+                <Card key={idx} className="bg-white border-[#243324]/5 shadow-sm hover:shadow-md transition-shadow">
+                  <CardHeader className="pb-2">
+                    <div className="flex justify-between items-start gap-4">
+                      <CardTitle className="font-sans text-lg text-[#243324] leading-tight">
+                        {cluster.LOCALITY}
+                      </CardTitle>
+                      <Badge variant="destructive" className="shrink-0 text-sm">
+                        {cluster.CASE_SIZE} Cases
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {cluster.HOMES && (
+                        <div>
+                          <span className="text-xs font-semibold text-[#243324]/60 uppercase tracking-wider block mb-1">Breeding Habitats (Homes)</span>
+                          <p className="text-sm text-[#243324]/80">{cluster.HOMES}</p>
+                        </div>
+                      )}
+                      {cluster.PUBLIC_PLACES && (
+                        <div>
+                          <span className="text-xs font-semibold text-[#243324]/60 uppercase tracking-wider block mb-1">Breeding Habitats (Public Places)</span>
+                          <p className="text-sm text-[#243324]/80">{cluster.PUBLIC_PLACES}</p>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
