@@ -164,7 +164,7 @@ export default function RidershipDashboard({ data }: { data: any[] }) {
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#24332480' }} tickFormatter={(v) => `${(v/1000000).toFixed(1)}M`} dx={-10} />
                     <RechartsTooltip 
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                      formatter={(value: number, name: string) => [`${(value/1000).toFixed(1)}k`, name]}
+                      formatter={(value: number, name: string) => [`${(value/1000000).toFixed(2)}M`, name]}
                     />
                     <Legend wrapperStyle={{ paddingTop: '20px' }} />
                     <Area type="monotone" dataKey="Bus" stackId="1" stroke="#10b981" fillOpacity={1} fill="url(#colorBus)" strokeWidth={2} activeDot={{ r: 6 }} />
@@ -190,7 +190,7 @@ export default function RidershipDashboard({ data }: { data: any[] }) {
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#24332480' }} tickFormatter={(v) => `${(v * 100).toFixed(0)}%`} dx={-10} />
                     <RechartsTooltip 
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                      formatter={(value: number, name: string) => [`${(value * 100).toFixed(1)}%`, name.replace('Pct', ' Share')]}
+                      formatter={(value: number, name: string) => [`${value.toFixed(1)}%`, name.replace('Pct', ' Share')]}
                     />
                     <Legend wrapperStyle={{ paddingTop: '20px' }} />
                     <Area type="monotone" dataKey="BusPct" stackId="1" name="Public Bus" stroke="#10b981" fill="#10b981" fillOpacity={0.8} />
