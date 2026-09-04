@@ -17,43 +17,43 @@ export async function fetchDatasetDates() {
 
     const formatMonth = (str: string) => {
       if (!str) return null;
-      try { return 'Data as of ' + format(parseISO(str + '-01'), 'MMM yyyy'); }
+      try { return 'Latest: ' + format(parseISO(str + '-01'), 'MMM yyyy'); }
       catch { return null; }
     };
 
     const formatYear = (str: string) => {
       if (!str) return null;
-      return 'Data as of ' + str;
+      return 'Latest: ' + str;
     };
 
-    let birthLatest = 'Data as of 2025'; // Fallback
+    let birthLatest = 'Latest: 2025'; // Fallback
     if (birth?.result?.records?.[0]) {
       const keys = Object.keys(birth.result.records[0]).filter(k => !isNaN(Number(k)));
       if (keys.length > 0) {
-        birthLatest = 'Data as of ' + Math.max(...keys.map(Number));
+        birthLatest = 'Latest: ' + Math.max(...keys.map(Number));
       }
     }
 
-    let employmentLatest = 'Data as of 2026'; // Fallback
+    let employmentLatest = 'Latest: 2026'; // Fallback
     if (employment?.result?.records?.[0]) {
       const keys = Object.keys(employment.result.records[0]).filter(k => !isNaN(Number(k)));
       if (keys.length > 0) {
-        employmentLatest = 'Data as of ' + Math.max(...keys.map(Number));
+        employmentLatest = 'Latest: ' + Math.max(...keys.map(Number));
       }
     }
 
     return {
-      income: formatYear(income?.result?.records?.[0]?.Dollar) || 'Data as of 2025',
+      income: formatYear(income?.result?.records?.[0]?.Dollar) || 'Latest: 2025',
       birth: birthLatest,
-      hdb: formatMonth(hdb?.result?.records?.[0]?.month) || 'Data as of Sep 2026',
-      coe: formatMonth(coe?.result?.records?.[0]?.month) || 'Data as of Aug 2026',
-      ges: formatYear(ges?.result?.records?.[0]?.year) || 'Data as of 2024',
-      climate: formatMonth(climate?.result?.records?.[0]?.month) || 'Data as of Jul 2026',
+      hdb: formatMonth(hdb?.result?.records?.[0]?.month) || 'Latest: Sep 2026',
+      coe: formatMonth(coe?.result?.records?.[0]?.month) || 'Latest: Aug 2026',
+      ges: formatYear(ges?.result?.records?.[0]?.year) || 'Latest: 2024',
+      climate: formatMonth(climate?.result?.records?.[0]?.month) || 'Latest: Jul 2026',
       employment: employmentLatest,
-      transport: formatYear(transport?.result?.records?.[0]?.year) || 'Data as of 2024'
+      transport: formatYear(transport?.result?.records?.[0]?.year) || 'Latest: 2024'
     };
   } catch (e) {
     console.error('Error fetching dates:', e);
-    return { income: 'Data as of 2025', birth: 'Data as of 2025', hdb: 'Data as of Sep 2026', coe: 'Data as of Aug 2026', ges: 'Data as of 2024', climate: 'Data as of Jul 2026', employment: 'Data as of 2026', transport: 'Data as of 2024' };
+    return { income: 'Latest: 2025', birth: 'Latest: 2025', hdb: 'Latest: Sep 2026', coe: 'Latest: Aug 2026', ges: 'Latest: 2024', climate: 'Latest: Jul 2026', employment: 'Latest: 2026', transport: 'Latest: 2024' };
   }
 }

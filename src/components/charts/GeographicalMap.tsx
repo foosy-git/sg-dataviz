@@ -137,15 +137,25 @@ export default function GeographicalMap({ data }: { data: any[] }) {
               transition={{ duration: 0.15 }}
               className="absolute top-4 left-4 z-10 pointer-events-none"
             >
-              <Card className="shadow-lg border-[#243324]/10 bg-white/95 backdrop-blur-sm">
-                <CardContent className="p-4 space-y-1">
-                  <h3 className="font-semibold text-lg text-[#243324]">{hoveredTown.fullTown}</h3>
-                  <div className="text-2xl font-bold tracking-tight text-[#243324]">
-                    ${hoveredTown.medianPrice.toLocaleString()}
+              <Card className="shadow-lg border-[#243324]/10 bg-white/95 backdrop-blur-sm min-w-[200px]">
+                <CardContent className="p-4 space-y-2">
+                  <div className="font-serif font-semibold text-lg text-[#243324] border-b border-[#243324]/10 pb-1.5">
+                    {hoveredTown.fullTown}
                   </div>
-                  <div className="text-sm text-[#243324]/70 mt-2">
-                    <span className="font-medium">{hoveredTown.volume}</span> flats sold
+                  <div>
+                    <div className="text-[11px] font-sans font-medium uppercase tracking-wider text-[#243324]/60">
+                      Median Resale Price
+                    </div>
+                    <div className="text-2xl font-bold font-serif tracking-tight text-[#243324]">
+                      ${hoveredTown.medianPrice.toLocaleString()}
+                    </div>
                   </div>
+                  {hoveredTown.volume !== undefined && (
+                    <div className="text-xs text-[#243324]/70 pt-1.5 border-t border-[#243324]/5 flex items-center justify-between gap-4">
+                      <span className="font-medium text-[#243324]/60">Volume</span>
+                      <span className="font-semibold text-[#243324]">{hoveredTown.volume.toLocaleString()} flats</span>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </motion.div>

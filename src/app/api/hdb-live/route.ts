@@ -136,7 +136,12 @@ export async function GET(request: Request) {
       .sort((a, b) => a.month.localeCompare(b.month));
 
     const townHeatmap = Object.values(townMap)
-      .map(g => ({ town: g.town.length > 10 ? g.town.substring(0,10)+'...' : g.town, fullTown: g.town, medianPrice: Math.round(g.sum / g.count) }))
+      .map(g => ({ 
+        town: g.town.length > 10 ? g.town.substring(0,10)+'...' : g.town, 
+        fullTown: g.town, 
+        medianPrice: Math.round(g.sum / g.count),
+        volume: g.count 
+      }))
       .sort((a, b) => b.medianPrice - a.medianPrice);
 
     millionDollar.sort((a, b) => b.resalePrice - a.resalePrice);
