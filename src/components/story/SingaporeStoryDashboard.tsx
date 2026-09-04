@@ -202,7 +202,12 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
                 <Building2 className="w-5 h-5" />
                 <span className="text-xs font-bold uppercase tracking-wider">Housing</span>
               </div>
-              <CardTitle className="font-serif text-xl text-emerald-900">Average HDB Resale</CardTitle>
+              <CardTitle className="font-serif text-xl text-emerald-900 flex flex-col gap-1">
+                Average HDB Resale
+                <span className="text-[10px] font-sans text-emerald-700/60 font-normal leading-tight">
+                  (Average transaction price across selected HDB resale transactions)
+                </span>
+              </CardTitle>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col justify-between">
               <div className="text-4xl md:text-5xl font-serif text-emerald-950 font-medium">

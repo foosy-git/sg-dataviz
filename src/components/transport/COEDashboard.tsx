@@ -262,7 +262,7 @@ export default function COEDashboard({ initialData }: { initialData: any[] }) {
                 </ResponsiveContainer>
               </div>
               <div className="text-center text-xs text-[#243324]/50 mt-2">
-                Notice the massive trough in supply in 2023, causing extreme price spikes, compared to the peak in 2017.
+                Notice the massive trough in supply in 2023, coinciding with extreme price spikes, compared to the peak in 2017.
               </div>
             </CardContent>
           </Card>

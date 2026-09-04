@@ -92,10 +92,10 @@ export default function IncomeDashboard({ initialData }: IncomeDashboardProps) {
         <div className="mb-10 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
           <div>
             <h1 className="text-4xl md:text-5xl font-serif text-[#243324] tracking-tight mb-4">
-              Household Income & Wealth
+              Household Income & Distribution
             </h1>
             <p className="text-lg md:text-xl text-[#243324]/70 max-w-3xl font-sans leading-relaxed">
-              Analyze Singapore's household earnings, compare median vs average income, and observe the wealth gap across different deciles over the past 20+ years.
+              Analyze Singapore's household earnings, compare median vs average income, and observe the income gap across different deciles over the past 20+ years.
             </p>
           </div>
           <div className="flex-shrink-0">
@@ -191,7 +191,7 @@ export default function IncomeDashboard({ initialData }: IncomeDashboardProps) {
 
           <Card className="bg-white border-[#243324]/10 shadow-sm col-span-1 lg:col-span-2">
             <CardHeader className="pb-4">
-              <CardTitle className="font-serif text-2xl text-[#243324]">Wealth by Housing Type</CardTitle>
+              <CardTitle className="font-serif text-2xl text-[#243324]">Income by Housing Type</CardTitle>
               <CardDescription className="text-base text-[#243324]/70 font-sans">
                 Median household income categorized by the type of dwelling they reside in.
               </CardDescription>
@@ -219,7 +219,7 @@ export default function IncomeDashboard({ initialData }: IncomeDashboardProps) {
 
           <Card className="bg-white border-[#243324]/10 shadow-sm">
             <CardHeader className="pb-4">
-              <CardTitle className="font-serif text-2xl text-[#243324]">The Wealth Gap</CardTitle>
+              <CardTitle className="font-serif text-2xl text-[#243324]">The Income Gap</CardTitle>
               <CardDescription className="text-base text-[#243324]/70 font-sans">
                 Comparing the earnings of the Top 10% vs the Bottom 10% over time.
               </CardDescription>

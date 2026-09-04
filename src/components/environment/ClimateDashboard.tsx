@@ -146,7 +146,7 @@ export default function ClimateDashboard({ initialData }: { initialData: any[] }
 
         {/* Top Metrics Cards */}
         <h2 className="text-lg font-serif mb-4 text-[#243324] border-b border-[#243324]/10 pb-2">
-          Latest Full Year: {latestYearData.year}
+          Current Year: {latestYearData.year} YTD
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12">
           <Card className="bg-white border-[#243324]/5 shadow-sm">
@@ -296,7 +296,7 @@ export default function ClimateDashboard({ initialData }: { initialData: any[] }
                 </ResponsiveContainer>
               </div>
               <div className="text-center text-xs text-[#243324]/50 mt-2">
-                This clearly visualizes the permanent upward shift in Singapore's baseline temperature over the last 40 years.
+                The data shows a clear long-term increase in Singapore's average surface temperature over the last 40 years.
               </div>
             </CardContent>
           </Card>
@@ -363,7 +363,7 @@ export default function ClimateDashboard({ initialData }: { initialData: any[] }
                 </ResponsiveContainer>
               </div>
               <div className="text-center text-xs text-[#243324]/50 mt-2">
-                This definitively proves that May/June are the hottest months, while November/December bring the heaviest monsoon rains.
+                May and June tend to be among the warmest months, while November and December typically experience the highest rainfall.
               </div>
             </CardContent>
           </Card>

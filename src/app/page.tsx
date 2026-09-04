@@ -10,7 +10,7 @@ export default function Home() {
       description: 'Analyze Singapore\'s household earnings, median vs average income, and observe the wealth gap across different deciles over the past 20+ years.',
       icon: Wallet,
       href: '/economy/income',
-      status: 'Live',
+      status: 'Updated',
       color: 'bg-amber-500/10 text-amber-700',
     },
     {
@@ -18,7 +18,7 @@ export default function Home() {
       description: 'Analyze Singapore\'s historical fertility trends and demographic shifts from 1960 onwards.',
       icon: Baby,
       href: '/demographics/birth-rates',
-      status: 'Live',
+      status: 'Updated',
       color: 'bg-rose-500/10 text-rose-700',
     },
     {
@@ -26,7 +26,7 @@ export default function Home() {
       description: 'Interactive exploration of HDB resale data from 2017 onwards. Analyze market trends, estate values, and the impact of lease decay.',
       icon: Building2,
       href: '/hdb',
-      status: 'Live',
+      status: 'Updated',
       color: 'bg-emerald-500/10 text-emerald-700',
     },
     {
@@ -34,7 +34,7 @@ export default function Home() {
       description: 'Track COE premium trends, quota supply, and bidding demand across all vehicle categories in Singapore from 2010 onwards.',
       icon: Car,
       href: '/transport/coe',
-      status: 'Live',
+      status: 'Updated',
       color: 'bg-blue-500/10 text-blue-700',
     },
     {
@@ -42,7 +42,7 @@ export default function Home() {
       description: 'Analyze graduate employment survey data, starting salaries, and employment rates across autonomous universities.',
       icon: GraduationCap,
       href: '/education/ges',
-      status: 'Live',
+      status: 'Updated',
       color: 'bg-indigo-500/10 text-indigo-700',
     },
     {
@@ -50,7 +50,7 @@ export default function Home() {
       description: 'Track Singapore\'s rising surface temperatures, historical rainfall patterns, and long-term climate shifts onwards.',
       icon: Leaf,
       href: '/environment/climate',
-      status: 'Live',
+      status: 'Updated',
       color: 'bg-green-500/10 text-green-700',
     },
   ];
@@ -91,6 +91,16 @@ export default function Home() {
             Explore trends, uncover insights, and understand the nation.
           </p>
         </div>
+
+        {/* Why this exists */}
+        <div className="relative z-10 max-w-3xl mx-auto mb-16 text-[#243324]/80 text-base md:text-lg leading-relaxed bg-[#243324]/5 p-6 rounded-2xl border border-[#243324]/10 text-left">
+          <p className="mb-3">
+            <strong className="text-[#243324] font-serif">Why this exists:</strong> Singapore generates an enormous amount of public data. SG DataViz turns that data into interactive stories that make long-term trends easier to explore and understand.
+          </p>
+          <p className="text-sm text-[#243324]/60">
+            Built independently using React, Next.js, and Recharts with publicly available datasets from <a href="https://data.gov.sg" className="underline hover:text-[#243324]">data.gov.sg</a>.
+          </p>
+        </div>
         
         {/* Featured Banner */}
         <div className="relative z-10 max-w-4xl mx-auto">
@@ -121,7 +131,7 @@ export default function Home() {
                     <div className={`p-3 rounded-xl ${dashboard.color}`}>
                       <dashboard.icon className="w-6 h-6" />
                     </div>
-                    {dashboard.status === 'Live' ? (
+                    {dashboard.status === 'Updated' ? (
                       <Badge className="bg-[#243324] hover:bg-[#243324] text-white">
                         {dashboard.status}
                       </Badge>

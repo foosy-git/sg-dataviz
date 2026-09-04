@@ -114,8 +114,8 @@ export default async function SingaporeStoryPage() {
     }
     for (const row of hdbLiveData) {
       if (row.month) {
+        if (row.month < '2026-09') continue; // Use live API strictly for Sep 2026 onwards
         const y = parseInt(row.month.split('-')[0]);
-        if (y < 2017) continue; // Deduplicate from historical 2000-2016
         initYear(y);
         yearsMap[y].hdbSum += Number(row.resale_price);
         yearsMap[y].hdbCount += 1;
