@@ -23,14 +23,14 @@ export default function Footer() {
             data.gov.sg
           </a>.
         </p>
-        <p className="text-xs text-[#243324]/60 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-xs text-[#243324]/60 max-w-4xl mx-auto leading-relaxed">
           This is an ongoing personal project. Feel free to report issues, suggest enhancements, or share general feedback via the{' '}
           <button
             type="button"
             onClick={handleOpenFeedback}
             className="underline underline-offset-2 hover:text-[#243324] font-semibold text-[#243324]/80 transition-colors inline-flex items-center cursor-pointer"
           >
-            Feedback button
+            Feedback
           </button>.
         </p>
         <p className="text-xs text-[#243324]/40 pt-1">
