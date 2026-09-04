@@ -2,14 +2,31 @@ import AirQualityDashboard from '@/components/environment/AirQualityDashboard';
 import { Suspense } from 'react';
 
 const PSI_API = 'https://api.data.gov.sg/v1/environment/psi';
+const PM25_API = 'https://api.data.gov.sg/v1/environment/pm25';
 
 async function getAirQualityData() {
-  const res = await fetch(PSI_API, { next: { revalidate: 60 } });
+  const fetchOpts = { 
+    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) SGDataViz' }, 
+    next: { revalidate: 60 } 
+  };
   
-  if (!res.ok) throw new Error('Failed to fetch PSI data');
-  
-  const psiJson = await res.json();
-  return psiJson.items?.[0] || null;
+  try {
+    const [psiRes, pm25Res] = await Promise.all([
+      fetch(PSI_API, fetchOpts),
+      fetch(PM25_API, fetchOpts)
+    ]);
+    
+    const psiJson = psiRes.ok ? await psiRes.json() : null;
+    const pm25Json = pm25Res.ok ? await pm25Res.json() : null;
+    
+    return {
+      psi: psiJson?.items?.[0] || null,
+      pm25: pm25Json?.items?.[0] || null
+    };
+  } catch (e) {
+    console.error('Failed to fetch Air Quality data:', e);
+    return { psi: null, pm25: null };
+  }
 }
 
 export const dynamic = 'force-dynamic';

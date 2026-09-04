@@ -1,14 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, Activity, Wind, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Activity, Wind, AlertCircle, Factory } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
 } from 'recharts';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function AirQualityDashboard({ psiData }: { psiData: any }) {
+export default function AirQualityDashboard({ psiData }: { psiData: { psi: any, pm25: any } }) {
   
   const getPsiData = (val: number | null) => {
     if (val === null || val === undefined) {
@@ -21,9 +21,19 @@ export default function AirQualityDashboard({ psiData }: { psiData: any }) {
     return { status: 'Hazardous', color: 'text-purple-600', bg: 'bg-purple-500', border: 'border-purple-500', pulse: true };
   };
 
-  const nationalPsi = psiData?.readings?.psi_twenty_four_hourly?.national ?? null;
-  const nationalPm25 = psiData?.readings?.pm25_twenty_four_hourly?.national ?? null;
+  const getPm25Data = (val: number | null) => {
+    if (val === null || val === undefined) return { status: 'N.A.', color: 'text-slate-600' };
+    if (val <= 12) return { status: 'Normal', color: 'text-emerald-600' };
+    if (val <= 35) return { status: 'Elevated', color: 'text-amber-600' };
+    if (val <= 55) return { status: 'High', color: 'text-orange-600' };
+    if (val <= 150) return { status: 'Very High', color: 'text-red-600' };
+    return { status: 'Hazardous', color: 'text-purple-600' };
+  };
+
+  const nationalPsi = psiData?.psi?.readings?.psi_twenty_four_hourly?.national ?? null;
+  const nationalPm25hr1 = psiData?.pm25?.readings?.pm25_one_hourly?.national ?? null;
   const nationalInfo = getPsiData(nationalPsi);
+  const pm25Info = getPm25Data(nationalPm25hr1);
 
   const historicalHaze = [
     { name: '1997 Haze', psi: 226, year: 1997 },
@@ -35,14 +45,22 @@ export default function AirQualityDashboard({ psiData }: { psiData: any }) {
 
   const regions = [
     { id: 'north', label: 'North', top: '15%', left: '50%' },
-    { id: 'west', label: 'West', top: '50%', left: '20%' },
+    { id: 'west', label: 'West', top: '50%', left: '25%' },
     { id: 'central', label: 'Central', top: '55%', left: '50%' },
-    { id: 'east', label: 'East', top: '50%', left: '80%' },
+    { id: 'east', label: 'East', top: '50%', left: '75%' },
     { id: 'south', label: 'South', top: '85%', left: '55%' },
   ];
 
+  const pollutantData = [
+    { subject: 'PM2.5', A: psiData?.psi?.readings?.pm25_sub_index?.national ?? 0, fullMark: 200 },
+    { subject: 'PM10', A: psiData?.psi?.readings?.pm10_sub_index?.national ?? 0, fullMark: 200 },
+    { subject: 'Ozone', A: psiData?.psi?.readings?.o3_sub_index?.national ?? 0, fullMark: 200 },
+    { subject: 'SO2', A: psiData?.psi?.readings?.so2_sub_index?.national ?? 0, fullMark: 200 },
+    { subject: 'CO', A: psiData?.psi?.readings?.co_sub_index?.national ?? 0, fullMark: 200 },
+  ];
+
   return (
-    <main className="min-h-screen bg-[#FBF9F5] pb-20">
+    <div className="min-h-screen bg-[#FBF9F5] pb-20">
       <header className="sticky top-0 z-50 w-full border-b border-[#243324]/10 bg-[#FBF9F5]/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -105,36 +123,33 @@ export default function AirQualityDashboard({ psiData }: { psiData: any }) {
           <Card className="bg-white border-[#243324]/5 shadow-sm">
             <CardContent className="p-6">
               <div className="flex items-center gap-3 mb-2 text-[#243324]/60">
-                <Activity className="w-4 h-4" />
-                <span className="text-xs font-semibold uppercase tracking-wider">PM2.5 Concentration</span>
+                <Factory className="w-4 h-4" />
+                <span className="text-xs font-semibold uppercase tracking-wider">1-hr PM2.5 Concentration</span>
               </div>
               <div className="text-5xl font-serif text-[#243324] mb-2 flex items-baseline gap-2">
-                {nationalPm25 ?? 'N.A.'} <span className="text-lg font-sans font-normal text-gray-500">µg/m³</span>
+                {nationalPm25hr1 ?? 'N.A.'} <span className="text-lg font-sans font-normal text-gray-500">µg/m³</span>
               </div>
-              <div className="text-sm font-medium text-[#243324]/60">
-                Fine particulate matter reading
+              <div className={"text-sm font-medium " + pm25Info.color}>
+                {pm25Info.status} (Immediate Haze Indicator)
               </div>
             </CardContent>
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          
-          <Card className="bg-white border-[#243324]/5 shadow-sm overflow-hidden flex flex-col lg:col-span-1">
+        <div className="grid grid-cols-1 gap-8 mb-12">
+          <Card className="bg-white border-[#243324]/5 shadow-sm overflow-hidden flex flex-col w-full">
             <CardHeader className="border-b border-[#243324]/5 bg-slate-50/50 pb-4">
-              <CardTitle className="font-serif text-xl text-[#243324]">Regional Breakdown Map</CardTitle>
+              <CardTitle className="font-serif text-xl text-[#243324]">Regional Air Quality Map</CardTitle>
               <CardDescription>Live 24-hr PSI readings across Singapore</CardDescription>
             </CardHeader>
-            <CardContent className="p-6 relative">
-              <div className="relative w-full aspect-square sm:aspect-video lg:aspect-square bg-[#E8DCC4]/20 rounded-2xl border border-[#243324]/10 overflow-hidden">
-                {/* Decorative Map Background */}
-                <div className="absolute inset-0 opacity-20 pointer-events-none" style={{
-                  backgroundImage: 'radial-gradient(circle at center, #243324 1px, transparent 1px)',
-                  backgroundSize: '20px 20px'
-                }} />
+            <CardContent className="p-0 relative bg-[#E8DCC4]/10">
+              <div className="relative w-full h-[350px] md:h-[450px] overflow-hidden flex items-center justify-center">
+                
+                {/* Abstract Island Shape */}
+                <div className="absolute w-[85%] h-[65%] md:w-[70%] md:h-[55%] bg-[#FBF9F5]/90 shadow-sm border border-[#243324]/10 rounded-[50%_45%_55%_40%_/_50%_40%_60%_50%] transform -rotate-2" />
                 
                 {regions.map((region) => {
-                  const val = psiData?.readings?.psi_twenty_four_hourly?.[region.id] ?? null;
+                  const val = psiData?.psi?.readings?.psi_twenty_four_hourly?.[region.id] ?? null;
                   const info = getPsiData(val);
                   
                   return (
@@ -143,14 +158,14 @@ export default function AirQualityDashboard({ psiData }: { psiData: any }) {
                       className="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center"
                       style={{ top: region.top, left: region.left }}
                     >
-                      <div className="text-xs font-semibold text-[#243324]/60 uppercase tracking-wider mb-1">
+                      <div className="text-xs font-semibold text-[#243324]/80 uppercase tracking-wider mb-2 bg-[#FBF9F5]/90 px-3 py-0.5 rounded-full backdrop-blur-sm shadow-sm border border-[#243324]/10">
                         {region.label}
                       </div>
-                      <div className={"relative flex items-center justify-center w-14 h-14 rounded-full border-4 shadow-md bg-white " + info.border}>
+                      <div className={"relative flex items-center justify-center w-14 h-14 md:w-16 md:h-16 rounded-full border-[3px] shadow-lg bg-white " + info.border}>
                         {info.pulse && (
-                          <div className={"absolute inset-0 rounded-full animate-ping opacity-20 " + info.bg} />
+                          <div className={"absolute inset-0 rounded-full animate-ping opacity-30 " + info.bg} />
                         )}
-                        <span className={"font-serif text-lg font-bold " + info.color}>
+                        <span className={"font-serif text-xl md:text-2xl font-bold " + info.color}>
                           {val ?? '-'}
                         </span>
                       </div>
@@ -160,11 +175,34 @@ export default function AirQualityDashboard({ psiData }: { psiData: any }) {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          
+          <Card className="bg-white border-[#243324]/5 shadow-sm overflow-hidden flex flex-col lg:col-span-1">
+            <CardHeader className="border-b border-[#243324]/5 bg-purple-50/30 pb-4">
+              <CardTitle className="font-serif text-xl text-purple-900">Pollutant Sub-Indices</CardTitle>
+              <CardDescription>Breakdown of individual pollutant components driving the PSI</CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div style={{ height: 400, width: '100%' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart cx="50%" cy="50%" outerRadius="70%" data={pollutantData}>
+                    <PolarGrid stroke="#24332420" />
+                    <PolarAngleAxis dataKey="subject" tick={{ fill: '#24332480', fontSize: 12, fontWeight: 600 }} />
+                    <PolarRadiusAxis angle={30} domain={[0, 'dataMax + 20']} tick={{ fill: '#24332440', fontSize: 10 }} />
+                    <Radar name="Sub-Index" dataKey="A" stroke="#a855f7" fill="#a855f7" fillOpacity={0.4} />
+                    <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
 
           <Card className="bg-white border-[#243324]/5 shadow-sm overflow-hidden flex flex-col lg:col-span-1">
             <CardHeader className="border-b border-[#243324]/5 bg-orange-50/30 pb-4">
               <CardTitle className="font-serif text-xl text-orange-900">Historical Haze Benchmarks</CardTitle>
-              <CardDescription>Comparing today's PSI against the worst crises in Singapore history</CardDescription>
+              <CardDescription>Comparing today's PSI against the worst crises</CardDescription>
             </CardHeader>
             <CardContent className="p-6">
               <div style={{ height: 400, width: '100%' }}>
@@ -205,6 +243,6 @@ export default function AirQualityDashboard({ psiData }: { psiData: any }) {
 
         </div>
       </div>
-    </main>
+    </div>
   );
 }
