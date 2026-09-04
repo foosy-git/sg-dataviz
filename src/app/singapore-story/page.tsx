@@ -24,7 +24,7 @@ export default async function SingaporeStoryPage() {
       fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_69b3380ad7e51aff3a7dcc84eba52b8a&limit=50000', fetchOpts),
       fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_755290a24afe70c8f9e8bcbf9f251573&limit=10000', fetchOpts),
       fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_285a079d823a1cc22dffb9cac325f81a&limit=10', fetchOpts),
-      fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_8b84c4ee58e3cfc0ece0d773c8ca6abc&limit=50000', fetchOpts)
+      fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_8b84c4ee58e3cfc0ece0d773c8ca6abc&sort=month%20desc&limit=10000', fetchOpts)
     ]);
 
     if (!birthRes.ok || !incomeRes.ok || !coeRes.ok || !climateRes.ok || !unempRes.ok || !hdbLiveRes.ok) {
