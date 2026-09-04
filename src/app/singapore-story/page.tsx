@@ -1,6 +1,12 @@
 import SingaporeStoryDashboard from '@/components/story/SingaporeStoryDashboard';
-import { getHistoricalData } from '@/lib/hdb';
+import fs from 'fs';
+import path from 'path';
 import ErrorState from '@/components/ui/ErrorState';
+
+const HISTORICAL_COE: Record<number, number> = {
+  2000: 38981, 2001: 27099, 2002: 30948, 2003: 28755, 2004: 25181,
+  2005: 16551, 2006: 11187, 2007: 14101, 2008: 12330, 2009: 11600
+};
 
 export const dynamic = 'force-dynamic'; // Prevent build-time rendering which fails without API keys
 
@@ -12,16 +18,17 @@ export default async function SingaporeStoryPage() {
     }
 
     const fetchOpts = { headers, next: { revalidate: 86400 } };
-    const [birthRes, incomeRes, coeRes, climateRes, unempRes] = await Promise.all([
+    const [birthRes, incomeRes, coeRes, climateRes, unempRes, hdbLiveRes] = await Promise.all([
       fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_e39eeaeadb571c0d0725ef1eec48d166&limit=100', fetchOpts),
       fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_c74ebe613db891d25e4836aaf98d7a47&limit=100', fetchOpts),
       fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_69b3380ad7e51aff3a7dcc84eba52b8a&limit=50000', fetchOpts),
       fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_755290a24afe70c8f9e8bcbf9f251573&limit=10000', fetchOpts),
-      fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_285a079d823a1cc22dffb9cac325f81a&limit=10', fetchOpts)
+      fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_285a079d823a1cc22dffb9cac325f81a&limit=10', fetchOpts),
+      fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_8b84c4ee58e3cfc0ece0d773c8ca6abc&limit=50000', fetchOpts)
     ]);
 
-    if (!birthRes.ok || !incomeRes.ok || !coeRes.ok || !climateRes.ok || !unempRes.ok) {
-      console.error('API Error Status:', birthRes.status, incomeRes.status, coeRes.status, climateRes.status, unempRes.status);
+    if (!birthRes.ok || !incomeRes.ok || !coeRes.ok || !climateRes.ok || !unempRes.ok || !hdbLiveRes.ok) {
+      console.error('API Error Status:', birthRes.status, incomeRes.status, coeRes.status, climateRes.status, unempRes.status, hdbLiveRes.status);
       throw new Error('Failed to fetch data from data.gov.sg');
     }
 
@@ -30,8 +37,13 @@ export default async function SingaporeStoryPage() {
     const coeData = (await coeRes.json()).result?.records || [];
     const climateData = (await climateRes.json()).result?.records || [];
     const unempData = (await unempRes.json()).result?.records || [];
+    const hdbLiveData = (await hdbLiveRes.json()).result?.records || [];
 
-    const hdbData = await getHistoricalData();
+    const hdbAvgDataPath = path.join(process.cwd(), 'public', 'hdb_historical_avg.json');
+    let hdbAvgData: Record<string, number> = {};
+    if (fs.existsSync(hdbAvgDataPath)) {
+      hdbAvgData = JSON.parse(fs.readFileSync(hdbAvgDataPath, 'utf8'));
+    }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const yearsMap: Record<number, any> = {};
@@ -67,9 +79,16 @@ export default async function SingaporeStoryPage() {
     }
 
     // 3. COE (Category A average)
+    for (const [yStr, price] of Object.entries(HISTORICAL_COE)) {
+      const y = parseInt(yStr);
+      initYear(y);
+      yearsMap[y].coeSum += price;
+      yearsMap[y].coeCount += 1;
+    }
     for (const row of coeData) {
       if (row.vehicle_class === 'Category A' || row.vehicle_class === 'Category A (Cars up to 1600cc and 97kW)' || row.vehicle_class === 'Category A (Cars up to 1600cc & 97kW)') {
         const y = parseInt(row.month.split('-')[0]);
+        if (y < 2010) continue; // Deduplicate
         initYear(y);
         yearsMap[y].coeSum += Number(row.premium);
         yearsMap[y].coeCount += 1;
@@ -87,10 +106,20 @@ export default async function SingaporeStoryPage() {
     }
 
     // 5. HDB Resale
-    for (const row of hdbData) {
-      initYear(row.year);
-      yearsMap[row.year].hdbSum += row.resalePrice;
-      yearsMap[row.year].hdbCount += 1;
+    for (const [yStr, avgPrice] of Object.entries(hdbAvgData)) {
+      const y = parseInt(yStr);
+      initYear(y);
+      yearsMap[y].hdbSum += avgPrice;
+      yearsMap[y].hdbCount += 1;
+    }
+    for (const row of hdbLiveData) {
+      if (row.month) {
+        const y = parseInt(row.month.split('-')[0]);
+        if (y < 2017) continue; // Deduplicate from historical 2000-2016
+        initYear(y);
+        yearsMap[y].hdbSum += Number(row.resale_price);
+        yearsMap[y].hdbCount += 1;
+      }
     }
 
     // 6. Unemployment Rate
