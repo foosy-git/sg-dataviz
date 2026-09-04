@@ -13,7 +13,7 @@ import { useState, useEffect } from 'react';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function AirQualityDashboard({ psiData }: { psiData: { psi: any, pm25: any } }) {
   const [geoData, setGeoData] = useState<any>(null);
-  const [mapMetric, setMapMetric] = useState<'psi' | 'pm25'>('psi');
+  const [mapMetric, setMapMetric] = useState<'psi' | 'pm25'>('pm25');
   
   const updateTimestamp = psiData?.psi?.update_timestamp;
   const formattedTime = updateTimestamp ? new Date(updateTimestamp).toLocaleString('en-SG', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }) : 'N.A.';
@@ -251,17 +251,6 @@ export default function AirQualityDashboard({ psiData }: { psiData: { psi: any, 
                 <div className="inline-flex rounded-lg bg-slate-200/80 p-1 text-xs font-medium self-start sm:self-auto shadow-inner">
                   <button
                     type="button"
-                    onClick={() => setMapMetric('psi')}
-                    className={`px-3 py-1.5 rounded-md transition-all ${
-                      mapMetric === 'psi'
-                        ? 'bg-white text-[#243324] shadow font-semibold'
-                        : 'text-[#243324]/70 hover:text-[#243324]'
-                    }`}
-                  >
-                    24-hr PSI
-                  </button>
-                  <button
-                    type="button"
                     onClick={() => setMapMetric('pm25')}
                     className={`px-3 py-1.5 rounded-md transition-all ${
                       mapMetric === 'pm25'
@@ -270,6 +259,17 @@ export default function AirQualityDashboard({ psiData }: { psiData: { psi: any, 
                     }`}
                   >
                     1-hr PM2.5
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMapMetric('psi')}
+                    className={`px-3 py-1.5 rounded-md transition-all ${
+                      mapMetric === 'psi'
+                        ? 'bg-white text-[#243324] shadow font-semibold'
+                        : 'text-[#243324]/70 hover:text-[#243324]'
+                    }`}
+                  >
+                    24-hr PSI
                   </button>
                 </div>
               </div>
