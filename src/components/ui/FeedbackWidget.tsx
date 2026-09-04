@@ -54,7 +54,7 @@ export default function FeedbackWidget() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[100] font-sans">
+    <div className="fixed bottom-4 right-4 md:bottom-5 md:right-5 z-[100] font-sans">
       {isOpen ? (
         <div className="bg-white rounded-2xl shadow-2xl w-[320px] md:w-[360px] border border-[#243324]/10 overflow-hidden flex flex-col transform transition-all duration-300 origin-bottom-right">
           <div className="bg-[#243324] p-4 flex justify-between items-center text-white">
@@ -148,11 +148,11 @@ export default function FeedbackWidget() {
       ) : (
         <button 
           onClick={() => setIsOpen(true)}
-          className="bg-[#243324] hover:bg-[#3B4D36] text-white px-5 py-3.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center gap-2.5 group"
+          className="bg-[#243324] hover:bg-[#3B4D36] text-white px-3 py-1.5 rounded-full shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 flex items-center justify-center gap-1.5 group text-xs font-medium"
           aria-label="Send Feedback"
         >
-          <MessageSquarePlus className="w-5 h-5 group-hover:scale-110 transition-transform" />
-          <span className="font-medium text-sm pr-1">Feedback</span>
+          <MessageSquarePlus className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+          <span>Feedback</span>
         </button>
       )}
     </div>
