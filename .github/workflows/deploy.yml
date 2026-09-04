@@ -19,7 +19,7 @@ jobs:
           cache: 'npm'
           
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build Next.js App
         env:
@@ -52,8 +52,8 @@ jobs:
             git reset --hard
             git pull origin main
             
-            # Install production dependencies only using clean install
-            npm ci --omit=dev
+            # Install production dependencies only
+            npm install --omit=dev
             
             # Extract the pre-built .next folder from GitHub Actions
             tar -xzf next-build.tar.gz
