@@ -65,7 +65,6 @@ export function BaselineInfoTooltip({
           setIsOpen((prev) => !prev);
         }}
         onFocus={() => setIsOpen(true)}
-        onBlur={() => setIsOpen(false)}
         className={cn(
           'inline-flex items-center justify-center w-4 h-4 rounded-full text-[#243324]/50 hover:text-[#243324] hover:bg-[#243324]/10 transition-colors focus:outline-none focus:ring-2 focus:ring-[#3B4D36]/40 cursor-pointer',
           iconClassName
