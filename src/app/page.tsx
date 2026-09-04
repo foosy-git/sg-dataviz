@@ -22,7 +22,7 @@ export default async function Home() {
       description: 'Tracking Singapore\'s overall and resident unemployment rates, illustrating the impact of economic cycles.',
       icon: LineChart,
       href: '/economy/employment',
-      status: 'Data as of 2026',
+      status: dates.employment,
       color: 'bg-purple-500/10 text-purple-700',
     },
     {
@@ -58,7 +58,7 @@ export default async function Home() {
       description: 'Track the average daily passenger volume across Singapore\'s MRT, LRT, and Public Bus networks over the past decades.',
       icon: Train,
       href: '/transport/commuting',
-      status: 'Data as of 2024',
+      status: dates.transport,
       color: 'bg-blue-500/10 text-blue-700',
     },
     {
