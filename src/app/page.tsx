@@ -135,7 +135,7 @@ export default async function Home() {
               <CardContent className="p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
                 <div className="text-left space-y-2">
                   <h2 className="font-serif text-3xl md:text-4xl font-medium tracking-tight">The Singapore Story</h2>
-                  <p className="text-[#FBF9F5]/70 text-lg">A unified, interactive timeline of our nation's macroeconomic progression.</p>
+                  <p className="text-[#FBF9F5]/70 text-lg">A unified, interactive timeline tracing Singapore's key national indicators.</p>
                 </div>
                 <div className="flex-shrink-0 flex items-center justify-center w-16 h-16 rounded-full bg-[#FBF9F5]/10 group-hover:bg-[#FBF9F5]/20 transition-colors">
                   <ArrowRight className="w-8 h-8" />
