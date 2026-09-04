@@ -10,34 +10,53 @@ const HISTORICAL_COE: Record<number, number> = {
 
 export const dynamic = 'force-dynamic'; // Prevent build-time rendering which fails without API keys
 
+let cachedTimelineData: any[] | null = null;
+let lastTimelineFetch = 0;
+const TIMELINE_CACHE_TTL = 3600 * 1000; // 1 hour cache
+
+async function fetchDatastore(url: string, headers: Record<string, string>): Promise<any[]> {
+  try {
+    const res = await fetch(url, {
+      headers,
+      signal: AbortSignal.timeout(10000),
+      next: { revalidate: 86400 }
+    });
+    if (!res.ok) {
+      console.warn(`Datastore fetch ${url} returned ${res.status}`);
+      return [];
+    }
+    const json = await res.json();
+    return json.result?.records || [];
+  } catch (err) {
+    console.warn(`Datastore fetch failed for ${url}:`, err);
+    return [];
+  }
+}
+
 export default async function SingaporeStoryPage() {
+  const now = Date.now();
+  if (cachedTimelineData && (now - lastTimelineFetch < TIMELINE_CACHE_TTL)) {
+    return (
+      <main className="min-h-screen bg-[#FBF9F5] text-[#243324] font-sans selection:bg-[#E8DCC4] selection:text-[#1F2B1D]">
+        <SingaporeStoryDashboard initialData={cachedTimelineData} />
+      </main>
+    );
+  }
+
   try {
     const headers: Record<string, string> = {};
     if (process.env.DATAGOV_API_KEY) {
       headers['api-key'] = process.env.DATAGOV_API_KEY.trim();
     }
 
-    const fetchOpts = { headers, next: { revalidate: 86400 } };
-    const [birthRes, incomeRes, coeRes, climateRes, unempRes, hdbLiveRes] = await Promise.all([
-      fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_e39eeaeadb571c0d0725ef1eec48d166&limit=100', fetchOpts),
-      fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_c74ebe613db891d25e4836aaf98d7a47&limit=100', fetchOpts),
-      fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_69b3380ad7e51aff3a7dcc84eba52b8a&limit=50000', fetchOpts),
-      fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_755290a24afe70c8f9e8bcbf9f251573&limit=10000', fetchOpts),
-      fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_285a079d823a1cc22dffb9cac325f81a&limit=10', fetchOpts),
-      fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_8b84c4ee58e3cfc0ece0d773c8ca6abc&sort=month%20desc&limit=10000', fetchOpts)
+    const [birthData, incomeData, coeData, climateData, unempData, hdbLiveData] = await Promise.all([
+      fetchDatastore('https://data.gov.sg/api/action/datastore_search?resource_id=d_e39eeaeadb571c0d0725ef1eec48d166&limit=100', headers),
+      fetchDatastore('https://data.gov.sg/api/action/datastore_search?resource_id=d_c74ebe613db891d25e4836aaf98d7a47&limit=100', headers),
+      fetchDatastore('https://data.gov.sg/api/action/datastore_search?resource_id=d_69b3380ad7e51aff3a7dcc84eba52b8a&limit=50000', headers),
+      fetchDatastore('https://data.gov.sg/api/action/datastore_search?resource_id=d_755290a24afe70c8f9e8bcbf9f251573&limit=10000', headers),
+      fetchDatastore('https://data.gov.sg/api/action/datastore_search?resource_id=d_285a079d823a1cc22dffb9cac325f81a&limit=10', headers),
+      fetchDatastore('https://data.gov.sg/api/action/datastore_search?resource_id=d_8b84c4ee58e3cfc0ece0d773c8ca6abc&sort=month%20desc&limit=10000', headers)
     ]);
-
-    if (!birthRes.ok || !incomeRes.ok || !coeRes.ok || !climateRes.ok || !unempRes.ok || !hdbLiveRes.ok) {
-      console.error('API Error Status:', birthRes.status, incomeRes.status, coeRes.status, climateRes.status, unempRes.status, hdbLiveRes.status);
-      throw new Error('Failed to fetch data from data.gov.sg');
-    }
-
-    const birthData = (await birthRes.json()).result?.records || [];
-    const incomeData = (await incomeRes.json()).result?.records || [];
-    const coeData = (await coeRes.json()).result?.records || [];
-    const climateData = (await climateRes.json()).result?.records || [];
-    const unempData = (await unempRes.json()).result?.records || [];
-    const hdbLiveData = (await hdbLiveRes.json()).result?.records || [];
 
     const hdbAvgDataPath = path.join(process.cwd(), 'public', 'hdb_historical_avg.json');
     let hdbAvgData: Record<string, number> = {};
@@ -149,6 +168,10 @@ export default async function SingaporeStoryPage() {
 
     // Limit to 2000-2026
     const filteredTimeline = timelineData.filter(d => d.year >= 2000 && d.year <= 2026);
+    if (filteredTimeline.length > 0) {
+      cachedTimelineData = filteredTimeline;
+      lastTimelineFetch = now;
+    }
 
     return (
       <main className="min-h-screen bg-[#FBF9F5] text-[#243324] font-sans selection:bg-[#E8DCC4] selection:text-[#1F2B1D]">
@@ -158,6 +181,13 @@ export default async function SingaporeStoryPage() {
 
   } catch (error) {
     console.error('Error fetching data for Singapore Story:', error);
+    if (cachedTimelineData) {
+      return (
+        <main className="min-h-screen bg-[#FBF9F5] text-[#243324] font-sans selection:bg-[#E8DCC4] selection:text-[#1F2B1D]">
+          <SingaporeStoryDashboard initialData={cachedTimelineData} />
+        </main>
+      );
+    }
     return <ErrorState />;
   }
 }

@@ -31,13 +31,23 @@ export default function InvestorTable({
     setPage(0);
   };
 
+  const sanitizeCSVCell = (val: unknown): string => {
+    if (val === null || val === undefined) return '""';
+    let str = String(val);
+    // Neutralize spreadsheet formula injection (=, +, -, @, tab, CR)
+    if (/^[=+\-@\t\r]/.test(str)) {
+      str = `'${str}`;
+    }
+    return `"${str.replace(/"/g, '""')}"`;
+  };
+
   const exportCSV = () => {
     if (data.length === 0) return;
     const headers = Object.keys(data[0]).join(',');
-    const csvRows = data.map(row => Object.values(row).map(v => `"${v}"`).join(','));
+    const csvRows = data.map(row => Object.values(row).map(sanitizeCSVCell).join(','));
     const csvContent = [headers, ...csvRows].join('\n');
     
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;

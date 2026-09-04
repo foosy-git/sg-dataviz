@@ -19,7 +19,7 @@ jobs:
           cache: 'npm'
           
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build Next.js App
         env:
@@ -30,7 +30,7 @@ jobs:
         run: tar -czf next-build.tar.gz .next
 
       - name: Copy build to VM
-        uses: appleboy/scp-action@master
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
@@ -39,7 +39,7 @@ jobs:
           target: "~/apps/sg-dataviz"
 
       - name: Restart Server
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
@@ -52,8 +52,8 @@ jobs:
             git reset --hard
             git pull origin main
             
-            # Install production dependencies only
-            npm install --omit=dev
+            # Install production dependencies only using clean install
+            npm ci --omit=dev
             
             # Extract the pre-built .next folder from GitHub Actions
             tar -xzf next-build.tar.gz

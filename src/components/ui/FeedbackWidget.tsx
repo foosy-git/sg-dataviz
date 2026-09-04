@@ -8,6 +8,7 @@ export default function FeedbackWidget() {
   const [type, setType] = useState('Enhancement');
   const [message, setMessage] = useState('');
   const [email, setEmail] = useState('');
+  const [website, setWebsite] = useState(''); // Honeypot field for bot detection
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -18,7 +19,7 @@ export default function FeedbackWidget() {
       const response = await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, message, email }),
+        body: JSON.stringify({ type, message, email, website }),
       });
 
       if (response.ok) {
@@ -28,6 +29,7 @@ export default function FeedbackWidget() {
           setStatus('idle');
           setMessage('');
           setEmail('');
+          setWebsite('');
         }, 3000);
       } else {
         throw new Error('Failed to submit');
@@ -83,10 +85,23 @@ export default function FeedbackWidget() {
                   </select>
                 </div>
 
+                {/* Honeypot field - invisible to humans, catches automated spam bots */}
+                <div className="hidden" aria-hidden="true">
+                  <input 
+                    type="text" 
+                    name="website" 
+                    tabIndex={-1} 
+                    autoComplete="off" 
+                    value={website} 
+                    onChange={e => setWebsite(e.target.value)} 
+                  />
+                </div>
+
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-[#243324]/70 uppercase tracking-wider">Your Email (Optional)</label>
                   <input 
                     type="email" 
+                    maxLength={100}
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="name@example.com"
@@ -98,6 +113,7 @@ export default function FeedbackWidget() {
                   <label className="text-xs font-semibold text-[#243324]/70 uppercase tracking-wider">Message</label>
                   <textarea 
                     required
+                    maxLength={2000}
                     value={message}
                     onChange={e => setMessage(e.target.value)}
                     placeholder="How can we improve this dashboard?"

@@ -6,44 +6,66 @@ const RESOURCE_ID = 'd_8b84c4ee58e3cfc0ece0d773c8ca6abc';
 
 export const dynamic = 'force-dynamic';
 
+let cachedCombinedRecords: any[] | null = null;
+let lastCacheTime = 0;
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour in-memory cache
+
+const ALLOWED_SORT_KEYS = ['month', 'resalePrice', 'floorAreaSqm', 'pricePerSqft', 'remainingLeaseYears', 'town', 'flatType'];
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   
   try {
-    const apiUrl = `${API_URL}?resource_id=${RESOURCE_ID}&sort=month%20desc&limit=5000`;
+    const now = Date.now();
+    let allRecords: any[] = [];
 
-    const headers: Record<string, string> = {};
-    if (process.env.DATAGOV_API_KEY) {
-      headers['api-key'] = process.env.DATAGOV_API_KEY.trim();
+    if (cachedCombinedRecords && (now - lastCacheTime < CACHE_TTL_MS)) {
+      allRecords = [...cachedCombinedRecords];
+    } else {
+      const historicalRecords = await getHistoricalData();
+      let recentLiveRecords: any[] = [];
+
+      try {
+        const apiUrl = `${API_URL}?resource_id=${RESOURCE_ID}&sort=month%20desc&limit=5000`;
+        const headers: Record<string, string> = {};
+        if (process.env.DATAGOV_API_KEY) {
+          headers['api-key'] = process.env.DATAGOV_API_KEY.trim();
+        }
+
+        const response = await fetch(apiUrl, { 
+          headers, 
+          signal: AbortSignal.timeout(8000),
+          next: { revalidate: 86400 } 
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const allLiveRecords = normalizeHdbData(data.result?.records || []);
+          recentLiveRecords = allLiveRecords.filter(r => r.month >= '2026-09');
+        } else {
+          console.warn(`Data.gov.sg returned ${response.status}. Falling back to historical data.`);
+        }
+      } catch (fetchErr) {
+        console.warn('Live HDB fetch failed or timed out. Falling back to historical data:', fetchErr);
+      }
+
+      cachedCombinedRecords = [...recentLiveRecords, ...historicalRecords];
+      lastCacheTime = now;
+      allRecords = [...cachedCombinedRecords];
     }
 
-    const response = await fetch(apiUrl, { headers, next: { revalidate: 86400 } });
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Data.gov.sg API Error Body:', errorText, 'URL:', apiUrl);
-      throw new Error(`API returned ${response.status}`);
-    }
-
-    const data = await response.json();
-    const allLiveRecords = normalizeHdbData(data.result.records);
-    
-    // Only pull live API records from Sep 2026 onwards to prevent overlapping with our static historical JSON file
-    const recentLiveRecords = allLiveRecords.filter(r => r.month >= '2026-09');
-    
-    const historicalRecords = await getHistoricalData();
-    let allRecords = [...recentLiveRecords, ...historicalRecords];
-
-    // Filter Logic
+    // Filter Logic & Parameter Sanitization
     const townsParam = searchParams.get('towns');
     const flatTypesParam = searchParams.get('flatTypes');
-    const minLease = Number(searchParams.get('minLease')) || 0;
-    const maxLease = Number(searchParams.get('maxLease')) || 99;
+    const minLease = Math.max(0, Number(searchParams.get('minLease')) || 0);
+    const maxLease = Math.min(99, Number(searchParams.get('maxLease')) || 99);
     const startMonth = searchParams.get('startMonth') || '2017-01';
     const endMonth = searchParams.get('endMonth') || '2030-12';
-    const page = Number(searchParams.get('page')) || 0;
-    const sortKey = searchParams.get('sortKey') || 'month';
-    const sortDir = searchParams.get('sortDir') || 'desc';
-    const search = (searchParams.get('search') || '').toLowerCase();
+    const page = Math.max(0, parseInt(searchParams.get('page') || '0', 10) || 0);
+    const rawSortKey = searchParams.get('sortKey') || 'month';
+    const sortKey = ALLOWED_SORT_KEYS.includes(rawSortKey) ? rawSortKey : 'month';
+    const sortDir = searchParams.get('sortDir') === 'asc' ? 'asc' : 'desc';
+    const search = (searchParams.get('search') || '').slice(0, 100).toLowerCase();
 
     const selectedTowns = townsParam ? townsParam.split(',').filter(Boolean) : [];
     const selectedFlatTypes = flatTypesParam ? flatTypesParam.split(',').filter(Boolean) : [];
@@ -148,6 +170,10 @@ export async function GET(request: Request) {
         millionDollar: millionDollar.slice(0, 15),
         leaseDecay,
         tableData
+      }
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600'
       }
     });
   } catch (error) {
