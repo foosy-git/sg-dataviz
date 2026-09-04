@@ -37,7 +37,7 @@ export default async function Home() {
     // --- LIVING & DEMOGRAPHICS ---
     {
       title: 'HDB Horizon',
-      description: 'Interactive exploration of HDB resale data from 2017 onwards. Analyze market trends, estate values, and the impact of lease decay.',
+      description: 'National resale price index & YoY trends from 1990, paired with an interactive 2017+ estate and transaction explorer.',
       icon: Building2,
       href: '/hdb',
       status: dates.hdb,

@@ -114,11 +114,11 @@ export default function Dashboard() {
       <main className="w-full overflow-x-hidden">
         
         {/* HERO SECTION */}
-        <section className="min-h-[80vh] flex flex-col items-center justify-center py-20 px-4 text-center border-b border-[#243324]/10 relative overflow-hidden">
+        <section className="min-h-[60vh] flex flex-col items-center justify-center py-20 px-4 text-center border-b border-[#243324]/10 relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#E8DCC4]/20 via-[#FBF9F5] to-[#FBF9F5] -z-20" />
           
           {/* Faint HDB Skyline Outline */}
-          <div className="absolute bottom-[15%] left-0 right-0 h-[50%] pointer-events-none -z-10 opacity-[0.04] overflow-hidden flex items-end">
+          <div className="absolute bottom-[10%] left-0 right-0 h-[50%] pointer-events-none -z-10 opacity-[0.04] overflow-hidden flex items-end">
              <svg className="w-full h-full object-cover object-bottom" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMax slice" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M0,300 L0,200 L50,200 L50,150 L120,150 L120,100 L180,100 L180,180 L220,180 L220,80 L290,80 L290,50 L350,50 L350,140 L400,140 L400,90 L480,90 L480,160 L540,160 L540,70 L620,70 L620,130 L680,130 L680,40 L760,40 L760,110 L810,110 L810,60 L890,60 L890,150 L950,150 L950,80 L1020,80 L1020,120 L1090,120 L1090,170 L1150,170 L1150,220 L1200,220 L1200,300 Z" fill="#243324" />
                 <path d="M70,170 L100,170 M70,190 L100,190 M140,130 L160,130 M140,150 L160,150 M240,110 L270,110 M240,130 L270,130 M310,80 L330,80 M310,100 L330,100 M420,120 L460,120 M420,140 L460,140 M500,100 L520,100 M560,100 L600,100 M560,120 L600,120 M640,160 L660,160 M700,70 L740,70 M700,90 L740,90 M780,140 L790,140 M830,90 L870,90 M830,110 L870,110 M910,180 L930,180 M970,110 L1000,110 M970,130 L1000,130 M1040,150 L1070,150 M1110,190 L1130,190" stroke="#FBF9F5" strokeWidth="4" />
@@ -134,47 +134,66 @@ export default function Dashboard() {
             <h1 className="text-5xl md:text-7xl font-serif text-[#243324] mb-6 tracking-tight leading-tight">
               Singapore Public Housing Report
             </h1>
-            <p className="text-lg md:text-xl text-[#243324]/70 max-w-2xl mx-auto font-sans mb-16 leading-relaxed">
-              An interactive exploration of HDB resale data from 2017 to present. Analyze market trends, estate values, and the impact of lease decay.
+            <p className="text-lg md:text-xl text-[#243324]/75 max-w-3xl mx-auto font-sans mb-10 leading-relaxed">
+              Comprehensive analysis of Singapore&apos;s public housing market — from national macro price cycles (1990–present) to granular estate and transaction exploration (2017–present).
             </p>
-          </motion.div>
 
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-            className="w-full max-w-5xl mx-auto z-10"
-          >
-            <DashboardFilters 
-              townsList={townsList}
-              flatTypesList={flatTypesList}
-              selectedTowns={selectedTowns}
-              setSelectedTowns={setSelectedTowns}
-              selectedFlatTypes={selectedFlatTypes}
-              setSelectedFlatTypes={setSelectedFlatTypes}
-              minLease={minLease}
-              setMinLease={setMinLease}
-              maxLease={maxLease}
-              setMaxLease={setMaxLease}
-              startMonth={startMonth}
-              setStartMonth={setStartMonth}
-              endMonth={endMonth}
-              setEndMonth={setEndMonth}
-              search={search}
-              setSearch={setSearch}
-            />
+            {/* Quick Navigation Buttons */}
+            <div className="flex flex-wrap items-center justify-center gap-4 mb-4">
+              <button
+                type="button"
+                onClick={() => document.getElementById('macro-benchmark')?.scrollIntoView({ behavior: 'smooth' })}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#243324] text-[#FBF9F5] hover:bg-[#3B4D36] transition-colors text-sm font-medium shadow-sm cursor-pointer"
+              >
+                <TrendingUp className="w-4 h-4" />
+                <span>National Macro Benchmark (1990–Present)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => document.getElementById('transaction-explorer')?.scrollIntoView({ behavior: 'smooth' })}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-[#243324]/15 text-[#243324] hover:bg-[#E8DCC4]/30 transition-colors text-sm font-medium shadow-sm cursor-pointer"
+              >
+                <Building2 className="w-4 h-4 text-[#3B4D36]" />
+                <span>Granular Transaction Explorer (2017–Present)</span>
+              </button>
+            </div>
           </motion.div>
           
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1, duration: 1 }}
-            className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce opacity-50 flex flex-col items-center cursor-pointer"
-            onClick={() => window.scrollTo({ top: window.innerHeight * 0.8, behavior: 'smooth'})}
+            className="mt-8 animate-bounce opacity-50 flex flex-col items-center cursor-pointer"
+            onClick={() => document.getElementById('macro-benchmark')?.scrollIntoView({ behavior: 'smooth' })}
           >
-             <span className="text-xs font-sans uppercase tracking-widest text-[#243324]/60 mb-2">Scroll to explore</span>
+             <span className="text-xs font-sans uppercase tracking-widest text-[#243324]/60 mb-1">Explore Data</span>
              <ChevronDown className="w-5 h-5 text-[#243324]/60" />
           </motion.div>
+        </section>
+
+        {/* TIER 1: NATIONAL MACRO BENCHMARK (1990 - PRESENT) */}
+        <section 
+          id="macro-benchmark" 
+          className="py-20 px-4 md:px-8 max-w-7xl mx-auto border-b border-[#243324]/10 scroll-mt-20"
+        >
+          <div className="mb-10">
+            <div className="inline-flex items-center gap-2 mb-3">
+              <Badge variant="outline" className="bg-[#243324]/5 border-[#243324]/20 text-[#243324] text-xs font-semibold uppercase tracking-wider px-3 py-1">
+                National Macro Benchmark • 1990–Present • Unfiltered
+              </Badge>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-serif text-[#243324] tracking-tight">
+              Singapore HDB Macro Market Benchmark
+            </h2>
+            <p className="text-[#243324]/75 max-w-3xl text-base md:text-lg mt-2 font-sans leading-relaxed">
+              Official constant-quality HDB Resale Price Index (1Q2009 = 100) and historical annual average resale values across 35+ years of policy and economic cycles. This macro benchmark reflects all of Singapore and is unaffected by localized estate filters.
+            </p>
+          </div>
+
+          <OverallMarketTrendChart 
+            resaleIndexData={analytics?.resaleIndex?.length ? analytics.resaleIndex : (fallbackResaleIndex as HdbResaleIndexPoint[])} 
+            annualTrendData={analytics?.annualTrend?.length ? analytics.annualTrend : fallbackAnnualTrend} 
+          />
         </section>
 
         {isLoading && !analytics ? (
@@ -186,32 +205,104 @@ export default function Dashboard() {
           </div>
         ) : (
           <>
-            {/* OVERVIEW SECTION */}
+            {/* TIER 2: INTERACTIVE TRANSACTION EXPLORER (2017 - PRESENT) */}
             <motion.section 
+              id="transaction-explorer"
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.8 }}
-              className="py-24 px-4 md:px-8 max-w-7xl mx-auto border-b border-[#243324]/10"
+              className="py-20 px-4 md:px-8 max-w-7xl mx-auto border-b border-[#243324]/10 scroll-mt-20"
             >
-              <div className="text-center mb-16">
-                <h2 className="text-4xl font-serif text-[#243324] mb-4">Market Overview</h2>
-                <p className="text-[#243324]/70 max-w-2xl mx-auto text-lg">A snapshot of the current state of the market based on your selected parameters.</p>
+              <div className="text-center mb-10">
+                <div className="inline-flex items-center gap-2 mb-3">
+                  <Badge variant="outline" className="bg-emerald-500/10 border-emerald-600/20 text-emerald-800 text-xs font-semibold uppercase tracking-wider px-3 py-1">
+                    Interactive Explorer • 2017–Present • Dynamic Filters Active
+                  </Badge>
+                </div>
+                <h2 className="text-3xl md:text-5xl font-serif text-[#243324] mb-3 tracking-tight">
+                  Estate &amp; Transaction Explorer
+                </h2>
+                <p className="text-[#243324]/70 max-w-3xl mx-auto text-base md:text-lg font-sans leading-relaxed">
+                  Drill down into individual property records across Singapore&apos;s 26 HDB towns. Adjust the parameters below to dynamically update market metrics, price trajectories, spatial heatmaps, and lease decay.
+                </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+              {/* Filter Control Panel */}
+              <div className="w-full max-w-5xl mx-auto mb-10">
+                <DashboardFilters 
+                  townsList={townsList}
+                  flatTypesList={flatTypesList}
+                  selectedTowns={selectedTowns}
+                  setSelectedTowns={setSelectedTowns}
+                  selectedFlatTypes={selectedFlatTypes}
+                  setSelectedFlatTypes={setSelectedFlatTypes}
+                  minLease={minLease}
+                  setMinLease={setMinLease}
+                  maxLease={maxLease}
+                  setMaxLease={setMaxLease}
+                  startMonth={startMonth}
+                  setStartMonth={setStartMonth}
+                  endMonth={endMonth}
+                  setEndMonth={setEndMonth}
+                  search={search}
+                  setSearch={setSearch}
+                />
+              </div>
+
+              {/* Active Filter Scope Summary Bar */}
+              <div className="flex flex-wrap items-center justify-between gap-3 bg-[#FBF9F5] border border-[#243324]/10 rounded-xl p-4 mb-10">
+                <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-[#243324]/75">
+                  <span className="font-semibold text-[#243324] uppercase tracking-wider text-[11px]">Active Filter Scope:</span>
+                  {selectedTowns.length > 0 ? (
+                    <span className="bg-white px-2.5 py-1 rounded-md border border-[#243324]/15 shadow-2xs font-sans">
+                      Towns: {selectedTowns.join(', ')}
+                    </span>
+                  ) : (
+                    <span className="bg-white px-2.5 py-1 rounded-md border border-[#243324]/15 shadow-2xs">All 26 Towns</span>
+                  )}
+                  {selectedFlatTypes.length > 0 ? (
+                    <span className="bg-white px-2.5 py-1 rounded-md border border-[#243324]/15 shadow-2xs">
+                      Types: {selectedFlatTypes.join(', ')}
+                    </span>
+                  ) : (
+                    <span className="bg-white px-2.5 py-1 rounded-md border border-[#243324]/15 shadow-2xs">All Flat Types</span>
+                  )}
+                  {(minLease > 0 || maxLease < 99) && (
+                    <span className="bg-white px-2.5 py-1 rounded-md border border-[#243324]/15 shadow-2xs">
+                      Lease: {minLease}–{maxLease} yrs
+                    </span>
+                  )}
+                  {(startMonth || endMonth) && (
+                    <span className="bg-white px-2.5 py-1 rounded-md border border-[#243324]/15 shadow-2xs">
+                      Period: {startMonth || '2017-01'} to {endMonth || 'Latest'}
+                    </span>
+                  )}
+                  {search && (
+                    <span className="bg-white px-2.5 py-1 rounded-md border border-[#243324]/15 shadow-2xs">
+                      Keyword: &quot;{search}&quot;
+                    </span>
+                  )}
+                </div>
+                <div className="text-xs font-semibold text-[#3B4D36]">
+                  {analytics?.totalTransactions ? analytics.totalTransactions.toLocaleString() : 0} matching flats transacted
+                </div>
+              </div>
+
+              {/* Filtered Overview Metric Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                  <Card className="shadow-sm hover:shadow-md transition-all duration-300 border-[#243324]/10 bg-white/60 backdrop-blur-md relative overflow-hidden group">
                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><DollarSign className="w-24 h-24 text-[#243324] -mt-4 -mr-4"/></div>
                    <CardHeader className="pb-2 relative z-10">
                      <CardTitle className="text-sm font-sans font-semibold text-[#243324]/70 uppercase tracking-wider flex items-center gap-2" title="The middle point of all transaction prices.">
-                       <TrendingUp className="w-4 h-4" /> Median Price
+                       <TrendingUp className="w-4 h-4" /> Filtered Median Price
                      </CardTitle>
                    </CardHeader>
                    <CardContent className="relative z-10">
                      <div className="text-5xl font-serif text-[#243324] tracking-tight">
                         {analytics?.medianPrice ? (analytics.medianPrice >= 1000000 ? `$${(analytics.medianPrice / 1000000).toFixed(2)}M` : `$${analytics.medianPrice.toLocaleString()}`) : '-'}
                      </div>
-                     <p className="text-sm text-[#243324]/60 font-medium mt-2">Median price of filtered results</p>
+                     <p className="text-sm text-[#243324]/60 font-medium mt-2">Median price of matching transactions</p>
                    </CardContent>
                  </Card>
 
@@ -219,14 +310,14 @@ export default function Dashboard() {
                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><Map className="w-24 h-24 text-[#243324] -mt-4 -mr-4"/></div>
                    <CardHeader className="pb-2 relative z-10">
                      <CardTitle className="text-sm font-sans font-semibold text-[#243324]/70 uppercase tracking-wider flex items-center gap-2" title="Price per Square Foot.">
-                       <Map className="w-4 h-4" /> Average PSF
+                       <Map className="w-4 h-4" /> Filtered Average PSF
                      </CardTitle>
                    </CardHeader>
                    <CardContent className="relative z-10">
                      <div className="text-5xl font-serif text-[#243324] tracking-tight">
                         {analytics?.avgPsf ? `$${analytics.avgPsf.toLocaleString()}` : '-'}
                      </div>
-                     <p className="text-sm text-[#243324]/60 font-medium mt-2">Price per Square Foot</p>
+                     <p className="text-sm text-[#243324]/60 font-medium mt-2">Price per Square Foot of matching flats</p>
                    </CardContent>
                  </Card>
 
@@ -234,33 +325,26 @@ export default function Dashboard() {
                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><Activity className="w-24 h-24 text-[#243324] -mt-4 -mr-4"/></div>
                    <CardHeader className="pb-2 relative z-10">
                      <CardTitle className="text-sm font-sans font-semibold text-[#243324]/70 uppercase tracking-wider flex items-center gap-2" title="Total transactions recorded.">
-                       <Activity className="w-4 h-4" /> Total Volume
+                       <Activity className="w-4 h-4" /> Filtered Volume
                      </CardTitle>
                    </CardHeader>
                    <CardContent className="relative z-10">
                      <div className="text-5xl font-serif text-[#243324] tracking-tight">
                         {analytics?.totalTransactions ? analytics.totalTransactions.toLocaleString() : '-'}
                      </div>
-                     <p className="text-sm text-[#243324]/60 font-medium mt-2">Flats sold in this period</p>
+                     <p className="text-sm text-[#243324]/60 font-medium mt-2">Flats sold matching selected filters</p>
                    </CardContent>
                  </Card>
               </div>
 
-              {/* Overall HDB Resale Market Trend & YoY Growth */}
-              <div className="mb-16">
-                <OverallMarketTrendChart 
-                  resaleIndexData={analytics?.resaleIndex?.length ? analytics.resaleIndex : (fallbackResaleIndex as HdbResaleIndexPoint[])} 
-                  annualTrendData={analytics?.annualTrend?.length ? analytics.annualTrend : fallbackAnnualTrend} 
-                />
-              </div>
-
+              {/* Filtered Price & Volume Trends */}
               <Card className="shadow-sm border-[#243324]/10 bg-white/60 backdrop-blur-md">
                 <CardHeader className="border-b border-[#243324]/5 pb-6">
                   <div className="flex items-center gap-3">
                     <div className="bg-[#E8DCC4]/50 p-3 rounded-lg border border-[#243324]/10"><LineChart className="w-6 h-6 text-[#3B4D36]"/></div>
                     <div>
-                      <CardTitle className="text-2xl font-serif text-[#243324]">Market Price &amp; Volume Trends</CardTitle>
-                      <CardDescription className="text-[#243324]/70 text-base mt-1">Tracking the historical trajectory of median prices and transaction volume over time.</CardDescription>
+                      <CardTitle className="text-2xl font-serif text-[#243324]">Filtered Market Trajectory &amp; Volume</CardTitle>
+                      <CardDescription className="text-[#243324]/70 text-base mt-1">Monthly median prices and sales volume for the flats matching your active filter parameters (2017–Present).</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
