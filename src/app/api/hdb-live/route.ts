@@ -113,6 +113,13 @@ export async function GET(request: Request) {
       trendMap[r.month][`${r.town}_count`] += 1;
       trendMap[r.month][`${r.town}_sum`] += r.resalePrice;
 
+      if (!trendMap[r.month][`${r.flatType}_count`]) {
+         trendMap[r.month][`${r.flatType}_count`] = 0;
+         trendMap[r.month][`${r.flatType}_sum`] = 0;
+      }
+      trendMap[r.month][`${r.flatType}_count`] += 1;
+      trendMap[r.month][`${r.flatType}_sum`] += r.resalePrice;
+
       if (!townMap[r.town]) townMap[r.town] = { town: r.town, count: 0, sum: 0 };
       townMap[r.town].count += 1;
       townMap[r.town].sum += r.resalePrice;

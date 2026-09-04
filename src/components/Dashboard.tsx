@@ -346,7 +346,9 @@ export default function Dashboard() {
                     <div className="bg-[#E8DCC4]/50 p-3 rounded-lg border border-[#243324]/10"><LineChart className="w-6 h-6 text-[#3B4D36]"/></div>
                     <div>
                       <CardTitle className="text-2xl font-serif text-[#243324]">Filtered Market Trajectory &amp; Volume</CardTitle>
-                      <CardDescription className="text-[#243324]/70 text-base mt-1">Monthly median prices and sales volume for the flats matching your active filter parameters (2017–Present).</CardDescription>
+                      <CardDescription className="text-[#243324]/70 text-base mt-1">
+                        Monthly median resale price trajectory for flats matching your active filter parameters, switchable between towns and flat types (2017–Present).
+                      </CardDescription>
                     </div>
                   </div>
                 </CardHeader>
