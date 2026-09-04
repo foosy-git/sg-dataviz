@@ -18,7 +18,7 @@ export default async function HouseholdIncomePage() {
       fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_b37bc6f05c76337ad51aefddf0b7c888&limit=100'),
       fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_b7c2e74824c179995d15d73eac845ba1&limit=500'),
       fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_ce5d8bb5c34f6b78b5b2f1fab09ccbce&limit=100'),
-      fetch('https://data.gov.sg/api/action/datastore_search?resource_id=d_285a079d823a1cc22dffb9cac325f81a&limit=10')
+      null
     ]);
 
     if (!medianRes.ok || !decileRes.ok || !cpiRes.ok || !dwellingRes.ok || !unempRes.ok) {

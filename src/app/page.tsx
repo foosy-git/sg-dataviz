@@ -56,8 +56,26 @@ export default async function Home() {
       status: dates.climate,
       color: 'bg-green-500/10 text-green-700',
     },
+
+    {
+      title: 'Economy & Employment',
+      description: 'Tracking Singapore\'s overall and resident unemployment rates, illustrating the impact of economic cycles.',
+      icon: LineChart,
+      href: '/economy/employment',
+      status: 'Data as of 2026',
+      color: 'bg-purple-500/10 text-purple-700',
+    },
+    {
+      title: 'Public Health & Outbreaks',
+      description: 'Track the historical cycles of Dengue and Dengue Haemorrhagic Fever outbreaks in Singapore.',
+      icon: Activity,
+      href: '/health/dengue',
+      status: 'Data as of 2024',
+      color: 'bg-red-500/10 text-red-700',
+    },
     {
       title: 'Air Quality & Haze',
+
       description: 'Real-time PSI & PM2.5 readings, regional air quality map, and historical haze crisis benchmarks.',
       icon: Activity,
       href: '/environment/air-quality',

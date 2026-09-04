@@ -39,7 +39,7 @@ export default function IncomeDashboard({ initialData }: IncomeDashboardProps) {
         <div className="bg-[#FBF9F5] border border-[#243324]/10 p-3 rounded-lg shadow-md">
           <p className="font-serif font-medium text-[#243324] mb-2">{label}</p>
           {payload.map((entry: any, index: number) => {
-            const isPercent = entry.name === 'Unemployment Rate';
+            const isPercent = false;
             const valueStr = isPercent ? `${entry.value}%` : `$${entry.value?.toLocaleString()}`;
             return (
               <p key={index} className="text-sm font-sans flex items-center gap-2" style={{ color: entry.color }}>
@@ -165,126 +165,7 @@ export default function IncomeDashboard({ initialData }: IncomeDashboardProps) {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <Card className="bg-white border-[#243324]/10 shadow-sm col-span-1 lg:col-span-2">
-            <CardHeader className="pb-4">
-              <CardTitle className="font-serif text-2xl text-[#243324]">The Inflation Gap: Real vs. Nominal Income</CardTitle>
-              <CardDescription className="text-base text-[#243324]/70 font-sans">
-                Nominal income is what's on your payslip. Real income is your actual purchasing power (adjusted for inflation, pegged to 2008 prices).
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[400px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#243324" opacity={0.1} vertical={false} />
-                    <XAxis dataKey="year" stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dy={10} minTickGap={30} />
-                    <YAxis stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dx={-10} tickFormatter={(v) => `$${v}`} />
-                    <RechartsTooltip content={<CustomTooltip />} />
-                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                    <Line type="monotone" name="Nominal Median Income" dataKey="median" stroke="#f43f5e" strokeWidth={2} dot={{ r: 0 }} activeDot={{ r: 6 }} />
-                    <Line type="monotone" name="Real Median Income (Purchasing Power)" dataKey="realMedian" stroke="#10b981" strokeWidth={2} strokeDasharray="5 5" dot={{ r: 0 }} activeDot={{ r: 6 }} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white border-[#243324]/10 shadow-sm col-span-1 lg:col-span-2">
-            <CardHeader className="pb-4">
-              <CardTitle className="font-serif text-2xl text-[#243324]">Income by Housing Type</CardTitle>
-              <CardDescription className="text-base text-[#243324]/70 font-sans">
-                Median household income categorized by the type of dwelling they reside in.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[400px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={filteredData} margin={{ top: 20, right: 30, left: 10, bottom: 20 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#243324" opacity={0.1} vertical={false} />
-                    <XAxis dataKey="year" stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dy={10} minTickGap={30} />
-                    <YAxis stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dx={-5} tickFormatter={(v) => `$${v}`} />
-                    <RechartsTooltip content={<CustomTooltip />} />
-                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                    <Line type="monotone" name="1-2 Room HDB" dataKey="hdb1_2" stroke="#94a3b8" strokeWidth={2} dot={{ r: 0 }} />
-                    <Line type="monotone" name="3-Room HDB" dataKey="hdb3" stroke="#64748b" strokeWidth={2} dot={{ r: 0 }} />
-                    <Line type="monotone" name="4-Room HDB" dataKey="hdb4" stroke="#0ea5e9" strokeWidth={2} dot={{ r: 0 }} activeDot={{ r: 4 }} />
-                    <Line type="monotone" name="5-Room/Exec HDB" dataKey="hdb5_exec" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 0 }} activeDot={{ r: 4 }} />
-                    <Line type="monotone" name="Condominium" dataKey="condo" stroke="#f59e0b" strokeWidth={2} dot={{ r: 0 }} activeDot={{ r: 4 }} />
-                    <Line type="monotone" name="Landed Property" dataKey="landed" stroke="#10b981" strokeWidth={2} dot={{ r: 0 }} activeDot={{ r: 4 }} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white border-[#243324]/10 shadow-sm">
-            <CardHeader className="pb-4">
-              <CardTitle className="font-serif text-2xl text-[#243324]">The Income Gap</CardTitle>
-              <CardDescription className="text-base text-[#243324]/70 font-sans">
-                Comparing the earnings of the Top 10% vs the Bottom 10% over time.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[300px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#243324" opacity={0.1} vertical={false} />
-                    <XAxis dataKey="year" stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dy={10} minTickGap={30} />
-                    <YAxis stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dx={-10} tickFormatter={(v) => `$${v}`} />
-                    <RechartsTooltip content={<CustomTooltip />} />
-                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                    <Line type="monotone" name="Top 10%" dataKey="decile10" stroke="#f43f5e" strokeWidth={2} dot={{ r: 0 }} activeDot={{ r: 6 }} />
-                    <Line type="monotone" name="Bottom 10%" dataKey="decile1" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 0 }} activeDot={{ r: 6 }} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white border-[#243324]/10 shadow-sm">
-            <CardHeader className="pb-4">
-              <CardTitle className="font-serif text-2xl text-[#243324]">Latest Decile Distribution ({latestData.year})</CardTitle>
-              <CardDescription className="text-base text-[#243324]/70 font-sans">
-                Where does your household stand compared to the rest of the nation?
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[300px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={latestDeciles} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#243324" opacity={0.1} vertical={false} />
-                    <XAxis dataKey="name" stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 10 }} tickLine={false} axisLine={false} dy={10} angle={-45} textAnchor="end" height={60} />
-                    <YAxis stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dx={-10} tickFormatter={(v) => `$${v}`} />
-                    <RechartsTooltip contentStyle={{ backgroundColor: '#FBF9F5', borderColor: 'rgba(36, 51, 36, 0.1)', borderRadius: '8px' }} />
-                    <Bar dataKey="value" name="Average Income" fill="#3B4D36" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white border-[#243324]/10 shadow-sm col-span-1 lg:col-span-2">
-            <CardHeader className="pb-4">
-              <CardTitle className="font-serif text-2xl text-[#243324]">Resident Unemployment Rate</CardTitle>
-              <CardDescription className="text-base text-[#243324]/70 font-sans">
-                Seasonally adjusted unemployment rate for Singapore residents aged 15 years and over.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[300px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#243324" opacity={0.1} vertical={false} />
-                    <XAxis dataKey="year" stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dy={10} minTickGap={30} />
-                    <YAxis stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dx={-10} tickFormatter={(v) => `${v}%`} />
-                    <RechartsTooltip content={<CustomTooltip />} />
-                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                    <Line type="monotone" name="Unemployment Rate" dataKey="unemployment" stroke="#9333ea" strokeWidth={2.5} dot={{ r: 0 }} activeDot={{ r: 6 }} connectNulls />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
+          
         </div>
 
       </div>
