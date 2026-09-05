@@ -4,10 +4,13 @@ import { Suspense } from 'react';
 const PSI_API = 'https://api.data.gov.sg/v1/environment/psi';
 const PM25_API = 'https://api.data.gov.sg/v1/environment/pm25';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 async function getAirQualityData() {
   const fetchOpts = { 
     headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) SGDataViz' }, 
-    next: { revalidate: 60 } 
+    cache: 'no-store' as const
   };
   
   try {
@@ -28,8 +31,6 @@ async function getAirQualityData() {
     return { psi: null, pm25: null };
   }
 }
-
-export const dynamic = 'force-dynamic';
 
 export default async function AirQualityPage() {
   const psiData = await getAirQualityData();
