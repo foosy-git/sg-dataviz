@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, GraduationCap, TrendingUp, Briefcase } from 'lucide-react';
+import { ArrowLeft, GraduationCap, TrendingUp, Briefcase, LayoutList, BarChart3 } from 'lucide-react';
 import DashboardNav from '@/components/ui/DashboardNav';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -13,6 +13,8 @@ import {
 
 export default function GESDashboard({ initialData }: { initialData: any[] }) {
   const [isMobile, setIsMobile] = useState(false);
+  const [top10ViewMode, setTop10ViewMode] = useState<'chart' | 'list'>('chart');
+  const [salarySpreadViewMode, setSalarySpreadViewMode] = useState<'chart' | 'list'>('chart');
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 640);
@@ -123,40 +125,113 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
     });
   }, [initialData, years]);
 
+  // Helper to clean degree titles (strip footnote symbols like #, ^, *)
+  const cleanDegreeTitle = (deg: string) => {
+    if (!deg) return '';
+    return deg
+      .replace(/[#*^]+$/g, '')
+      .replace(/\s*#\s*$/g, '')
+      .replace(/\s*\^\s*$/g, '')
+      .trim();
+  };
+
+  // Helper to wrap long degree titles cleanly across lines for SVG YAxis
+  const wrapDegreeTitle = (text: string, maxChars = 32, maxLines = 2): string[] => {
+    if (!text) return [''];
+    if (text.length <= maxChars) return [text];
+
+    // Check for natural split at parenthesis e.g. "Bachelor of Computing (Computer Science)"
+    const parenIdx = text.indexOf(' (');
+    if (parenIdx !== -1 && maxLines >= 2) {
+      const part1 = text.substring(0, parenIdx).trim();
+      const part2 = text.substring(parenIdx).trim();
+      if (part1.length <= maxChars + 6 && part2.length <= maxChars + 6) {
+        return [part1, part2];
+      }
+    }
+
+    const words = text.split(/\s+/);
+    const lines: string[] = [];
+    let current = '';
+
+    for (let i = 0; i < words.length; i++) {
+      const word = words[i];
+      if (!current) {
+        current = word;
+      } else if ((current + ' ' + word).length <= maxChars) {
+        current += ' ' + word;
+      } else {
+        lines.push(current);
+        current = word;
+        if (lines.length === maxLines - 1) {
+          const rest = words.slice(i).join(' ');
+          lines.push(rest);
+          return lines;
+        }
+      }
+    }
+    if (current) lines.push(current);
+    return lines;
+  };
+
   // Top 10 High Paying
   const top10Data = useMemo(() => {
     if (yearData.length === 0) return [];
     return yearData
       .filter(d => d.gross_monthly_median !== null)
-      .sort((a, b) => b.gross_monthly_median - a.gross_monthly_median)
+      .sort((a, b) => Number(b.gross_monthly_median) - Number(a.gross_monthly_median))
       .slice(0, 10)
-      .map(d => ({
-        name: isMobile 
-          ? (d.degree.length > 15 ? d.degree.substring(0, 14) + '…' : d.degree) 
-          : (d.degree.length > 35 ? d.degree.substring(0, 35) + '...' : d.degree),
-        fullDegree: d.degree,
-        salary: d.gross_monthly_median,
-        university: d.university
-      }));
-  }, [yearData, isMobile]);
+      .map((d, index) => {
+        const cleanTitle = cleanDegreeTitle(d.degree);
+        const uni = d.university;
+        const uniShort = getUniShort(uni);
+        const salary = Number(d.gross_monthly_median);
+        const empRate = d.employment_rate_ft_perm !== null ? Number(d.employment_rate_ft_perm) : null;
+        return {
+          rank: index + 1,
+          name: cleanTitle,
+          fullDegree: cleanTitle,
+          rawDegree: d.degree,
+          chartKey: `${cleanTitle} (${uniShort})`,
+          salary,
+          university: uni,
+          uniShort,
+          empRate
+        };
+      });
+  }, [yearData]);
 
   // Salary Spread (25th to 75th Percentile) for top degrees
   const salarySpreadData = useMemo(() => {
     if (yearData.length === 0) return [];
     return yearData
       .filter(d => d.gross_mthly_25_percentile !== null && d.gross_mthly_75_percentile !== null && d.gross_monthly_median !== null)
-      .sort((a, b) => b.gross_monthly_median - a.gross_monthly_median)
+      .sort((a, b) => Number(b.gross_monthly_median) - Number(a.gross_monthly_median))
       .slice(0, 10)
-      .map(d => ({
-        name: isMobile 
-          ? (d.degree.length > 15 ? d.degree.substring(0, 14) + '…' : d.degree) 
-          : (d.degree.length > 35 ? d.degree.substring(0, 35) + '...' : d.degree),
-        fullDegree: d.degree,
-        min: d.gross_mthly_25_percentile,
-        diff: d.gross_mthly_75_percentile - d.gross_mthly_25_percentile,
-        median: d.gross_monthly_median
-      }));
-  }, [yearData, isMobile]);
+      .map((d, index) => {
+        const cleanTitle = cleanDegreeTitle(d.degree);
+        const uni = d.university;
+        const uniShort = getUniShort(uni);
+        const p25 = Number(d.gross_mthly_25_percentile);
+        const p75 = Number(d.gross_mthly_75_percentile);
+        const median = Number(d.gross_monthly_median);
+        const diff = Math.max(0, p75 - p25);
+        return {
+          rank: index + 1,
+          name: cleanTitle,
+          fullDegree: cleanTitle,
+          rawDegree: d.degree,
+          chartKey: `${cleanTitle} (${uniShort})`,
+          university: uni,
+          uniShort,
+          min: p25,
+          diff,
+          p25,
+          p75,
+          median
+        };
+      });
+  }, [yearData]);
 
   // Degree Cluster Analysis
   const clusterData = useMemo(() => {
@@ -195,16 +270,88 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
     })).sort((a,b) => b.median - a.median);
   }, [yearData]);
 
+  // Custom multi-line SVG YAxis Tick component for degrees
+  const DegreeYAxisTick = (props: any) => {
+    const { x, y, payload, isMobile, data, tagColor = '#6366f1' } = props;
+    const item = data && data[payload.index] ? data[payload.index] : null;
+    const rawValue = payload.value || '';
+    const title = item ? item.fullDegree : cleanDegreeTitle(rawValue.replace(/\s*\([A-Z]+\)$/, ''));
+    const uni = item ? item.uniShort : '';
+
+    const maxChars = isMobile ? 20 : 34;
+    const maxLines = isMobile ? 3 : 2;
+    const lines = wrapDegreeTitle(title, maxChars, maxLines);
+
+    const totalLines = lines.length + (uni ? 1 : 0);
+    const lineHeight = isMobile ? 11.5 : 13;
+    const initialY = totalLines === 1 ? 4 : -((totalLines - 1) * lineHeight) / 2 + 3;
+
+    return (
+      <g transform={`translate(${x},${y})`}>
+        <text
+          x={-8}
+          y={initialY}
+          textAnchor="end"
+          className="select-none font-medium"
+          style={{ fontSize: isMobile ? 9.5 : 11 }}
+        >
+          {lines.map((line: string, idx: number) => (
+            <tspan
+              key={idx}
+              x={-8}
+              dy={idx === 0 ? 0 : lineHeight}
+              fill={idx === 0 ? '#1F2B1D' : '#243324E0'}
+            >
+              {line}
+            </tspan>
+          ))}
+          {uni && (
+            <tspan
+              x={-8}
+              dy={lineHeight}
+              fill={tagColor}
+              fontWeight={600}
+              fontSize={isMobile ? 8.5 : 9.5}
+            >
+              {`[${uni}]`}
+            </tspan>
+          )}
+        </text>
+      </g>
+    );
+  };
+
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
-      if (payload[0].payload.university && payload[0].payload.school) { // Scatter
-        const d = payload[0].payload;
+      const d = payload[0].payload;
+      if (d.university && d.school) { // Scatter
         return (
           <div className="bg-white/95 p-3 rounded-xl shadow-lg border border-[#243324]/10 text-sm max-w-xs">
             <div className="font-semibold text-[#243324]">{d.degree}</div>
             <div className="text-xs text-[#243324]/60 mb-2">{d.university}</div>
             <div>Salary: <span className="font-bold">${d.gross_monthly_median}</span></div>
             <div>FT Perm Rate: <span className="font-bold">{d.employment_rate_ft_perm}%</span></div>
+          </div>
+        );
+      }
+      if (d.university && d.salary !== undefined) { // Top 10 Bar
+        return (
+          <div className="bg-white/95 p-3 rounded-xl shadow-lg border border-[#243324]/10 text-xs sm:text-sm max-w-xs space-y-1">
+            <div className="font-semibold text-[#1F2B1D]">{d.fullDegree || d.name}</div>
+            <div className="text-xs text-[#243324]/60 flex items-center gap-1.5 pb-1 border-b border-[#243324]/10">
+              <span className="font-semibold text-[#6366f1]">[{d.uniShort}]</span>
+              <span>{d.university}</span>
+            </div>
+            <div className="flex justify-between items-center pt-1">
+              <span className="text-[#243324]/80">Gross Monthly Median:</span>
+              <span className="font-bold text-[#6366f1] text-sm">${d.salary?.toLocaleString()}</span>
+            </div>
+            {d.empRate !== null && d.empRate !== undefined && (
+              <div className="flex justify-between items-center text-xs text-[#243324]/70">
+                <span>FT Perm Employment:</span>
+                <span className="font-semibold">{d.empRate}%</span>
+              </div>
+            )}
           </div>
         );
       }
@@ -216,6 +363,40 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
               {p.name}: ${p.value?.toLocaleString()}
             </div>
           ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const SalarySpreadTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const d = payload[0].payload;
+      return (
+        <div className="bg-white/95 p-3 rounded-xl shadow-lg border border-[#243324]/10 text-xs sm:text-sm max-w-xs space-y-1.5">
+          <div className="font-semibold text-[#1F2B1D] leading-snug">{d.fullDegree || d.name}</div>
+          <div className="text-[11px] text-[#243324]/70 flex items-center gap-1.5 pb-1 border-b border-[#243324]/10">
+            <span className="font-semibold text-[#a855f7]">[{d.uniShort}]</span>
+            <span className="truncate">{d.university}</span>
+          </div>
+          <div className="space-y-1">
+            <div className="flex justify-between text-[#243324]/80">
+              <span>25th Percentile:</span>
+              <span className="font-semibold text-[#243324]">${d.p25?.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-[#243324]">
+              <span>Median Starting:</span>
+              <span className="font-bold text-[#a855f7]">${d.median?.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-[#243324]/80">
+              <span>75th Percentile:</span>
+              <span className="font-semibold text-[#243324]">${d.p75?.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-xs text-[#243324]/60 pt-1 border-t border-dashed border-[#243324]/10">
+              <span>Interquartile Spread:</span>
+              <span className="font-semibold text-[#243324]">${d.diff?.toLocaleString()}</span>
+            </div>
+          </div>
         </div>
       );
     }
@@ -377,7 +558,7 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
           </Card>
 
           {/* Scatter Chart (Golden Quadrant) */}
-          <Card className="bg-white border-[#243324]/5 shadow-sm overflow-hidden flex flex-col">
+          <Card className="bg-white border-[#243324]/5 shadow-sm overflow-hidden flex flex-col lg:col-span-2">
             <CardHeader className="border-b border-[#243324]/5 bg-gray-50/50 pb-4">
               <CardTitle className="font-serif text-xl">The Golden Quadrant ({selectedYear})</CardTitle>
               <CardDescription>Employment Rate vs Median Salary by Degree</CardDescription>
@@ -422,54 +603,272 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
 
           {/* Top 10 Bar Chart */}
           <Card className="bg-white border-[#243324]/5 shadow-sm overflow-hidden flex flex-col lg:col-span-2">
-            <CardHeader className="border-b border-[#243324]/5 bg-gray-50/50 pb-4">
-              <CardTitle className="font-serif text-xl">Top 10 Highest Paying Degrees ({selectedYear})</CardTitle>
-              <CardDescription>By gross monthly median salary</CardDescription>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div style={{ height: 400, width: '100%' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={top10Data.map(d => ({ ...d, salary: Number(d.salary) }))} layout="vertical" margin={isMobile ? { top: 0, right: 45, left: -15, bottom: 0 } : { top: 0, right: 60, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#24332410" />
-                    <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: isMobile ? 10 : 12, fill: '#24332480' }} tickFormatter={(v) => `$${v}`} />
-                    <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: isMobile ? 10 : 11, fill: '#243324' }} width={isMobile ? 115 : 240} />
-                    <Tooltip content={<CustomTooltip />} cursor={{ fill: '#24332405' }} />
-                    <Bar dataKey="salary" fill="#6366f1" radius={[0, 4, 4, 0]} barSize={isMobile ? 18 : 24}>
-                      <LabelList dataKey="salary" position="right" formatter={(v: any) => `$${v}`} style={{ fontSize: isMobile ? 10 : 11, fill: '#243324' }} />
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+            <CardHeader className="border-b border-[#243324]/5 bg-gray-50/50 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <CardTitle className="font-serif text-xl">Top 10 Highest Paying Degrees ({selectedYear})</CardTitle>
+                <CardDescription>Ranked by gross monthly median salary</CardDescription>
               </div>
+              <div className="flex items-center gap-1 bg-[#243324]/5 p-1 rounded-lg text-xs font-medium self-start sm:self-auto">
+                <button
+                  type="button"
+                  onClick={() => setTop10ViewMode('chart')}
+                  className={`px-2.5 py-1 rounded-md transition-all flex items-center gap-1.5 cursor-pointer ${
+                    top10ViewMode === 'chart'
+                      ? 'bg-[#243324] text-[#FBF9F5] shadow-xs font-semibold'
+                      : 'text-[#243324]/70 hover:text-[#243324]'
+                  }`}
+                >
+                  <BarChart3 className="w-3.5 h-3.5" />
+                  <span>Bar Chart</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTop10ViewMode('list')}
+                  className={`px-2.5 py-1 rounded-md transition-all flex items-center gap-1.5 cursor-pointer ${
+                    top10ViewMode === 'list'
+                      ? 'bg-[#243324] text-[#FBF9F5] shadow-xs font-semibold'
+                      : 'text-[#243324]/70 hover:text-[#243324]'
+                  }`}
+                >
+                  <LayoutList className="w-3.5 h-3.5" />
+                  <span>Ranked List</span>
+                </button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-3 sm:p-6">
+              {top10ViewMode === 'chart' ? (
+                <div style={{ height: isMobile ? 480 : 520, width: '100%' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={top10Data}
+                      layout="vertical"
+                      margin={{
+                        top: 10,
+                        right: isMobile ? 55 : 75,
+                        left: isMobile ? 6 : 12,
+                        bottom: 10
+                      }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#24332410" />
+                      <XAxis
+                        type="number"
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: isMobile ? 10 : 12, fill: '#24332480' }}
+                        tickFormatter={(v) => `$${v}`}
+                      />
+                      <YAxis
+                        type="category"
+                        dataKey="chartKey"
+                        axisLine={false}
+                        tickLine={false}
+                        width={isMobile ? 140 : 280}
+                        tick={(props) => (
+                          <DegreeYAxisTick
+                            {...props}
+                            isMobile={isMobile}
+                            data={top10Data}
+                            tagColor="#6366f1"
+                          />
+                        )}
+                      />
+                      <Tooltip content={<CustomTooltip />} cursor={{ fill: '#24332405' }} />
+                      <Bar dataKey="salary" fill="#6366f1" radius={[0, 4, 4, 0]} barSize={isMobile ? 18 : 24}>
+                        <LabelList
+                          dataKey="salary"
+                          position="right"
+                          formatter={(v: any) => `$${Number(v)?.toLocaleString()}`}
+                          style={{ fontSize: isMobile ? 10 : 11, fill: '#243324', fontWeight: 600 }}
+                        />
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {top10Data.map((item) => {
+                    const maxSalary = top10Data[0]?.salary || 7000;
+                    const pct = Math.round((item.salary / maxSalary) * 100);
+                    return (
+                      <div
+                        key={item.rank}
+                        className="p-3.5 rounded-xl border border-[#243324]/10 bg-white/70 hover:bg-white transition-all space-y-2"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-2.5 min-w-0">
+                            <span className="shrink-0 flex items-center justify-center w-6 h-6 rounded-md bg-[#243324]/10 text-xs font-bold text-[#1F2B1D]">
+                              #{item.rank}
+                            </span>
+                            <div className="min-w-0">
+                              <div className="font-semibold text-sm sm:text-base text-[#1F2B1D] leading-snug">
+                                {item.fullDegree}
+                              </div>
+                              <div className="text-xs text-[#243324]/60 flex items-center gap-1.5 mt-0.5">
+                                <span className="font-semibold text-[#6366f1]">[{item.uniShort}]</span>
+                                <span className="truncate">{item.university}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <div className="text-base sm:text-lg font-bold text-[#6366f1]">
+                              ${item.salary.toLocaleString()}
+                            </div>
+                            <div className="text-[11px] text-[#243324]/60">median / mo</div>
+                          </div>
+                        </div>
+                        <div className="w-full bg-[#243324]/5 h-2 rounded-full overflow-hidden">
+                          <div
+                            className="bg-[#6366f1] h-full rounded-full transition-all duration-500"
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </CardContent>
           </Card>
           
           {/* Salary Spread */}
-          <Card className="bg-white border-[#243324]/5 shadow-sm overflow-hidden flex flex-col">
-            <CardHeader className="border-b border-[#243324]/5 bg-gray-50/50 pb-4">
-              <CardTitle className="font-serif text-xl">Salary Range Volatility</CardTitle>
-              <CardDescription>25th to 75th percentile for top paying degrees</CardDescription>
+          <Card className="bg-white border-[#243324]/5 shadow-sm overflow-hidden flex flex-col lg:col-span-2">
+            <CardHeader className="border-b border-[#243324]/5 bg-gray-50/50 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <CardTitle className="font-serif text-xl">Salary Range Volatility</CardTitle>
+                <CardDescription>25th to 75th percentile spread for top paying degrees ({selectedYear})</CardDescription>
+              </div>
+              <div className="flex items-center gap-1 bg-[#243324]/5 p-1 rounded-lg text-xs font-medium self-start sm:self-auto">
+                <button
+                  type="button"
+                  onClick={() => setSalarySpreadViewMode('chart')}
+                  className={`px-2.5 py-1 rounded-md transition-all flex items-center gap-1.5 cursor-pointer ${
+                    salarySpreadViewMode === 'chart'
+                      ? 'bg-[#243324] text-[#FBF9F5] shadow-xs font-semibold'
+                      : 'text-[#243324]/70 hover:text-[#243324]'
+                  }`}
+                >
+                  <BarChart3 className="w-3.5 h-3.5" />
+                  <span>Bar Chart</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSalarySpreadViewMode('list')}
+                  className={`px-2.5 py-1 rounded-md transition-all flex items-center gap-1.5 cursor-pointer ${
+                    salarySpreadViewMode === 'list'
+                      ? 'bg-[#243324] text-[#FBF9F5] shadow-xs font-semibold'
+                      : 'text-[#243324]/70 hover:text-[#243324]'
+                  }`}
+                >
+                  <LayoutList className="w-3.5 h-3.5" />
+                  <span>Ranked List</span>
+                </button>
+              </div>
             </CardHeader>
-            <CardContent className="p-6">
-              <div style={{ height: 400, width: '100%' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={salarySpreadData} layout="vertical" margin={isMobile ? { top: 0, right: 20, left: -15, bottom: 0 } : { top: 0, right: 30, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#24332410" />
-                    <XAxis type="number" domain={['dataMin - 1000', 'dataMax + 1000']} axisLine={false} tickLine={false} tick={{ fontSize: isMobile ? 10 : 12, fill: '#24332480' }} tickFormatter={(v) => `$${v}`} />
-                    <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: isMobile ? 10 : 11, fill: '#243324' }} width={isMobile ? 115 : 240} />
-                    <Tooltip cursor={{ fill: '#24332405' }} />
-                    <Bar dataKey="min" stackId="a" fill="transparent" barSize={isMobile ? 12 : 16} />
-                    <Bar dataKey="diff" stackId="a" fill="#a855f7" radius={[0, 4, 4, 0]} barSize={isMobile ? 12 : 16} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="text-center text-xs text-[#243324]/50 mt-2">
-                Bar shows the gap between bottom 25% and top 25% earners in the same degree.
-              </div>
+            <CardContent className="p-3 sm:p-6">
+              {salarySpreadViewMode === 'chart' ? (
+                <div>
+                  <div style={{ height: isMobile ? 480 : 520, width: '100%' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={salarySpreadData}
+                        layout="vertical"
+                        margin={{
+                          top: 10,
+                          right: isMobile ? 25 : 45,
+                          left: isMobile ? 6 : 12,
+                          bottom: 10
+                        }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#24332410" />
+                        <XAxis
+                          type="number"
+                          domain={['dataMin - 500', 'dataMax + 500']}
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: isMobile ? 10 : 12, fill: '#24332480' }}
+                          tickFormatter={(v) => `$${v}`}
+                        />
+                        <YAxis
+                          type="category"
+                          dataKey="chartKey"
+                          axisLine={false}
+                          tickLine={false}
+                          width={isMobile ? 140 : 280}
+                          tick={(props) => (
+                            <DegreeYAxisTick
+                              {...props}
+                              isMobile={isMobile}
+                              data={salarySpreadData}
+                              tagColor="#a855f7"
+                            />
+                          )}
+                        />
+                        <Tooltip content={<SalarySpreadTooltip />} cursor={{ fill: '#24332405' }} />
+                        <Bar dataKey="min" stackId="a" fill="transparent" barSize={isMobile ? 14 : 18} />
+                        <Bar dataKey="diff" stackId="a" fill="#a855f7" radius={[0, 4, 4, 0]} barSize={isMobile ? 14 : 18} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="text-center text-xs text-[#243324]/60 mt-3">
+                    Purple floating bar shows the interquartile salary spread (25th to 75th percentile) for the top-paying degrees.
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {salarySpreadData.map((item) => {
+                    return (
+                      <div
+                        key={item.rank}
+                        className="p-3.5 rounded-xl border border-[#243324]/10 bg-white/70 hover:bg-white transition-all space-y-2.5"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-2.5 min-w-0">
+                            <span className="shrink-0 flex items-center justify-center w-6 h-6 rounded-md bg-[#243324]/10 text-xs font-bold text-[#1F2B1D]">
+                              #{item.rank}
+                            </span>
+                            <div className="min-w-0">
+                              <div className="font-semibold text-sm sm:text-base text-[#1F2B1D] leading-snug">
+                                {item.fullDegree}
+                              </div>
+                              <div className="text-xs text-[#243324]/60 flex items-center gap-1.5 mt-0.5">
+                                <span className="font-semibold text-[#a855f7]">[{item.uniShort}]</span>
+                                <span className="truncate">{item.university}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <div className="text-sm sm:text-base font-bold text-[#a855f7]">
+                              ${item.median.toLocaleString()}
+                            </div>
+                            <div className="text-[11px] text-[#243324]/60">median salary</div>
+                          </div>
+                        </div>
+
+                        {/* Range metrics row */}
+                        <div className="grid grid-cols-3 gap-2 bg-[#243324]/5 p-2.5 rounded-lg text-xs">
+                          <div>
+                            <div className="text-[#243324]/60 text-[11px]">25th %ile</div>
+                            <div className="font-semibold text-[#243324]">${item.p25.toLocaleString()}</div>
+                          </div>
+                          <div className="text-center border-x border-[#243324]/10">
+                            <div className="text-[#243324]/60 text-[11px]">Spread Range</div>
+                            <div className="font-bold text-[#a855f7]">+${item.diff.toLocaleString()}</div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-[#243324]/60 text-[11px]">75th %ile</div>
+                            <div className="font-semibold text-[#243324]">${item.p75.toLocaleString()}</div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </CardContent>
           </Card>
 
           {/* Degree Clusters */}
-          <Card className="bg-white border-[#243324]/5 shadow-sm overflow-hidden flex flex-col">
+          <Card className="bg-white border-[#243324]/5 shadow-sm overflow-hidden flex flex-col lg:col-span-2">
             <CardHeader className="border-b border-[#243324]/5 bg-gray-50/50 pb-4">
               <CardTitle className="font-serif text-xl">Faculty / Cluster Analysis</CardTitle>
               <CardDescription>Average median pay across discipline clusters</CardDescription>
