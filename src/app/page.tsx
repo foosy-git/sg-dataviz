@@ -72,7 +72,7 @@ export default async function Home() {
 
     // --- ENVIRONMENT ---
     {
-      title: 'Air Quality & Haze (Live)',
+      title: 'Air Quality & Haze',
       description: 'Real-time regional PSI and PM2.5 readings, regional air quality map, and historical haze crisis benchmarks.',
       icon: Wind,
       href: '/environment/air-quality',
