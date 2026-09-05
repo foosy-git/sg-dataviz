@@ -4,6 +4,8 @@ import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, GraduationCap, TrendingUp, Briefcase, LayoutList, BarChart3 } from 'lucide-react';
 import DashboardNav from '@/components/ui/DashboardNav';
+import DataSourcePopover from '@/components/ui/DataSourcePopover';
+import { DATA_SOURCES } from '@/lib/dataSourceConfig';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
@@ -432,9 +434,12 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
         {/* Title & Controls */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl tracking-tight text-[#1F2B1D] mb-4">
-              Graduate Employment Analysis
-            </h1>
+            <div className="flex items-center gap-3.5 mb-4 flex-wrap">
+              <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl tracking-tight text-[#1F2B1D]">
+                Graduate Employment Analysis
+              </h1>
+              <DataSourcePopover source={DATA_SOURCES.ges} />
+            </div>
             <p className="text-lg text-[#243324]/70 max-w-2xl font-light">
               Explore starting salaries and employment rates of graduates from Singapore's autonomous universities. 
               Find the most lucrative degrees and analyze the "golden quadrant" of employability.

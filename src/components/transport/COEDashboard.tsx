@@ -4,6 +4,8 @@ import { useMemo } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Car, TrendingUp } from 'lucide-react';
 import DashboardNav from '@/components/ui/DashboardNav';
+import DataSourcePopover from '@/components/ui/DataSourcePopover';
+import { DATA_SOURCES } from '@/lib/dataSourceConfig';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -100,9 +102,12 @@ export default function COEDashboard({ initialData }: { initialData: any[] }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
 
         <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#243324] tracking-tight mb-4">
-            Certificate of Entitlement (COE)
-          </h1>
+          <div className="flex items-center gap-3.5 mb-4 flex-wrap">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#243324] tracking-tight">
+              Certificate of Entitlement (COE)
+            </h1>
+            <DataSourcePopover source={DATA_SOURCES.coe} />
+          </div>
           <p className="text-lg text-[#243324]/70 max-w-2xl font-light">
             Track COE premium trends, quota supply, and bidding demand across all vehicle categories in Singapore.
           </p>

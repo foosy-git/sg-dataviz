@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Link from 'next/link';
 import { ArrowLeft, Baby } from 'lucide-react';
 import DashboardNav from '@/components/ui/DashboardNav';
+import DataSourcePopover from '@/components/ui/DataSourcePopover';
+import { DATA_SOURCES } from '@/lib/dataSourceConfig';
 
 interface BirthRatesDashboardProps {
   data: any[];
@@ -60,9 +62,12 @@ export default function BirthRatesDashboard({ data }: BirthRatesDashboardProps) 
           <div className="inline-block px-3 py-1 mb-4 rounded-full bg-[#E8DCC4]/50 border border-[#243324]/10 text-sm font-sans font-medium text-[#243324]">
             Demographics
           </div>
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-serif text-[#243324] mb-4 sm:mb-6 tracking-tight leading-tight">
-            Birth Rates & Fertility
-          </h1>
+          <div className="flex items-center gap-3.5 mb-4 sm:mb-6 flex-wrap">
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-serif text-[#243324] tracking-tight leading-tight">
+              Birth Rates &amp; Fertility
+            </h1>
+            <DataSourcePopover source={DATA_SOURCES.birthRates} />
+          </div>
           <p className="text-lg md:text-xl text-[#243324]/70 max-w-2xl font-sans leading-relaxed">
             Analyze Singapore's Total Fertility Rate (TFR), ethnic breakdowns, and marriage ages from 1960 to present.
           </p>

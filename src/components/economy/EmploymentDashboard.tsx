@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import DashboardNav from '@/components/ui/DashboardNav';
+import DataSourcePopover from '@/components/ui/DataSourcePopover';
+import { DATA_SOURCES } from '@/lib/dataSourceConfig';
 import {
   LineChart,
   Line,
@@ -377,9 +379,12 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
               <Activity className="w-3.5 h-3.5 text-emerald-600" />
               Singapore Labour Market Data
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#243324] tracking-tight mb-3">
-              Employment &amp; Job Market
-            </h1>
+            <div className="flex items-center gap-3.5 mb-3 flex-wrap">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#243324] tracking-tight">
+                Employment &amp; Job Market
+              </h1>
+              <DataSourcePopover source={DATA_SOURCES.employment} />
+            </div>
             <p className="text-base md:text-lg text-[#243324]/75 max-w-3xl font-light leading-relaxed">
               Official overall and resident unemployment rates (seasonally adjusted, end June) from 1992 to {stats.endYear}, sourced directly from data.gov.sg.
             </p>

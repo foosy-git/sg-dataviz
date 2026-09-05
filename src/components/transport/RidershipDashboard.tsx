@@ -20,6 +20,8 @@ import {
   Info
 } from 'lucide-react';
 import DashboardNav from '@/components/ui/DashboardNav';
+import DataSourcePopover from '@/components/ui/DataSourcePopover';
+import { DATA_SOURCES } from '@/lib/dataSourceConfig';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   XAxis,
@@ -267,9 +269,12 @@ export default function RidershipDashboard({ data }: { data: RidershipRecord[] }
               <Activity className="w-3.5 h-3.5 text-blue-600" />
               <span>Dataset: d_75248cf2fbf340de6a746dc91ec9223c • data.gov.sg</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#1F2B1D] tracking-tight leading-tight">
-              Public Transport Ridership
-            </h1>
+            <div className="flex items-center gap-3.5 flex-wrap">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#1F2B1D] tracking-tight leading-tight">
+                Public Transport Ridership
+              </h1>
+              <DataSourcePopover source={DATA_SOURCES.commuting} />
+            </div>
             <p className="text-base sm:text-lg text-[#243324]/75 font-light leading-relaxed">
               Official annual records of average daily passenger trips across Singapore&apos;s Mass Rapid Transit (MRT),
               Light Rail Transit (LRT), and Public Bus services from 1995 to 2024.

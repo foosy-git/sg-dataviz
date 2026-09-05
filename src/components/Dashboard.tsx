@@ -17,6 +17,8 @@ import ErrorState from './ui/ErrorState';
 import { motion, useScroll, useSpring } from 'framer-motion';
 import { BaselineInfoTooltip } from './ui/BaselineInfoTooltip';
 import DashboardNav from './ui/DashboardNav';
+import DataSourcePopover from './ui/DataSourcePopover';
+import { DATA_SOURCES } from '@/lib/dataSourceConfig';
 import fallbackResaleIndex from '../../public/hdb_resale_index.json';
 import fallbackAnnualAvg from '../../public/hdb_historical_avg.json';
 import { HdbResaleIndexPoint, HdbAnnualTrendPoint } from '@/types/hdb';
@@ -134,9 +136,12 @@ export default function Dashboard() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="max-w-4xl mx-auto z-10"
           >
-            <h1 className="text-3xl sm:text-5xl md:text-7xl font-serif text-[#243324] mb-6 tracking-tight leading-tight">
-              Singapore Public Housing Report
-            </h1>
+            <div className="flex items-center justify-center gap-3.5 mb-6 flex-wrap">
+              <h1 className="text-3xl sm:text-5xl md:text-7xl font-serif text-[#243324] tracking-tight leading-tight">
+                Singapore Public Housing Report
+              </h1>
+              <DataSourcePopover source={DATA_SOURCES.hdb} align="center" />
+            </div>
             <p className="text-base sm:text-lg md:text-xl text-[#243324]/75 max-w-3xl mx-auto font-sans mb-10 leading-relaxed">
               Comprehensive analysis of Singapore&apos;s public housing market — from national macro price cycles (1990–present) to granular estate and transaction exploration (2017–present).
             </p>

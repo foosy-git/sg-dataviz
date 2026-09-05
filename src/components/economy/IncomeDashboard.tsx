@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { TrendingUp, TrendingDown, DollarSign, Users, Wallet, ArrowLeft } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import DashboardNav from '@/components/ui/DashboardNav';
+import DataSourcePopover from '@/components/ui/DataSourcePopover';
+import { DATA_SOURCES } from '@/lib/dataSourceConfig';
 
 export interface IncomeRecord {
   year: string;
@@ -132,9 +134,12 @@ export default function IncomeDashboard({ initialData }: IncomeDashboardProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         <div className="mb-10 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
           <div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#243324] tracking-tight mb-4">
-              Household Income & Distribution
-            </h1>
+            <div className="flex items-center gap-3.5 mb-4 flex-wrap">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#243324] tracking-tight">
+                Household Income &amp; Distribution
+              </h1>
+              <DataSourcePopover source={DATA_SOURCES.income} />
+            </div>
             <p className="text-lg md:text-xl text-[#243324]/70 max-w-3xl font-sans leading-relaxed">
               Analyze Singapore&apos;s household earnings, compare median vs average income, and observe the income gap across different deciles over the past 20+ years.
             </p>

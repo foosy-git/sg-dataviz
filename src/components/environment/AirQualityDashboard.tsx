@@ -4,6 +4,8 @@
 import Link from 'next/link';
 import { ArrowLeft, Activity, Wind, AlertCircle, Factory, RotateCw } from 'lucide-react';
 import DashboardNav from '@/components/ui/DashboardNav';
+import DataSourcePopover from '@/components/ui/DataSourcePopover';
+import { DATA_SOURCES } from '@/lib/dataSourceConfig';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
@@ -210,9 +212,12 @@ export default function AirQualityDashboard({ psiData: initialPsiData }: { psiDa
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
         <div className="mb-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-4">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#243324] tracking-tight">
-              Air Quality & Haze
-            </h1>
+            <div className="flex items-center gap-3.5 flex-wrap">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#243324] tracking-tight">
+                Air Quality &amp; Haze
+              </h1>
+              <DataSourcePopover source={DATA_SOURCES.airQuality} />
+            </div>
             <div className="inline-flex items-center gap-2 bg-[#243324]/5 px-3 py-1.5 rounded-full text-sm font-medium text-[#243324]/70 border border-[#243324]/10 shadow-sm self-start md:self-auto">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
