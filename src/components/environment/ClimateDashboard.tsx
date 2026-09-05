@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Leaf, Thermometer, CloudRain } from 'lucide-react';
+import DashboardNav from '@/components/ui/DashboardNav';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -128,15 +129,14 @@ export default function ClimateDashboard({ initialData }: { initialData: any[] }
               </h1>
             </div>
           </div>
-          
-
+          <DashboardNav />
         </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
 
         <div className="mb-8">
-          <h1 className="text-4xl md:text-5xl font-serif text-[#243324] tracking-tight mb-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#243324] tracking-tight mb-4">
             Singapore Climate Change
           </h1>
           <p className="text-lg text-[#243324]/70 max-w-2xl font-light">
@@ -208,7 +208,7 @@ export default function ClimateDashboard({ initialData }: { initialData: any[] }
                     />
                     <Tooltip 
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                      formatter={(value: number) => [`${value}°C`, 'Avg Temp']}
+                      formatter={(value: any) => [`${value}°C`, 'Avg Temp']}
                       labelFormatter={(label) => `Year: ${label}`}
                     />
                     <Line 
@@ -251,7 +251,7 @@ export default function ClimateDashboard({ initialData }: { initialData: any[] }
                     />
                     <Tooltip 
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                      formatter={(value: number) => [`${value} mm`, 'Total Rainfall']}
+                      formatter={(value: any) => [`${value} mm`, 'Total Rainfall']}
                       labelFormatter={(label) => `Year: ${label}`}
                     />
                     <Bar dataKey="total_rain" fill="#3b82f6" radius={[4, 4, 0, 0]} />
@@ -287,7 +287,7 @@ export default function ClimateDashboard({ initialData }: { initialData: any[] }
                     />
                     <Tooltip 
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                      formatter={(value: number) => [`${value}°C`, 'Avg Temp']}
+                      formatter={(value: any) => [`${value}°C`, 'Avg Temp']}
                       labelFormatter={(label) => `Decade: ${label}`}
                       cursor={{ fill: 'transparent' }}
                     />

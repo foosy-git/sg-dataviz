@@ -6,6 +6,7 @@ import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as
 import Link from 'next/link';
 import { TrendingUp, TrendingDown, DollarSign, Users, Wallet, ArrowLeft } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import DashboardNav from '@/components/ui/DashboardNav';
 
 export interface IncomeRecord {
   year: string;
@@ -124,13 +125,14 @@ export default function IncomeDashboard({ initialData }: IncomeDashboardProps) {
               </h1>
             </div>
           </div>
+          <DashboardNav />
         </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         <div className="mb-10 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
           <div>
-            <h1 className="text-4xl md:text-5xl font-serif text-[#243324] tracking-tight mb-4">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#243324] tracking-tight mb-4">
               Household Income & Distribution
             </h1>
             <p className="text-lg md:text-xl text-[#243324]/70 max-w-3xl font-sans leading-relaxed">

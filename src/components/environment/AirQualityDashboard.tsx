@@ -3,6 +3,7 @@
 
 import Link from 'next/link';
 import { ArrowLeft, Activity, Wind, AlertCircle, Factory } from 'lucide-react';
+import DashboardNav from '@/components/ui/DashboardNav';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
@@ -26,24 +27,24 @@ export default function AirQualityDashboard({ psiData }: { psiData: { psi: any, 
   
   const getPsiData = (val: number | null) => {
     if (val === null || val === undefined) {
-      return { status: 'N.A.', color: 'text-slate-600', bg: 'bg-slate-500', border: 'border-slate-500', pulse: false };
+      return { status: 'N.A.', color: 'text-slate-600', bg: 'bg-slate-500', border: 'border-slate-500', hex: '#64748b', pulse: false };
     }
-    if (val <= 50) return { status: 'Good', color: 'text-emerald-600', bg: 'bg-emerald-500', border: 'border-emerald-500', pulse: false };
-    if (val <= 100) return { status: 'Moderate', color: 'text-amber-600', bg: 'bg-amber-500', border: 'border-amber-500', pulse: false };
-    if (val <= 200) return { status: 'Unhealthy', color: 'text-orange-600', bg: 'bg-orange-500', border: 'border-orange-500', pulse: true };
-    if (val <= 300) return { status: 'Very Unhealthy', color: 'text-red-600', bg: 'bg-red-500', border: 'border-red-500', pulse: true };
-    return { status: 'Hazardous', color: 'text-purple-600', bg: 'bg-purple-500', border: 'border-purple-500', pulse: true };
+    if (val <= 50) return { status: 'Good', color: 'text-emerald-600', bg: 'bg-emerald-500', border: 'border-emerald-500', hex: '#10b981', pulse: false };
+    if (val <= 100) return { status: 'Moderate', color: 'text-amber-600', bg: 'bg-amber-500', border: 'border-amber-500', hex: '#f59e0b', pulse: false };
+    if (val <= 200) return { status: 'Unhealthy', color: 'text-orange-600', bg: 'bg-orange-500', border: 'border-orange-500', hex: '#f97316', pulse: true };
+    if (val <= 300) return { status: 'Very Unhealthy', color: 'text-red-600', bg: 'bg-red-500', border: 'border-red-500', hex: '#ef4444', pulse: true };
+    return { status: 'Hazardous', color: 'text-purple-600', bg: 'bg-purple-500', border: 'border-purple-500', hex: '#a855f7', pulse: true };
   };
 
   const getPm25Data = (val: number | null) => {
     if (val === null || val === undefined) {
-      return { status: 'N.A.', color: 'text-slate-600', bg: 'bg-slate-500', border: 'border-slate-500', pulse: false };
+      return { status: 'N.A.', color: 'text-slate-600', bg: 'bg-slate-500', border: 'border-slate-500', hex: '#64748b', pulse: false };
     }
-    if (val <= 12) return { status: 'Normal', color: 'text-emerald-600', bg: 'bg-emerald-500', border: 'border-emerald-500', pulse: false };
-    if (val <= 35) return { status: 'Elevated', color: 'text-amber-600', bg: 'bg-amber-500', border: 'border-amber-500', pulse: false };
-    if (val <= 55) return { status: 'High', color: 'text-orange-600', bg: 'bg-orange-500', border: 'border-orange-500', pulse: true };
-    if (val <= 150) return { status: 'Very High', color: 'text-red-600', bg: 'bg-red-500', border: 'border-red-500', pulse: true };
-    return { status: 'Hazardous', color: 'text-purple-600', bg: 'bg-purple-500', border: 'border-purple-500', pulse: true };
+    if (val <= 12) return { status: 'Normal', color: 'text-emerald-600', bg: 'bg-emerald-500', border: 'border-emerald-500', hex: '#10b981', pulse: false };
+    if (val <= 35) return { status: 'Elevated', color: 'text-amber-600', bg: 'bg-amber-500', border: 'border-amber-500', hex: '#f59e0b', pulse: false };
+    if (val <= 55) return { status: 'High', color: 'text-orange-600', bg: 'bg-orange-500', border: 'border-orange-500', hex: '#f97316', pulse: true };
+    if (val <= 150) return { status: 'Very High', color: 'text-red-600', bg: 'bg-red-500', border: 'border-red-500', hex: '#ef4444', pulse: true };
+    return { status: 'Hazardous', color: 'text-purple-600', bg: 'bg-purple-500', border: 'border-purple-500', hex: '#a855f7', pulse: true };
   };
 
   // Helper to extract comprehensive stats across Singapore's 5 regions
@@ -138,9 +139,12 @@ export default function AirQualityDashboard({ psiData }: { psiData: { psi: any, 
               </h1>
             </div>
           </div>
-          <div className="text-sm font-medium text-[#243324]/60 flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            Live (hourly)
+          <div className="flex items-center gap-3">
+            <div className="text-sm font-medium text-[#243324]/60 flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="hidden sm:inline">Live (hourly)</span>
+            </div>
+            <DashboardNav />
           </div>
         </div>
       </header>
@@ -148,7 +152,7 @@ export default function AirQualityDashboard({ psiData }: { psiData: { psi: any, 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
         <div className="mb-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-4">
-            <h1 className="text-4xl md:text-5xl font-serif text-[#243324] tracking-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#243324] tracking-tight">
               Air Quality & Haze
             </h1>
             <div className="inline-flex items-center gap-2 bg-[#243324]/5 px-3 py-1.5 rounded-full text-sm font-medium text-[#243324]/70 border border-[#243324]/10 shadow-sm self-start md:self-auto">
@@ -159,9 +163,6 @@ export default function AirQualityDashboard({ psiData }: { psiData: { psi: any, 
               Data as of {formattedTime}
             </div>
           </div>
-          <p className="text-lg text-[#243324]/70 max-w-2xl font-light">
-            Real-time PSI & PM2.5 readings, regional air quality map, and historical haze crisis benchmarks.
-          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
@@ -180,21 +181,19 @@ export default function AirQualityDashboard({ psiData }: { psiData: { psi: any, 
                     <span className={"text-base font-semibold " + nationalInfo.color}>
                       {nationalInfo.status}
                     </span>
-                    {psiStats && (
-                      <span className="text-xs text-[#243324]/70 bg-[#243324]/5 px-2 py-0.5 rounded-full">
-                        Peak: {psiStats.highestRegion} ({psiStats.max}) · Avg: {psiStats.avg}
+                    {psiStats && psiStats.min !== psiStats.max && (
+                      <span className="text-xs text-[#243324]/60">
+                        (Highest in {psiStats.highestRegion})
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-[#243324]/50 font-light">
-                    Official NEA 24-hr PSI range across Singapore's 5 regions. Use for planning tomorrow's activities.
+                  <p className="text-xs text-[#243324]/60">
+                    Calculated from 24-hour pollutant concentrations across North, South, East, West, and Central stations.
                   </p>
                 </div>
-                {nationalInfo.pulse && (
-                  <div className={"p-3 rounded-full bg-opacity-10 " + nationalInfo.bg.replace('bg-', 'bg-') + "/10"}>
-                    <AlertCircle className={"w-8 h-8 " + nationalInfo.color} />
-                  </div>
-                )}
+                <div className={"w-12 h-12 rounded-full flex items-center justify-center " + nationalInfo.bg + "/10 border " + nationalInfo.border + "/30"}>
+                  <AlertCircle className={"w-6 h-6 " + nationalInfo.color} />
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -205,69 +204,57 @@ export default function AirQualityDashboard({ psiData }: { psiData: { psi: any, 
                 <div>
                   <div className="flex items-center gap-3 mb-2 text-[#243324]/60">
                     <Factory className="w-4 h-4" />
-                    <span className="text-xs font-semibold uppercase tracking-wider">1-hr PM2.5 Concentration</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider">1-hr PM2.5 (Islandwide Range)</span>
                   </div>
-                  <div className="text-4xl sm:text-5xl font-serif text-[#243324] mb-2 flex items-baseline gap-2 tracking-tight">
-                    {pm25Stats?.range ?? 'N.A.'} <span className="text-lg font-sans font-normal text-gray-500">µg/m³</span>
+                  <div className="text-4xl sm:text-5xl font-serif text-[#243324] mb-2 tracking-tight">
+                    {pm25Stats?.range ? `${pm25Stats.range} µg/m³` : 'N.A.'}
                   </div>
                   <div className="flex flex-wrap items-center gap-2 mb-2">
                     <span className={"text-base font-semibold " + pm25Info.color}>
                       {pm25Info.status}
                     </span>
-                    {pm25Stats && (
-                      <span className="text-xs text-[#243324]/70 bg-[#243324]/5 px-2 py-0.5 rounded-full">
-                        Peak: {pm25Stats.highestRegion} ({pm25Stats.max} µg/m³) · Avg: {pm25Stats.avg} µg/m³
+                    {pm25Stats && pm25Stats.min !== pm25Stats.max && (
+                      <span className="text-xs text-[#243324]/60">
+                        (Highest in {pm25Stats.highestRegion})
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-[#243324]/50 font-light">
-                    Islandwide range across 5 regions. Immediate guide for outdoor exercise & real-time haze.
+                  <p className="text-xs text-[#243324]/60">
+                    Hourly fine particulate matter concentration. Primary indicator for immediate outdoor activity decisions.
                   </p>
                 </div>
-                {pm25Info.pulse && (
-                  <div className={"p-3 rounded-full bg-opacity-10 " + pm25Info.bg.replace('bg-', 'bg-') + "/10"}>
-                    <AlertCircle className={"w-8 h-8 " + pm25Info.color} />
-                  </div>
-                )}
+                <div className={"w-12 h-12 rounded-full flex items-center justify-center " + pm25Info.bg + "/10 border " + pm25Info.border + "/30"}>
+                  <Activity className={"w-6 h-6 " + pm25Info.color} />
+                </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 mb-12">
-          <Card className="bg-white border-[#243324]/5 shadow-sm overflow-hidden flex flex-col w-full">
-            <CardHeader className="border-b border-[#243324]/5 bg-slate-50/50 pb-4">
+        <div className="mb-12">
+          <Card className="bg-white border-[#243324]/5 shadow-sm overflow-hidden">
+            <CardHeader className="border-b border-[#243324]/5 bg-white pb-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <CardTitle className="font-serif text-xl text-[#243324]">Regional Air Quality Map</CardTitle>
                   <CardDescription>
                     {mapMetric === 'psi'
-                      ? 'Live 24-hr PSI readings across Singapore (North, South, East, West, Central)'
-                      : 'Live 1-hr PM2.5 concentrations (µg/m³) across Singapore (North, South, East, West, Central)'}
+                      ? 'Live 24-hr PSI readings across Singapore'
+                      : 'Live 1-hr PM2.5 concentrations (µg/m³)'}
                   </CardDescription>
                 </div>
-                
-                {/* Metric Switcher Toggle */}
                 <div className="inline-flex rounded-lg bg-slate-200/80 p-1 text-xs font-medium self-start sm:self-auto shadow-inner">
                   <button
                     type="button"
                     onClick={() => setMapMetric('pm25')}
-                    className={`px-3 py-1.5 rounded-md transition-all ${
-                      mapMetric === 'pm25'
-                        ? 'bg-white text-[#243324] shadow font-semibold'
-                        : 'text-[#243324]/70 hover:text-[#243324]'
-                    }`}
+                    className={`px-3 py-1.5 rounded-md transition-all ${mapMetric === 'pm25' ? 'bg-white text-[#243324] shadow font-semibold' : 'text-[#243324]/70 hover:text-[#243324]'}`}
                   >
                     1-hr PM2.5
                   </button>
                   <button
                     type="button"
                     onClick={() => setMapMetric('psi')}
-                    className={`px-3 py-1.5 rounded-md transition-all ${
-                      mapMetric === 'psi'
-                        ? 'bg-white text-[#243324] shadow font-semibold'
-                        : 'text-[#243324]/70 hover:text-[#243324]'
-                    }`}
+                    className={`px-3 py-1.5 rounded-md transition-all ${mapMetric === 'psi' ? 'bg-white text-[#243324] shadow font-semibold' : 'text-[#243324]/70 hover:text-[#243324]'}`}
                   >
                     24-hr PSI
                   </button>
@@ -275,114 +262,81 @@ export default function AirQualityDashboard({ psiData }: { psiData: { psi: any, 
               </div>
             </CardHeader>
             <CardContent className="p-0 relative bg-[#e0f2fe]/20">
-              <div className="relative w-full h-[460px] md:h-[600px] overflow-hidden flex items-center justify-center">
-                
-                {!geoData && (
-                  <div className="animate-pulse text-[#243324]/50">Loading Map...</div>
-                )}
-                
+              <div className="relative w-full h-[340px] sm:h-[460px] md:h-[600px] overflow-hidden flex items-center justify-center">
+                {!geoData && <div className="animate-pulse text-[#243324]/50">Loading Map...</div>}
                 {geoData && (
                   <ComposableMap
                     projection="geoMercator"
-                    projectionConfig={{
-                      scale: 130000,
-                      center: [103.8198, 1.3521] // Centered on Singapore
-                    }}
-                    width={800}
-                    height={500}
+                    projectionConfig={{ scale: 130000, center: [103.8198, 1.3521] }}
+                    width={800} height={500}
                     style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}
                   >
                     <Geographies geography={geoData}>
-                      {({ geographies }) =>
-                        geographies.map((geo) => (
-                          <Geography
-                            key={geo.rsmKey}
-                            geography={geo}
-                            fill="#f1f5f9"
-                            stroke="#cbd5e1"
-                            strokeWidth={0.5}
-                            style={{
-                              default: { outline: "none" },
-                              hover: { fill: "#f1f5f9", outline: "none" },
-                              pressed: { outline: "none" },
-                            }}
-                          />
-                        ))
-                      }
+                      {({ geographies }) => geographies.map((geo) => (
+                        <Geography key={geo.rsmKey} geography={geo} fill="#f1f5f9" stroke="#cbd5e1" strokeWidth={0.5} />
+                      ))}
                     </Geographies>
-
                     {regions.map((region) => {
                       const isPsi = mapMetric === 'psi';
-                      const val = isPsi 
-                        ? psiData?.psi?.readings?.psi_twenty_four_hourly?.[region.id] ?? null
-                        : psiData?.pm25?.readings?.pm25_one_hourly?.[region.id] ?? null;
+                      const val = isPsi ? psiData?.psi?.readings?.psi_twenty_four_hourly?.[region.id] ?? null : psiData?.pm25?.readings?.pm25_one_hourly?.[region.id] ?? null;
                       const info = isPsi ? getPsiData(val) : getPm25Data(val);
-                      
-                      // Using SVG foreignObject to render our nice HTML badges directly onto the map coordinates!
                       return (
                         <Marker key={region.id} coordinates={region.coords as [number, number]}>
-                          <foreignObject x="-45" y="-45" width="90" height="90">
-                            <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none">
-                              <div className="text-[10px] font-semibold text-[#243324]/80 uppercase tracking-wider mb-1 bg-white/95 px-2 py-0.5 rounded-full backdrop-blur-sm shadow-sm border border-[#243324]/10">
-                                {region.label}
-                              </div>
-                              <div className={"relative flex flex-col items-center justify-center w-11 h-11 md:w-13 md:h-13 rounded-full border-[3px] shadow-lg bg-white " + info.border}>
-                                {info.pulse && (
-                                  <div className={"absolute inset-0 rounded-full animate-ping opacity-30 " + info.bg} />
-                                )}
-                                <span className={"font-serif text-sm md:text-base font-bold leading-none " + info.color}>
-                                  {val ?? '-'}
-                                </span>
-                                {!isPsi && val !== null && (
-                                  <span className="text-[8px] font-sans font-medium text-slate-400 leading-none mt-0.5">
-                                    µg/m³
-                                  </span>
-                                )}
-                              </div>
-                              <div className={"text-[9px] font-semibold mt-1 px-1.5 py-0.5 rounded bg-white/95 shadow-sm border border-slate-200/60 leading-none " + info.color}>
-                                {info.status}
-                              </div>
-                            </div>
-                          </foreignObject>
+                          <g className="cursor-pointer select-none">
+                            <rect x="-25" y="-36" width="50" height="15" rx="7.5" fill="rgba(255,255,255,0.95)" stroke="#cbd5e1" strokeWidth="0.8" />
+                            <text textAnchor="middle" y="-25" fontSize="9" fontWeight="700" fill="#243324">{region.label}</text>
+                            {info.pulse && <circle r="23" fill={info.hex} opacity="0.25" />}
+                            <circle r="18" fill="#ffffff" stroke={info.hex} strokeWidth="3" filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.15))" />
+                            <text textAnchor="middle" y={isPsi ? 4 : 2} fontSize="12" fontWeight="bold" fill="#1F2B1D">{val ?? '-'}</text>
+                            {!isPsi && val !== null && <text textAnchor="middle" y="11" fontSize="7" fontWeight="600" fill="#64748b">µg/m³</text>}
+                          </g>
                         </Marker>
                       );
                     })}
                   </ComposableMap>
                 )}
-                
-                {/* Map Scale & Descriptor Legend */}
-                <div className="absolute bottom-3 left-3 right-3 sm:left-auto sm:right-3 bg-white/95 backdrop-blur-sm border border-[#243324]/10 rounded-lg p-2.5 shadow-sm text-xs text-[#243324]/80 max-w-lg">
-                  <div className="font-semibold text-[11px] mb-1.5 text-[#243324]">
-                    {mapMetric === 'psi' ? '24-hr PSI Scale (NEA)' : '1-hr PM2.5 Concentration Bands (NEA)'}
-                  </div>
+                <div className="hidden sm:block absolute bottom-3 right-3 bg-white/95 backdrop-blur-sm border border-[#243324]/10 rounded-lg p-2.5 shadow-sm text-xs text-[#243324]/80 max-w-lg">
+                  <div className="font-semibold text-[11px] mb-1.5 text-[#243324]">{mapMetric === 'psi' ? '24-hr PSI Scale (NEA)' : '1-hr PM2.5 Concentration Bands (NEA)'}</div>
                   <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px]">
                     {mapMetric === 'psi' ? (
-                      <>
-                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" /> Good (0–50)</span>
-                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500 inline-block" /> Moderate (51–100)</span>
-                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-500 inline-block" /> Unhealthy (101–200)</span>
-                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500 inline-block" /> Very Unhealthy (201–300)</span>
-                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-purple-500 inline-block" /> Hazardous (&gt;300)</span>
-                      </>
+                      <><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Good (0–50)</span><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500" /> Moderate (51–100)</span><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-500" /> Unhealthy (101–200)</span></>
                     ) : (
-                      <>
-                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" /> Normal (≤12)</span>
-                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500 inline-block" /> Elevated (13–35)</span>
-                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-500 inline-block" /> High (36–55)</span>
-                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500 inline-block" /> Very High (56–150)</span>
-                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-purple-500 inline-block" /> Hazardous (&gt;150)</span>
-                      </>
+                      <><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Normal (≤12)</span><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500" /> Elevated (13–35)</span><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-500" /> High (36+)</span></>
                     )}
                   </div>
                 </div>
-
+              </div>
+              <div className="sm:hidden border-t border-[#243324]/10 bg-white p-3">
+                <div className="flex items-center justify-between mb-2"><span className="text-xs font-semibold text-[#243324]/80">Regional Readings ({mapMetric === 'psi' ? 'PSI' : 'PM2.5'})</span><span className="text-[10px] text-slate-400">NEA Live</span></div>
+                <div className="grid grid-cols-2 gap-2">
+                  {regions.map((region) => {
+                    const isPsi = mapMetric === 'psi';
+                    const val = isPsi ? psiData?.psi?.readings?.psi_twenty_four_hourly?.[region.id] ?? null : psiData?.pm25?.readings?.pm25_one_hourly?.[region.id] ?? null;
+                    const info = isPsi ? getPsiData(val) : getPm25Data(val);
+                    return (
+                      <div key={region.id} className={`p-2.5 rounded-lg border bg-slate-50/50 flex items-center justify-between ${region.id === 'central' ? 'col-span-2' : ''}`}>
+                        <div><div className="text-xs font-bold text-[#243324]">{region.label}</div><div className={`text-[10px] font-semibold ${info.color}`}>{info.status}</div></div>
+                        <div className="text-right"><div className="text-lg font-bold font-serif text-[#243324] leading-tight">{val ?? '-'}</div><div className="text-[9px] text-slate-400 leading-none">{isPsi ? 'PSI' : 'µg/m³'}</div></div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="mt-3 pt-2.5 border-t border-slate-100 text-[10px] text-[#243324]/80">
+                  <div className="font-semibold text-[10px] mb-1.5 text-[#243324]">{mapMetric === 'psi' ? '24-hr PSI Scale' : '1-hr PM2.5 Bands'}</div>
+                  <div className="flex flex-wrap gap-x-2.5 gap-y-1">
+                    {mapMetric === 'psi' ? (
+                      <><span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Good (0–50)</span><span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-amber-500" /> Mod (51–100)</span><span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-orange-500" /> Unhealthy (101+)</span></>
+                    ) : (
+                      <><span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Normal (≤12)</span><span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-amber-500" /> Elev (13–35)</span><span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-orange-500" /> High (36+)</span></>
+                    )}
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          
           <Card className="bg-white border-[#243324]/5 shadow-sm overflow-hidden flex flex-col lg:col-span-1">
             <CardHeader className="border-b border-[#243324]/5 bg-purple-50/30 pb-4">
               <CardTitle className="font-serif text-xl text-purple-900">Pollutant Sub-Indices</CardTitle>
@@ -427,7 +381,7 @@ export default function AirQualityDashboard({ psiData }: { psiData: { psi: any, 
                     <Tooltip 
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                       cursor={{ fill: '#24332405' }}
-                      formatter={(value: number) => [value, 'PSI']}
+                      formatter={(value: any) => [value, 'PSI']}
                     />
                     <Bar dataKey="psi" radius={[4, 4, 0, 0]}>
                       {

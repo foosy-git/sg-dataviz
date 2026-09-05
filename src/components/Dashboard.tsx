@@ -16,6 +16,7 @@ import DashboardFilters from './DashboardFilters';
 import ErrorState from './ui/ErrorState';
 import { motion, useScroll, useSpring } from 'framer-motion';
 import { BaselineInfoTooltip } from './ui/BaselineInfoTooltip';
+import DashboardNav from './ui/DashboardNav';
 import fallbackResaleIndex from '../../public/hdb_resale_index.json';
 import fallbackAnnualAvg from '../../public/hdb_historical_avg.json';
 import { HdbResaleIndexPoint, HdbAnnualTrendPoint } from '@/types/hdb';
@@ -108,6 +109,7 @@ export default function Dashboard() {
             {isValidating && (
               <Loader2 className="w-4 h-4 text-[#3B4D36] animate-spin" />
             )}
+            <DashboardNav />
           </div>
         </div>
       </div>
@@ -115,7 +117,7 @@ export default function Dashboard() {
       <main className="w-full overflow-x-hidden">
         
         {/* HERO SECTION */}
-        <section className="min-h-[60vh] flex flex-col items-center justify-center py-20 px-4 text-center border-b border-[#243324]/10 relative overflow-hidden">
+        <section className="min-h-[60vh] flex flex-col items-center justify-center py-16 sm:py-20 px-4 text-center border-b border-[#243324]/10 relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#E8DCC4]/20 via-[#FBF9F5] to-[#FBF9F5] -z-20" />
           
           {/* Faint HDB Skyline Outline */}
@@ -132,10 +134,10 @@ export default function Dashboard() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="max-w-4xl mx-auto z-10"
           >
-            <h1 className="text-5xl md:text-7xl font-serif text-[#243324] mb-6 tracking-tight leading-tight">
+            <h1 className="text-3xl sm:text-5xl md:text-7xl font-serif text-[#243324] mb-6 tracking-tight leading-tight">
               Singapore Public Housing Report
             </h1>
-            <p className="text-lg md:text-xl text-[#243324]/75 max-w-3xl mx-auto font-sans mb-10 leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl text-[#243324]/75 max-w-3xl mx-auto font-sans mb-10 leading-relaxed">
               Comprehensive analysis of Singapore&apos;s public housing market — from national macro price cycles (1990–present) to granular estate and transaction exploration (2017–present).
             </p>
 

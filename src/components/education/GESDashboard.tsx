@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, GraduationCap, TrendingUp, Briefcase } from 'lucide-react';
+import DashboardNav from '@/components/ui/DashboardNav';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
@@ -11,6 +12,15 @@ import {
 } from 'recharts';
 
 export default function GESDashboard({ initialData }: { initialData: any[] }) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const [selectedYear, setSelectedYear] = useState<string>(() => {
     const y = Array.from(new Set(initialData.map(d => String(d.year)))).sort().reverse();
     return y.length > 0 ? y[0] : '2024';
@@ -121,12 +131,14 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
       .sort((a, b) => b.gross_monthly_median - a.gross_monthly_median)
       .slice(0, 10)
       .map(d => ({
-        name: d.degree.length > 35 ? d.degree.substring(0, 35) + '...' : d.degree,
+        name: isMobile 
+          ? (d.degree.length > 15 ? d.degree.substring(0, 14) + '…' : d.degree) 
+          : (d.degree.length > 35 ? d.degree.substring(0, 35) + '...' : d.degree),
         fullDegree: d.degree,
         salary: d.gross_monthly_median,
         university: d.university
       }));
-  }, [yearData]);
+  }, [yearData, isMobile]);
 
   // Salary Spread (25th to 75th Percentile) for top degrees
   const salarySpreadData = useMemo(() => {
@@ -136,13 +148,15 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
       .sort((a, b) => b.gross_monthly_median - a.gross_monthly_median)
       .slice(0, 10)
       .map(d => ({
-        name: d.degree.length > 35 ? d.degree.substring(0, 35) + '...' : d.degree,
+        name: isMobile 
+          ? (d.degree.length > 15 ? d.degree.substring(0, 14) + '…' : d.degree) 
+          : (d.degree.length > 35 ? d.degree.substring(0, 35) + '...' : d.degree),
         fullDegree: d.degree,
         min: d.gross_mthly_25_percentile,
         diff: d.gross_mthly_75_percentile - d.gross_mthly_25_percentile,
         median: d.gross_monthly_median
       }));
-  }, [yearData]);
+  }, [yearData, isMobile]);
 
   // Degree Cluster Analysis
   const clusterData = useMemo(() => {
@@ -228,7 +242,7 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
               </h1>
             </div>
           </div>
-
+          <DashboardNav />
         </div>
       </header>
 
@@ -237,7 +251,7 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
         {/* Title & Controls */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <h1 className="font-serif text-4xl md:text-5xl tracking-tight text-[#1F2B1D] mb-4">
+            <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl tracking-tight text-[#1F2B1D] mb-4">
               Graduate Employment Analysis
             </h1>
             <p className="text-lg text-[#243324]/70 max-w-2xl font-light">
@@ -348,7 +362,7 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#24332410" />
                     <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#24332480' }} dy={10} />
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#24332480' }} tickFormatter={(v) => `${v}%`} domain={['dataMin - 5', 100]} />
-                    <Tooltip contentStyle={{ backgroundColor: '#FBF9F5', borderColor: 'rgba(36, 51, 36, 0.1)' }} formatter={(value: number, name: string) => [`${value}%`, name.replace('_emp', '')]} />
+                    <Tooltip contentStyle={{ backgroundColor: '#FBF9F5', borderColor: 'rgba(36, 51, 36, 0.1)' }} formatter={(value: any, name: any) => [`${value}%`, (name || '').replace('_emp', '')]} />
                     <Legend iconType="circle" wrapperStyle={{ fontSize: 12, paddingTop: 20 }} formatter={(value: string) => value.replace('_emp', '')} />
                     <Line type="monotone" dataKey="SMU_emp" name="SMU" stroke="#0ea5e9" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} connectNulls />
                     <Line type="monotone" dataKey="NUS_emp" name="NUS" stroke="#f97316" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} connectNulls />
@@ -415,13 +429,13 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
             <CardContent className="p-6">
               <div style={{ height: 400, width: '100%' }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={top10Data.map(d => ({ ...d, salary: Number(d.salary) }))} layout="vertical" margin={{ top: 0, right: 60, left: 0, bottom: 0 }}>
+                  <BarChart data={top10Data.map(d => ({ ...d, salary: Number(d.salary) }))} layout="vertical" margin={isMobile ? { top: 0, right: 45, left: -15, bottom: 0 } : { top: 0, right: 60, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#24332410" />
-                    <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#24332480' }} tickFormatter={(v) => `$${v}`} />
-                    <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#243324' }} width={250} />
+                    <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: isMobile ? 10 : 12, fill: '#24332480' }} tickFormatter={(v) => `$${v}`} />
+                    <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: isMobile ? 10 : 11, fill: '#243324' }} width={isMobile ? 115 : 240} />
                     <Tooltip content={<CustomTooltip />} cursor={{ fill: '#24332405' }} />
-                    <Bar dataKey="salary" fill="#6366f1" radius={[0, 4, 4, 0]} barSize={24}>
-                      <LabelList dataKey="salary" position="right" formatter={(v: number) => `$${v}`} style={{ fontSize: 11, fill: '#243324' }} />
+                    <Bar dataKey="salary" fill="#6366f1" radius={[0, 4, 4, 0]} barSize={isMobile ? 18 : 24}>
+                      <LabelList dataKey="salary" position="right" formatter={(v: any) => `$${v}`} style={{ fontSize: isMobile ? 10 : 11, fill: '#243324' }} />
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
@@ -438,13 +452,13 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
             <CardContent className="p-6">
               <div style={{ height: 400, width: '100%' }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={salarySpreadData} layout="vertical" margin={{ top: 0, right: 30, left: 0, bottom: 0 }}>
+                  <BarChart data={salarySpreadData} layout="vertical" margin={isMobile ? { top: 0, right: 20, left: -15, bottom: 0 } : { top: 0, right: 30, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#24332410" />
-                    <XAxis type="number" domain={['dataMin - 1000', 'dataMax + 1000']} axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#24332480' }} tickFormatter={(v) => `$${v}`} />
-                    <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#243324' }} width={250} />
+                    <XAxis type="number" domain={['dataMin - 1000', 'dataMax + 1000']} axisLine={false} tickLine={false} tick={{ fontSize: isMobile ? 10 : 12, fill: '#24332480' }} tickFormatter={(v) => `$${v}`} />
+                    <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: isMobile ? 10 : 11, fill: '#243324' }} width={isMobile ? 115 : 240} />
                     <Tooltip cursor={{ fill: '#24332405' }} />
-                    <Bar dataKey="min" stackId="a" fill="transparent" barSize={16} />
-                    <Bar dataKey="diff" stackId="a" fill="#a855f7" radius={[0, 4, 4, 0]} barSize={16} />
+                    <Bar dataKey="min" stackId="a" fill="transparent" barSize={isMobile ? 12 : 16} />
+                    <Bar dataKey="diff" stackId="a" fill="#a855f7" radius={[0, 4, 4, 0]} barSize={isMobile ? 12 : 16} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -463,14 +477,14 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
             <CardContent className="p-6">
               <div style={{ height: 400, width: '100%' }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={clusterData} margin={{ top: 30, right: 10, left: 10, bottom: 30 }}>
+                  <BarChart data={clusterData} margin={isMobile ? { top: 25, right: 0, left: -20, bottom: 45 } : { top: 30, right: 10, left: 10, bottom: 30 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#24332410" />
-                    <XAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#24332480' }} angle={-45} textAnchor="end" />
-                    <YAxis yAxisId="left" type="number" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#24332480' }} tickFormatter={(v) => `$${v}`} />
-                    <YAxis yAxisId="right" orientation="right" type="number" domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#24332480' }} tickFormatter={(v) => `${v}%`} />
+                    <XAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: isMobile ? 10 : 12, fill: '#24332480' }} angle={-45} textAnchor="end" interval={0} />
+                    <YAxis yAxisId="left" type="number" axisLine={false} tickLine={false} tick={{ fontSize: isMobile ? 10 : 12, fill: '#24332480' }} tickFormatter={(v) => `$${v}`} />
+                    <YAxis yAxisId="right" orientation="right" type="number" domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fontSize: isMobile ? 10 : 12, fill: '#24332480' }} tickFormatter={(v) => `${v}%`} />
                     <Tooltip />
-                    <Bar yAxisId="left" dataKey="median" name="Median Salary" fill="#f59e0b" radius={[4, 4, 0, 0]} barSize={32}>
-                      <LabelList dataKey="median" position="top" formatter={(v: number) => `$${v}`} style={{ fontSize: 11, fill: '#243324' }} />
+                    <Bar yAxisId="left" dataKey="median" name="Median Salary" fill="#f59e0b" radius={[4, 4, 0, 0]} barSize={isMobile ? 20 : 32}>
+                      <LabelList dataKey="median" position="top" formatter={(v: any) => `$${v}`} style={{ fontSize: isMobile ? 9 : 11, fill: '#243324' }} />
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>

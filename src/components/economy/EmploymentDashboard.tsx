@@ -6,7 +6,6 @@ import {
   ArrowLeft,
   Briefcase,
   TrendingUp,
-  TrendingDown,
   Users,
   AlertTriangle,
   Scale,
@@ -18,6 +17,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import DashboardNav from '@/components/ui/DashboardNav';
 import {
   LineChart,
   Line,
@@ -254,10 +254,11 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200/60 shadow-xs">
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200/60 shadow-xs">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
               Verified Official Data
             </span>
+            <DashboardNav />
           </div>
         </div>
       </header>
@@ -270,7 +271,7 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
               <Activity className="w-3.5 h-3.5 text-emerald-600" />
               Singapore Labour Market Monitor
             </div>
-            <h1 className="text-4xl md:text-5xl font-serif text-[#243324] tracking-tight mb-3">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#243324] tracking-tight mb-3">
               Employment & Job Market
             </h1>
             <p className="text-base md:text-lg text-[#243324]/75 max-w-3xl font-light leading-relaxed">
@@ -279,12 +280,12 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
           </div>
 
           {/* Time Range Filter */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
             <span className="text-xs font-medium text-[#243324]/60 uppercase tracking-wider flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5" />
               Timeline:
             </span>
-            <div className="flex items-center gap-1 p-1 bg-white rounded-lg border border-[#243324]/15 shadow-sm">
+            <div className="flex flex-wrap items-center gap-1 p-1 bg-white rounded-lg border border-[#243324]/15 shadow-sm max-w-full">
               {[
                 { key: 'all', label: 'All (1992–Present)' },
                 { key: 'last20', label: 'Last 20 Years' },
@@ -293,7 +294,7 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
                 <button
                   key={t.key}
                   onClick={() => setTimeRange(t.key as any)}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                  className={`px-2.5 sm:px-3 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer ${
                     timeRange === t.key
                       ? 'bg-[#243324] text-[#FBF9F5] shadow-xs'
                       : 'text-[#243324]/70 hover:text-[#243324] hover:bg-[#243324]/5'
@@ -702,7 +703,7 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
                         backgroundColor: '#ffffff',
                         boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
                       }}
-                      formatter={(value: number) => [`${value}%`, '']}
+                      formatter={(value: any) => [`${value}%`, '']}
                     />
                     <Legend wrapperStyle={{ paddingTop: '15px' }} iconType="circle" />
                     <Line
@@ -784,7 +785,7 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
                         backgroundColor: '#ffffff',
                         boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
                       }}
-                      formatter={(value: number) => [value.toLocaleString(), 'Retrenchments']}
+                      formatter={(value: any) => [value?.toLocaleString(), 'Retrenchments']}
                     />
                     <Bar
                       dataKey="retrenchments"
@@ -845,7 +846,7 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
                         backgroundColor: '#ffffff',
                         boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
                       }}
-                      formatter={(value: number) => [`${value} openings / seeker`, 'JVR']}
+                      formatter={(value: any) => [`${value} openings / seeker`, 'JVR']}
                     />
                     {/* Parity Reference Line at 1.0 */}
                     <ReferenceLine

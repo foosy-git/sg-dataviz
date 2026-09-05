@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { cn } from "@/lib/utils";
 import FeedbackWidget from "@/components/ui/FeedbackWidget";
 import Footer from "@/components/Footer";
 

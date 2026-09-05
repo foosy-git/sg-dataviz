@@ -133,10 +133,11 @@ export default function DashboardFilters({
             <div className="space-y-6">
               <div className="space-y-3">
                 <p className="text-sm font-sans font-semibold text-[#243324]">Date Range (Month-Year)</p>
-                <div className="flex items-center gap-4">
-                  <Input type="month" value={startMonth} onChange={(e) => handleStartMonthChange(e.target.value)} className="w-40 border-[#243324]/20 focus-visible:ring-[#3B4D36]" />
-                  <span className="text-[#243324]/60 text-sm">to</span>
-                  <Input type="month" value={endMonth} onChange={(e) => handleEndMonthChange(e.target.value)} className="w-40 border-[#243324]/20 focus-visible:ring-[#3B4D36]" />
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                  <Input type="month" value={startMonth} onChange={(e) => handleStartMonthChange(e.target.value)} className="w-full sm:w-40 border-[#243324]/20 focus-visible:ring-[#3B4D36]" />
+                  <span className="text-[#243324]/60 text-sm hidden sm:inline">to</span>
+                  <span className="text-[#243324]/60 text-xs sm:hidden font-medium">to:</span>
+                  <Input type="month" value={endMonth} onChange={(e) => handleEndMonthChange(e.target.value)} className="w-full sm:w-40 border-[#243324]/20 focus-visible:ring-[#3B4D36]" />
                 </div>
               </div>
 
@@ -144,7 +145,7 @@ export default function DashboardFilters({
                 <div className="flex justify-between items-center">
                   <p className="text-sm font-sans font-semibold text-[#243324]">Remaining Lease (Years)</p>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
                   <Input type="number" min={0} max={99} value={minLease} onChange={(e) => handleMinLeaseChange(Number(e.target.value) || 0)} className="w-24 border-[#243324]/20 focus-visible:ring-[#3B4D36]" placeholder="Min" />
                   <span className="text-[#243324]/60 text-sm">to</span>
                   <Input type="number" min={0} max={99} value={maxLease} onChange={(e) => handleMaxLeaseChange(Number(e.target.value) || 99)} className="w-24 border-[#243324]/20 focus-visible:ring-[#3B4D36]" placeholder="Max" />

@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Building2, Train, Users, Leaf, ArrowRight, LineChart, GraduationCap, Car, Activity, Baby, Wallet } from 'lucide-react';
-
+import { Building2, Train, Leaf, ArrowRight, LineChart, GraduationCap, Car, Baby, Wallet, Wind } from 'lucide-react';
+import DashboardNav from '@/components/ui/DashboardNav';
 import { fetchDatasetDates } from '@/lib/fetchDates';
 
 export default async function Home() {
@@ -72,9 +72,9 @@ export default async function Home() {
 
     // --- ENVIRONMENT ---
     {
-      title: 'Air Quality & Haze',
-      description: 'Real-time PSI & PM2.5 readings, regional air quality map, and historical haze crisis benchmarks.',
-      icon: Activity,
+      title: 'Air Quality & Haze (Live)',
+      description: 'Real-time regional PSI and PM2.5 readings, regional air quality map, and historical haze crisis benchmarks.',
+      icon: Wind,
       href: '/environment/air-quality',
       status: 'Live (hourly)',
       color: 'bg-slate-500/10 text-slate-700',
@@ -98,12 +98,12 @@ export default async function Home() {
             <LineChart className="w-6 h-6" />
             <span className="font-serif font-medium text-xl tracking-tight">SG DataViz</span>
           </div>
-
+          <DashboardNav />
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="relative pt-24 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
+      <section className="relative pt-16 sm:pt-20 md:pt-24 pb-12 sm:pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
         {/* Merlion Background - Constrained to top area */}
         <div 
           className="absolute inset-x-0 top-0 h-[400px] pointer-events-none z-0" 
@@ -116,23 +116,21 @@ export default async function Home() {
             mixBlendMode: 'multiply'
           }}
         />
-        <div className="relative z-10 space-y-6 mb-12 mt-8">
-          <h1 className="font-serif text-5xl md:text-7xl tracking-tight text-[#1F2B1D] max-w-4xl mx-auto leading-tight">
+        <div className="relative z-10 space-y-6 mb-12 mt-4 sm:mt-8">
+          <h1 className="font-serif text-3xl sm:text-5xl md:text-7xl tracking-tight text-[#1F2B1D] max-w-4xl mx-auto leading-tight">
             Unlock the story of Singapore through open data.
           </h1>
-          <p className="text-lg md:text-xl text-[#243324]/70 max-w-4xl mx-auto font-light leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl text-[#243324]/70 max-w-4xl mx-auto font-light leading-relaxed">
             A centralized portal for interactive visualizations built on public datasets from data.gov.sg. 
             Explore trends, uncover insights, and understand the nation.
           </p>
         </div>
-
-
         
         {/* Featured Banner */}
         <div className="relative z-10 max-w-4xl mx-auto">
           <Link href="/singapore-story">
             <Card className="bg-[#1F2B1D] text-[#FBF9F5] border-none shadow-xl hover:-translate-y-1 transition-transform overflow-hidden group">
-              <CardContent className="p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+              <CardContent className="p-6 sm:p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
                 <div className="text-left space-y-2">
                   <h2 className="font-serif text-3xl md:text-4xl font-medium tracking-tight">The Singapore Story</h2>
                   <p className="text-[#FBF9F5]/70 text-lg">A unified, interactive timeline tracing Singapore across various indicators.</p>

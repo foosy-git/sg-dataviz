@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Car, TrendingUp } from 'lucide-react';
+import DashboardNav from '@/components/ui/DashboardNav';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -92,14 +93,14 @@ export default function COEDashboard({ initialData }: { initialData: any[] }) {
               </h1>
             </div>
           </div>
-
+          <DashboardNav />
         </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
 
         <div className="mb-8">
-          <h1 className="text-4xl md:text-5xl font-serif text-[#243324] tracking-tight mb-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#243324] tracking-tight mb-4">
             Certificate of Entitlement (COE)
           </h1>
           <p className="text-lg text-[#243324]/70 max-w-2xl font-light">
@@ -163,7 +164,7 @@ export default function COEDashboard({ initialData }: { initialData: any[] }) {
                     />
                     <Tooltip 
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                      formatter={(value: number) => formatCurrency(value)}
+                      formatter={(value: any) => formatCurrency(value)}
                     />
                     <Legend wrapperStyle={{ paddingTop: '20px' }} />
                     
@@ -210,7 +211,7 @@ export default function COEDashboard({ initialData }: { initialData: any[] }) {
                     />
                     <Tooltip 
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                      formatter={(value: number) => `${value}x Oversubscribed`}
+                      formatter={(value: any) => `${value}x Oversubscribed`}
                     />
                     <Line 
                       type="monotone" 
@@ -255,7 +256,7 @@ export default function COEDashboard({ initialData }: { initialData: any[] }) {
                     />
                     <Tooltip 
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                      formatter={(value: number) => value.toLocaleString()}
+                      formatter={(value: any) => value?.toLocaleString()}
                     />
                     <Bar dataKey="total_quota" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Total Quota" />
                   </BarChart>

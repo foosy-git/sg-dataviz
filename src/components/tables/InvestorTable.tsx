@@ -110,11 +110,13 @@ export default function InvestorTable({
           </TableBody>
         </Table>
       </div>
-      <div className="flex justify-between items-center text-sm text-muted-foreground">
-        <div>Showing {page * rowsPerPage + 1} to {Math.min((page + 1) * rowsPerPage, totalCount)} of {totalCount} entries</div>
-        <div className="space-x-2">
-          <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}>Previous</Button>
-          <Button variant="outline" size="sm" onClick={() => setPage(p => p + 1)} disabled={(page + 1) * rowsPerPage >= totalCount}>Next</Button>
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-[#243324]/70">
+        <div className="text-center sm:text-left text-xs sm:text-sm">
+          Showing {totalCount > 0 ? page * rowsPerPage + 1 : 0} to {Math.min((page + 1) * rowsPerPage, totalCount)} of {totalCount.toLocaleString()} entries
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="h-9 px-4 cursor-pointer" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}>Previous</Button>
+          <Button variant="outline" size="sm" className="h-9 px-4 cursor-pointer" onClick={() => setPage(p => p + 1)} disabled={(page + 1) * rowsPerPage >= totalCount}>Next</Button>
         </div>
       </div>
     </div>

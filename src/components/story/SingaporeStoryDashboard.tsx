@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useMemo, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
-import { Baby, Wallet, Building2, Car, Leaf, LineChart as LineChartIcon, Play, Pause, TrendingUp, Users, ArrowLeft } from 'lucide-react';
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ReferenceLine, ReferenceDot } from 'recharts';
+import { Wallet, Building2, Car, Leaf, LineChart as LineChartIcon, Play, Pause, TrendingUp, Users, ArrowLeft } from 'lucide-react';
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip as RechartsTooltip, ReferenceDot } from 'recharts';
 import Link from 'next/link';
+import DashboardNav from '@/components/ui/DashboardNav';
 
 export interface TimelineYearData {
   year: number;
@@ -22,20 +23,9 @@ interface Props {
 }
 
 export default function SingaporeStoryDashboard({ initialData }: Props) {
-  if (!initialData || initialData.length === 0) {
-    return (
-      <div className="flex flex-col justify-center items-center h-screen bg-[#FBF9F5] p-4 text-center">
-        <h2 className="text-2xl font-serif text-[#243324] mb-2">Data Unavailable</h2>
-        <p className="text-[#243324]/70 font-sans">
-          We could not load the timeline data. Please try again later.
-        </p>
-      </div>
-    );
-  }
-
-  const years = initialData.map(d => d.year);
-  const minYear = Math.min(...years);
-  const maxYear = Math.max(...years);
+  const years = (initialData || []).map(d => d.year);
+  const minYear = years.length > 0 ? Math.min(...years) : 2000;
+  const maxYear = years.length > 0 ? Math.max(...years) : 2025;
   const initialYear = years.includes(2025) ? 2025 : maxYear;
   
   const [currentYear, setCurrentYear] = useState<number>(initialYear);
@@ -58,14 +48,24 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
   }, [isPlaying, maxYear]);
 
   const currentData = useMemo(() => {
+    if (!initialData || initialData.length === 0) return null;
     return initialData.find(d => d.year === currentYear) || initialData[initialData.length - 1];
   }, [currentYear, initialData]);
 
+  if (!initialData || initialData.length === 0 || !currentData) {
+    return (
+      <div className="flex flex-col justify-center items-center h-screen bg-[#FBF9F5] p-4 text-center">
+        <h2 className="text-2xl font-serif text-[#243324] mb-2">Data Unavailable</h2>
+        <p className="text-[#243324]/70 font-sans">
+          We could not load the timeline data. Please try again later.
+        </p>
+      </div>
+    );
+  }
+
   // Formatters
   const fCurrency = (val: number | null) => val ? `$${val.toLocaleString()}` : 'Not Available';
-  const fNum = (val: number | null) => val ? val.toLocaleString() : 'Not Available';
   const fTemp = (val: number | null) => val ? `${val}°C` : 'Not Available';
-  const fPct = (val: number | null) => val ? `${val}%` : 'Not Available';
 
   return (
     <div className="pb-24">
@@ -83,11 +83,12 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
               <h1 className="font-serif text-lg font-medium text-[#243324] tracking-tight">The Singapore Story</h1>
             </div>
           </div>
+          <DashboardNav />
         </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 mb-8 text-center">
-        <h1 className="font-serif text-5xl md:text-6xl tracking-tight text-[#1F2B1D] mb-4">The Singapore Story</h1>
+        <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl tracking-tight text-[#1F2B1D] mb-4">The Singapore Story</h1>
         <p className="text-lg text-[#243324]/70 max-w-2xl mx-auto font-light">
           Drag the timeline to explore how various indicators have evolved together over the last two decades.
         </p>
@@ -97,7 +98,7 @@ export default function SingaporeStoryDashboard({ initialData }: Props) {
         {/* Timeline Control */}
         <Card className="bg-white border-[#243324]/10 shadow-sm mb-8 overflow-hidden relative">
           <div className="absolute inset-0 pointer-events-none opacity-5 bg-[url('/merlion-bg.jpg')] bg-center bg-contain bg-no-repeat mix-blend-multiply" />
-          <CardContent className="p-6 md:p-8 relative z-10">
+          <CardContent className="p-6 pb-10 md:p-8 md:pb-10 relative z-10">
             <div className="flex flex-col items-center gap-6">
               <motion.div 
                 key={currentYear}

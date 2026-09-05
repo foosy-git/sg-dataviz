@@ -1,10 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, Train, Bus, Activity, Users, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Train, Bus, Users, TrendingUp } from 'lucide-react';
+import DashboardNav from '@/components/ui/DashboardNav';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
-  XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend, AreaChart, Area, ComposedChart, Bar
+  XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend, AreaChart, Area
 } from 'recharts';
 
 export default function RidershipDashboard({ data }: { data: any[] }) {
@@ -61,12 +62,13 @@ export default function RidershipDashboard({ data }: { data: any[] }) {
               </h1>
             </div>
           </div>
+          <DashboardNav />
         </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
         <div className="mb-8">
-          <h1 className="text-4xl md:text-5xl font-serif text-[#243324] tracking-tight mb-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#243324] tracking-tight mb-4">
             Public Transport Ridership
           </h1>
           <p className="text-lg text-[#243324]/70 max-w-2xl font-light">
@@ -164,7 +166,7 @@ export default function RidershipDashboard({ data }: { data: any[] }) {
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#24332480' }} tickFormatter={(v) => `${(v/1000000).toFixed(1)}M`} dx={-10} />
                     <RechartsTooltip 
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                      formatter={(value: number, name: string) => [`${(value/1000000).toFixed(2)}M`, name]}
+                      formatter={(value: any, name: any) => [`${(Number(value)/1000000).toFixed(2)}M`, name]}
                     />
                     <Legend wrapperStyle={{ paddingTop: '20px' }} />
                     <Area type="monotone" dataKey="Bus" stackId="1" stroke="#10b981" fillOpacity={1} fill="url(#colorBus)" strokeWidth={2} activeDot={{ r: 6 }} />
@@ -190,7 +192,7 @@ export default function RidershipDashboard({ data }: { data: any[] }) {
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#24332480' }} tickFormatter={(v) => `${(v * 100).toFixed(0)}%`} dx={-10} />
                     <RechartsTooltip 
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                      formatter={(value: number, name: string) => [`${value.toFixed(1)}%`, name.replace('Pct', ' Share')]}
+                      formatter={(value: any, name: any) => [`${Number(value).toFixed(1)}%`, (name || '').replace('Pct', ' Share')]}
                     />
                     <Legend wrapperStyle={{ paddingTop: '20px' }} />
                     <Area type="monotone" dataKey="BusPct" stackId="1" name="Public Bus" stroke="#10b981" fill="#10b981" fillOpacity={0.8} />

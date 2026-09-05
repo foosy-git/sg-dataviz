@@ -69,7 +69,7 @@ export default async function HouseholdIncomePage() {
       const d10 = rawDeciles.find((r: any) => r.Dollar === '10th (Highest)')?.[year];
 
       // Unemployment Rate (Moved to Employment Dashboard)
-      let unemployment = null;
+      const unemployment = null;
 
       return {
         year,

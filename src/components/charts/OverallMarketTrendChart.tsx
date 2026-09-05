@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   ResponsiveContainer,
   ComposedChart,
@@ -31,6 +31,14 @@ export default function OverallMarketTrendChart({
 }: OverallMarketTrendChartProps) {
   const [metric, setMetric] = useState<'index' | 'price'>('index');
   const [timeframe, setTimeframe] = useState<'5Y' | '10Y' | '20Y' | 'ALL'>('10Y');
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Filtered dataset based on timeframe
   const filteredQuarterlyData = useMemo(() => {
@@ -248,8 +256,8 @@ export default function OverallMarketTrendChart({
         <div className="h-[420px] w-full mt-2">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
-              data={chartData}
-              margin={{ top: 20, right: 35, left: 15, bottom: 25 }}
+              data={chartData as any[]}
+              margin={isMobile ? { top: 15, right: 15, left: -10, bottom: 20 } : { top: 20, right: 35, left: 15, bottom: 25 }}
             >
               <defs>
                 <linearGradient id="indexGradient" x1="0" y1="0" x2="0" y2="1">
@@ -262,7 +270,7 @@ export default function OverallMarketTrendChart({
 
               <XAxis
                 dataKey={metric === 'index' ? 'quarter' : 'year'}
-                tick={{ fill: '#243324', fontSize: 12 }}
+                tick={{ fill: '#243324', fontSize: isMobile ? 10 : 12 }}
                 axisLine={{ stroke: '#243324', strokeOpacity: 0.2 }}
                 tickLine={false}
                 minTickGap={timeframe === 'ALL' ? 35 : 20}
@@ -272,7 +280,7 @@ export default function OverallMarketTrendChart({
               <YAxis
                 yAxisId="left"
                 orientation="left"
-                tick={{ fill: '#243324', fontSize: 12 }}
+                tick={{ fill: '#243324', fontSize: isMobile ? 10 : 12 }}
                 axisLine={{ stroke: '#243324', strokeOpacity: 0.2 }}
                 tickLine={false}
                 tickFormatter={(value) => {
@@ -287,7 +295,7 @@ export default function OverallMarketTrendChart({
               <YAxis
                 yAxisId="right"
                 orientation="right"
-                tick={{ fill: '#243324', fontSize: 12 }}
+                tick={{ fill: '#243324', fontSize: isMobile ? 10 : 12 }}
                 axisLine={{ stroke: '#243324', strokeOpacity: 0.2 }}
                 tickLine={false}
                 tickFormatter={(value) => `${value > 0 ? '+' : ''}${value}%`}

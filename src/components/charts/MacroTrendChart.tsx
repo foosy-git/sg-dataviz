@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
 const FLAT_TYPES_ORDER = ["1 ROOM", "2 ROOM", "3 ROOM", "4 ROOM", "5 ROOM", "EXECUTIVE", "MULTI-GENERATION"];
@@ -39,6 +39,21 @@ export default function MacroTrendChart({
   onSplitChange
 }: MacroTrendChartProps) {
   const [internalSplit, setInternalSplit] = useState<'town' | 'flatType'>('town');
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 640;
+      setIsMobile(mobile);
+      if (mobile && splitBy === undefined) {
+        setInternalSplit('flatType');
+      }
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, [splitBy]);
+
   const currentSplit = splitBy !== undefined ? splitBy : internalSplit;
 
   const handleSplitChange = (mode: 'town' | 'flatType') => {
@@ -196,14 +211,14 @@ export default function MacroTrendChart({
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 10, right: 30, left: 15, bottom: 5 }}>
+            <LineChart data={chartData} margin={isMobile ? { top: 10, right: 10, left: -10, bottom: 5 } : { top: 10, right: 30, left: 15, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E8DCC4" opacity={0.5} />
               <XAxis
                 dataKey="month"
-                tick={{ fill: '#243324', fontSize: 12 }}
+                tick={{ fill: '#243324', fontSize: isMobile ? 10 : 12 }}
                 axisLine={{ stroke: '#243324', strokeOpacity: 0.2 }}
                 tickLine={false}
-                minTickGap={30}
+                minTickGap={24}
               />
               <YAxis
                 yAxisId="left"
@@ -211,7 +226,7 @@ export default function MacroTrendChart({
                   if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
                   return `$${Math.round(value / 1000)}k`;
                 }}
-                tick={{ fill: '#243324', fontSize: 12 }}
+                tick={{ fill: '#243324', fontSize: isMobile ? 10 : 12 }}
                 axisLine={{ stroke: '#243324', strokeOpacity: 0.2 }}
                 tickLine={false}
                 domain={['auto', 'auto']}
@@ -228,11 +243,12 @@ export default function MacroTrendChart({
                   backgroundColor: 'rgba(255, 255, 255, 0.95)',
                   borderColor: '#E8DCC4',
                   borderRadius: '10px',
-                  boxShadow: '0 4px 14px rgba(0,0,0,0.08)'
+                  boxShadow: '0 4px 14px rgba(0,0,0,0.08)',
+                  fontSize: '12px'
                 }}
               />
               <Legend
-                wrapperStyle={{ paddingTop: '16px', maxHeight: '90px', overflowY: 'auto' }}
+                wrapperStyle={{ paddingTop: '12px', maxHeight: isMobile ? '65px' : '90px', overflowY: 'auto' }}
                 formatter={(val) => <span className="text-xs font-semibold text-[#243324]">{val}</span>}
               />
 

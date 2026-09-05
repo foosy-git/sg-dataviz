@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, Train, Bus, Car, Navigation } from 'lucide-react';
+import { ArrowLeft, Train, Car, Navigation } from 'lucide-react';
+import DashboardNav from '@/components/ui/DashboardNav';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell
@@ -51,12 +52,13 @@ export default function CommutingDashboard({ data }: { data: any[] }) {
               </h1>
             </div>
           </div>
+          <DashboardNav />
         </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
         <div className="mb-8">
-          <h1 className="text-4xl md:text-5xl font-serif text-[#243324] tracking-tight mb-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#243324] tracking-tight mb-4">
             Commuting to Work
           </h1>
           <p className="text-lg text-[#243324]/70 max-w-2xl font-light">
@@ -127,7 +129,7 @@ export default function CommutingDashboard({ data }: { data: any[] }) {
                     <YAxis type="category" dataKey="mode" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#243324' }} width={140} />
                     <RechartsTooltip 
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                      formatter={(value: number, name: string) => [`${value}k`, name === 'males' ? 'Males' : name === 'females' ? 'Females' : 'Total']}
+                      formatter={(value: any, name: any) => [`${value}k`, name === 'males' ? 'Males' : name === 'females' ? 'Females' : 'Total']}
                     />
                     <Legend wrapperStyle={{ paddingTop: '20px' }} />
                     <Bar dataKey="males" name="Males" stackId="a" fill="#0ea5e9" radius={[0, 0, 0, 0]} />
@@ -162,7 +164,7 @@ export default function CommutingDashboard({ data }: { data: any[] }) {
                       ))}
                     </Pie>
                     <RechartsTooltip 
-                      formatter={(value: number) => [`${value}k`, 'Commuters']}
+                      formatter={(value: any) => [`${value}k`, 'Commuters']}
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                     />
                     <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: '11px', marginTop: '20px' }} />

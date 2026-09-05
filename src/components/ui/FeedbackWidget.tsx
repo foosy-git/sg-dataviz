@@ -56,7 +56,7 @@ export default function FeedbackWidget() {
   return (
     <div className="fixed bottom-4 right-4 md:bottom-5 md:right-5 z-[100] font-sans">
       {isOpen ? (
-        <div className="bg-white rounded-2xl shadow-2xl w-[320px] md:w-[360px] border border-[#243324]/10 overflow-hidden flex flex-col transform transition-all duration-300 origin-bottom-right">
+        <div className="bg-white rounded-2xl shadow-2xl w-[calc(100vw-2rem)] sm:w-[360px] max-w-[360px] border border-[#243324]/10 overflow-hidden flex flex-col transform transition-all duration-300 origin-bottom-right">
           <div className="bg-[#243324] p-4 flex justify-between items-center text-white">
             <h3 className="font-serif font-medium text-lg flex items-center gap-2">
               <MessageSquarePlus className="w-5 h-5" />

@@ -55,7 +55,7 @@ export default function GeographicalMap({ data }: { data: any[] }) {
 
   return (
     <div className="w-full relative bg-[#e0f2fe]/40 rounded-xl overflow-hidden border border-[#243324]/5 p-2 md:p-4">
-      <div className="relative w-full h-[600px] flex items-center justify-center">
+      <div className="relative w-full h-[340px] sm:h-[480px] md:h-[600px] flex items-center justify-center">
         {!geoData && (
           <div className="animate-pulse text-[#243324]/50">Loading Map...</div>
         )}
@@ -100,6 +100,11 @@ export default function GeographicalMap({ data }: { data: any[] }) {
                           hover: { fill: "#94a3b8", outline: "none", cursor: 'pointer' },
                           pressed: { outline: "none" },
                         }}
+                        onClick={() => {
+                          if (matchedTown) {
+                            setHoveredTown((prev: any) => prev?.fullTown === matchedTown.fullTown ? null : matchedTown);
+                          }
+                        }}
                         onMouseEnter={() => {
                           if (matchedTown) setHoveredTown(matchedTown);
                         }}
@@ -135,18 +140,25 @@ export default function GeographicalMap({ data }: { data: any[] }) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.15 }}
-              className="absolute top-4 left-4 z-10 pointer-events-none"
+              className="absolute bottom-2 left-2 right-2 sm:bottom-auto sm:top-4 sm:left-4 sm:right-auto z-30 pointer-events-auto"
             >
               <Card className="shadow-lg border-[#243324]/10 bg-white/95 backdrop-blur-sm min-w-[200px]">
-                <CardContent className="p-4 space-y-2">
-                  <div className="font-serif font-semibold text-lg text-[#243324] border-b border-[#243324]/10 pb-1.5">
+                <CardContent className="p-3 sm:p-4 space-y-1.5 sm:space-y-2 relative">
+                  <button 
+                    onClick={() => setHoveredTown(null)}
+                    className="sm:hidden absolute top-2 right-2 text-[#243324]/40 hover:text-[#243324] text-xs p-1"
+                    aria-label="Close details"
+                  >
+                    ✕
+                  </button>
+                  <div className="font-serif font-semibold text-base sm:text-lg text-[#243324] border-b border-[#243324]/10 pb-1 pr-6 sm:pr-0">
                     {hoveredTown.fullTown}
                   </div>
                   <div>
-                    <div className="text-[11px] font-sans font-medium uppercase tracking-wider text-[#243324]/60">
+                    <div className="text-[10px] sm:text-[11px] font-sans font-medium uppercase tracking-wider text-[#243324]/60">
                       Median Resale Price
                     </div>
-                    <div className="text-2xl font-bold font-serif tracking-tight text-[#243324]">
+                    <div className="text-xl sm:text-2xl font-bold font-serif tracking-tight text-[#243324]">
                       ${hoveredTown.medianPrice.toLocaleString()}
                     </div>
                   </div>
@@ -163,20 +175,20 @@ export default function GeographicalMap({ data }: { data: any[] }) {
         </AnimatePresence>
 
         {/* Legend */}
-        <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-md p-3 rounded-xl border border-[#243324]/10 shadow-sm pointer-events-none z-20">
-          <div className="text-[10px] font-semibold text-[#243324]/60 uppercase tracking-wider mb-2">Median Price</div>
-          <div className="flex flex-col gap-1.5">
-            <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-[#16a34a]"></div>
-              <span className="text-xs text-[#243324]/80 font-medium">Lower</span>
+        <div className="absolute top-2 right-2 sm:top-auto sm:bottom-4 sm:right-4 bg-white/95 backdrop-blur-md p-2 sm:p-3 rounded-xl border border-[#243324]/10 shadow-sm pointer-events-none z-20">
+          <div className="text-[9px] sm:text-[10px] font-semibold text-[#243324]/60 uppercase tracking-wider mb-1 sm:mb-2">Median Price</div>
+          <div className="flex sm:flex-col gap-2 sm:gap-1.5">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#16a34a]"></div>
+              <span className="text-[11px] sm:text-xs text-[#243324]/80 font-medium">Lower</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-[#eab308]"></div>
-              <span className="text-xs text-[#243324]/80 font-medium">Mid</span>
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#eab308]"></div>
+              <span className="text-[11px] sm:text-xs text-[#243324]/80 font-medium">Mid</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-[#ea580c]"></div>
-              <span className="text-xs text-[#243324]/80 font-medium">Higher</span>
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#ea580c]"></div>
+              <span className="text-[11px] sm:text-xs text-[#243324]/80 font-medium">Higher</span>
             </div>
           </div>
         </div>

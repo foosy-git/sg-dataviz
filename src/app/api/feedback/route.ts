@@ -11,9 +11,9 @@ function checkRateLimit(ip: string): boolean {
 
   // Periodic cleanup of stale entries if map gets large
   if (rateLimitMap.size > 1000) {
-    for (const [key, val] of rateLimitMap.entries()) {
+    rateLimitMap.forEach((val, key) => {
       if (now > val.resetTime) rateLimitMap.delete(key);
-    }
+    });
   }
 
   if (!record || now > record.resetTime) {

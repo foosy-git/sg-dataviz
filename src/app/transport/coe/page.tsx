@@ -60,7 +60,7 @@ async function getCOEData() {
 export const dynamic = 'force-dynamic';
 
 export default async function COEPage() {
-  const data = await getCOEData();
+  const data = (await getCOEData()) || [];
   
   return (
     <main className="min-h-screen bg-[#FBF9F5]">

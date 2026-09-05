@@ -7,6 +7,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsToolti
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Link from 'next/link';
 import { ArrowLeft, Baby } from 'lucide-react';
+import DashboardNav from '@/components/ui/DashboardNav';
 
 interface BirthRatesDashboardProps {
   data: any[];
@@ -45,8 +46,7 @@ export default function BirthRatesDashboard({ data }: BirthRatesDashboardProps) 
                 <span className="font-serif text-xl font-medium">Birth Rates & Fertility</span>
               </div>
             </div>
-            
-
+            <DashboardNav />
           </div>
         </div>
       </header>
@@ -60,7 +60,7 @@ export default function BirthRatesDashboard({ data }: BirthRatesDashboardProps) 
           <div className="inline-block px-3 py-1 mb-4 rounded-full bg-[#E8DCC4]/50 border border-[#243324]/10 text-sm font-sans font-medium text-[#243324]">
             Demographics
           </div>
-          <h1 className="text-5xl md:text-7xl font-serif text-[#243324] mb-6 tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-serif text-[#243324] mb-4 sm:mb-6 tracking-tight leading-tight">
             Birth Rates & Fertility
           </h1>
           <p className="text-lg md:text-xl text-[#243324]/70 max-w-2xl font-sans leading-relaxed">
@@ -84,7 +84,7 @@ export default function BirthRatesDashboard({ data }: BirthRatesDashboardProps) 
                   <p className="text-sm font-semibold text-[#243324]/60 uppercase tracking-wider mb-2 font-sans">Time Range Filter</p>
                   <p className="text-sm text-[#243324]/70">Adjust the timeline for the charts below</p>
                 </div>
-                <Select value={timeRange} onValueChange={setTimeRange}>
+                <Select value={timeRange} onValueChange={(val: any) => val && setTimeRange(val)}>
                   <SelectTrigger className="w-[180px] bg-white">
                     <SelectValue placeholder="Select timeframe">
                       {timeRange === 'all' ? '1960 - Present' : timeRange === 'since2000' ? '2000 - Present' : timeRange === 'last20' ? 'Last 20 Years' : timeRange === 'last10' ? 'Last 10 Years' : 'Select timeframe'}
@@ -122,7 +122,7 @@ export default function BirthRatesDashboard({ data }: BirthRatesDashboardProps) 
                     <RechartsTooltip contentStyle={{ backgroundColor: '#FBF9F5', borderColor: 'rgba(36, 51, 36, 0.1)', borderRadius: '8px', color: '#243324', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} itemStyle={{ color: '#243324' }} />
                     <Legend wrapperStyle={{ paddingTop: '20px' }} />
                     <Line type="monotone" name="Total Fertility Rate" dataKey="Total Fertility Rate (TFR)" stroke="#3B4D36" strokeWidth={3} dot={false} activeDot={{ r: 6, fill: "#E8DCC4", stroke: "#3B4D36", strokeWidth: 2 }} />
-                    <Line type="dashed" name="Replacement Level (2.1)" dataKey={() => 2.1} stroke="#E85D04" strokeWidth={2} strokeDasharray="5 5" dot={false} activeDot={false} />
+                    <Line type="monotone" name="Replacement Level (2.1)" dataKey={() => 2.1} stroke="#E85D04" strokeWidth={2} strokeDasharray="5 5" dot={false} activeDot={false} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -200,8 +200,8 @@ export default function BirthRatesDashboard({ data }: BirthRatesDashboardProps) 
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#243324" opacity={0.1} vertical={false} />
-                    <XAxis dataKey="year" stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dy={10} />
-                    <YAxis stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dx={-10} label={{ value: 'births per 1,000 females', angle: -90, position: 'insideLeft', offset: 0, style: { fill: '#243324', opacity: 0.7, fontSize: 12 } }} />
+                    <XAxis dataKey="year" stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dy={10} minTickGap={20} />
+                    <YAxis stroke="#243324" opacity={0.5} tick={{ fill: '#243324', opacity: 0.7, fontSize: 12 }} tickLine={false} axisLine={false} dx={-10} />
                     <RechartsTooltip contentStyle={{ backgroundColor: '#FBF9F5', borderColor: 'rgba(36, 51, 36, 0.1)', borderRadius: '8px', color: '#243324', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} itemStyle={{ color: '#243324' }} />
                     <Legend wrapperStyle={{ paddingTop: '20px' }} />
                     <Line type="monotone" name="20-24 Years" dataKey="20 - 24 Years" stroke="#8cb369" strokeWidth={2} dot={false} />
