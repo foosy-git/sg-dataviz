@@ -56,13 +56,40 @@ export async function GET(request: Request) {
       allRecords = [...cachedCombinedRecords];
     }
 
+    // Available dataset date bounds (2017-01 onwards)
+    const minAvailableMonth = '2017-01';
+    let maxAvailableMonth = '2026-09';
+    if (allRecords.length > 0) {
+      for (const r of allRecords) {
+        if (r.month && r.month > maxAvailableMonth) {
+          maxAvailableMonth = r.month;
+        }
+      }
+    }
+
     // Filter Logic & Parameter Sanitization
     const townsParam = searchParams.get('towns');
     const flatTypesParam = searchParams.get('flatTypes');
     const minLease = Math.max(0, Number(searchParams.get('minLease')) || 0);
     const maxLease = Math.min(99, Number(searchParams.get('maxLease')) || 99);
-    const startMonth = searchParams.get('startMonth') || '2017-01';
-    const endMonth = searchParams.get('endMonth') || '2030-12';
+    
+    // Strict bounding to ensure only months with data can be queried
+    const rawStartMonth = searchParams.get('startMonth');
+    const rawEndMonth = searchParams.get('endMonth');
+
+    let startMonth = rawStartMonth || minAvailableMonth;
+    if (startMonth < minAvailableMonth) startMonth = minAvailableMonth;
+    if (startMonth > maxAvailableMonth) startMonth = maxAvailableMonth;
+
+    let endMonth = rawEndMonth || maxAvailableMonth;
+    if (endMonth > maxAvailableMonth) endMonth = maxAvailableMonth;
+    if (endMonth < minAvailableMonth) endMonth = minAvailableMonth;
+
+    if (startMonth > endMonth) {
+      startMonth = minAvailableMonth;
+      endMonth = maxAvailableMonth;
+    }
+
     const page = Math.max(0, parseInt(searchParams.get('page') || '0', 10) || 0);
     const rawSortKey = searchParams.get('sortKey') || 'month';
     const sortKey = ALLOWED_SORT_KEYS.includes(rawSortKey) ? rawSortKey : 'month';
@@ -196,7 +223,11 @@ export async function GET(request: Request) {
         leaseDecay,
         tableData,
         resaleIndex,
-        annualTrend
+        annualTrend,
+        dateBounds: {
+          minMonth: minAvailableMonth,
+          maxMonth: maxAvailableMonth
+        }
       }
     }, {
       headers: {

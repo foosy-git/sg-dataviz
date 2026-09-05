@@ -256,6 +256,8 @@ export default function Dashboard() {
                   setEndMonth={setEndMonth}
                   search={search}
                   setSearch={setSearch}
+                  minAvailableMonth={analytics?.dateBounds?.minMonth || '2017-01'}
+                  maxAvailableMonth={analytics?.dateBounds?.maxMonth || '2026-09'}
                 />
               </div>
 
@@ -417,7 +419,7 @@ export default function Dashboard() {
               className="py-24 px-4 md:px-8 max-w-7xl mx-auto border-b border-[#243324]/10"
             >
               <div className="text-center mb-16">
-                <h2 className="text-4xl font-serif text-[#243324] mb-4">Deep Analytics</h2>
+                <h2 className="text-4xl font-serif text-[#243324] mb-4">Lease Dynamics &amp; High-Value Transactions</h2>
                 <p className="text-[#243324]/70 max-w-2xl mx-auto text-lg">Investigating lease decay and high-value flat transactions.</p>
               </div>
 

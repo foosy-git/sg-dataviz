@@ -22,6 +22,16 @@ interface DashboardFiltersProps {
   setEndMonth: React.Dispatch<React.SetStateAction<string>>;
   search: string;
   setSearch: React.Dispatch<React.SetStateAction<string>>;
+  minAvailableMonth?: string;
+  maxAvailableMonth?: string;
+}
+
+function formatMonthLabel(monthStr: string) {
+  if (!monthStr || !monthStr.includes('-')) return monthStr;
+  const [year, month] = monthStr.split('-');
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const mIndex = parseInt(month, 10) - 1;
+  return `${monthNames[mIndex] || month} ${year}`;
 }
 
 export default function DashboardFilters({
@@ -40,7 +50,9 @@ export default function DashboardFilters({
   endMonth,
   setEndMonth,
   search,
-  setSearch
+  setSearch,
+  minAvailableMonth = '2017-01',
+  maxAvailableMonth = '2026-09'
 }: DashboardFiltersProps) {
 
   const [localSearch, setLocalSearch] = useState(search);
@@ -85,13 +97,27 @@ export default function DashboardFilters({
   };
 
   const handleStartMonthChange = (val: string) => {
-    setStartMonth(val);
-    if (endMonth && val > endMonth) setEndMonth(val);
+    if (!val) {
+      setStartMonth('');
+      return;
+    }
+    let clamped = val;
+    if (clamped < minAvailableMonth) clamped = minAvailableMonth;
+    if (clamped > maxAvailableMonth) clamped = maxAvailableMonth;
+    setStartMonth(clamped);
+    if (endMonth && clamped > endMonth) setEndMonth(clamped);
   };
 
   const handleEndMonthChange = (val: string) => {
-    setEndMonth(val);
-    if (startMonth && val < startMonth) setStartMonth(val);
+    if (!val) {
+      setEndMonth('');
+      return;
+    }
+    let clamped = val;
+    if (clamped > maxAvailableMonth) clamped = maxAvailableMonth;
+    if (clamped < minAvailableMonth) clamped = minAvailableMonth;
+    setEndMonth(clamped);
+    if (startMonth && clamped < startMonth) setStartMonth(clamped);
   };
 
   const hasFilters = selectedTowns.length > 0 || selectedFlatTypes.length > 0 || minLease > 0 || maxLease < 99 || startMonth !== '' || endMonth !== '' || search !== '';
@@ -132,12 +158,69 @@ export default function DashboardFilters({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="space-y-6">
               <div className="space-y-3">
-                <p className="text-sm font-sans font-semibold text-[#243324]">Date Range (Month-Year)</p>
+                <div className="flex items-center justify-between flex-wrap gap-1">
+                  <p className="text-sm font-sans font-semibold text-[#243324]">Date Range (Month-Year)</p>
+                  <span className="text-[11px] text-[#243324]/60 font-medium">
+                    Available: {formatMonthLabel(minAvailableMonth)} – {formatMonthLabel(maxAvailableMonth)}
+                  </span>
+                </div>
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                  <Input type="month" value={startMonth} onChange={(e) => handleStartMonthChange(e.target.value)} className="w-full sm:w-40 border-[#243324]/20 focus-visible:ring-[#3B4D36]" />
+                  <div className="w-full sm:w-44">
+                    <Input 
+                      type="month" 
+                      min={minAvailableMonth}
+                      max={endMonth || maxAvailableMonth}
+                      value={startMonth} 
+                      onChange={(e) => handleStartMonthChange(e.target.value)} 
+                      className="w-full border-[#243324]/20 focus-visible:ring-[#3B4D36]"
+                      title={`Select start month (${minAvailableMonth} to ${endMonth || maxAvailableMonth})`}
+                    />
+                  </div>
                   <span className="text-[#243324]/60 text-sm hidden sm:inline">to</span>
                   <span className="text-[#243324]/60 text-xs sm:hidden font-medium">to:</span>
-                  <Input type="month" value={endMonth} onChange={(e) => handleEndMonthChange(e.target.value)} className="w-full sm:w-40 border-[#243324]/20 focus-visible:ring-[#3B4D36]" />
+                  <div className="w-full sm:w-44">
+                    <Input 
+                      type="month" 
+                      min={startMonth || minAvailableMonth}
+                      max={maxAvailableMonth}
+                      value={endMonth} 
+                      onChange={(e) => handleEndMonthChange(e.target.value)} 
+                      className="w-full border-[#243324]/20 focus-visible:ring-[#3B4D36]"
+                      title={`Select end month (${startMonth || minAvailableMonth} to ${maxAvailableMonth})`}
+                    />
+                  </div>
+                </div>
+                {/* Quick Presets within Available Bounds */}
+                <div className="flex items-center gap-1.5 pt-0.5 flex-wrap">
+                  <span className="text-[11px] text-[#243324]/50">Presets:</span>
+                  <button
+                    type="button"
+                    onClick={() => { setStartMonth('2025-09'); setEndMonth(maxAvailableMonth); }}
+                    className="text-[11px] px-2 py-0.5 rounded border border-[#243324]/15 bg-white/70 hover:bg-[#E8DCC4]/40 text-[#243324] transition-colors cursor-pointer"
+                  >
+                    Past 1Y
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setStartMonth('2023-09'); setEndMonth(maxAvailableMonth); }}
+                    className="text-[11px] px-2 py-0.5 rounded border border-[#243324]/15 bg-white/70 hover:bg-[#E8DCC4]/40 text-[#243324] transition-colors cursor-pointer"
+                  >
+                    Past 3Y
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setStartMonth('2021-09'); setEndMonth(maxAvailableMonth); }}
+                    className="text-[11px] px-2 py-0.5 rounded border border-[#243324]/15 bg-white/70 hover:bg-[#E8DCC4]/40 text-[#243324] transition-colors cursor-pointer"
+                  >
+                    Past 5Y
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setStartMonth(minAvailableMonth); setEndMonth(maxAvailableMonth); }}
+                    className="text-[11px] px-2 py-0.5 rounded border border-[#243324]/15 bg-white/70 hover:bg-[#E8DCC4]/40 text-[#243324] transition-colors cursor-pointer"
+                  >
+                    All Available
+                  </button>
                 </div>
               </div>
 
