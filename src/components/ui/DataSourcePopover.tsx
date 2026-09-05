@@ -191,6 +191,7 @@ export default function DataSourcePopover({
           iconClassName
         )}
         aria-label={`View data source details for ${source.title}`}
+        title={`Data source & methodology: ${source.title}`}
         aria-expanded={isOpen}
       >
         <Database className="w-5 h-5" />
@@ -222,8 +223,8 @@ export default function DataSourcePopover({
                   </span>
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                 </div>
-                <div className="text-[11px] text-[#E8DCC4]/80 font-medium">
-                  {source.agency}
+                <div className="text-[11px] text-[#E8DCC4]/90 font-medium">
+                  {source.title} • {source.agency}
                 </div>
               </div>
             </div>

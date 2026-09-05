@@ -86,7 +86,7 @@ export const DATA_SOURCES: Record<string, DataSourceMetadata> = {
     retrievalSummary:
       'Retrieved from data.gov.sg Datastore API querying official annual survey publications conducted across all autonomous universities.',
     generationSummary:
-      'Raw records are sanitized to remove footnote annotations, parsed into numeric salaries and full-time permanent employment rates, categorized into degree clusters (Healthcare, Law, Computing, Engineering, Business, Arts), and evaluated for interquartile ranges.',
+      'Raw records are sanitized to remove footnote annotations, parsed into numeric median salaries and full-time permanent employment rates, evaluated for interquartile ranges (25th to 75th percentiles) and top-earning degree rankings, and mapped across autonomous universities/schools (NUS, NTU, SMU, SUTD, SIT, SUSS) to evaluate starting compensation against employability in the Golden Quadrant.',
     frequency: 'Annual Survey'
   },
   birthRates: {
