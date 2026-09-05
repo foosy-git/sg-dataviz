@@ -119,7 +119,7 @@ export default function Dashboard() {
       <main className="w-full overflow-x-hidden">
         
         {/* HERO SECTION */}
-        <section className="min-h-[60vh] flex flex-col items-center justify-center py-16 sm:py-20 px-4 text-center border-b border-[#243324]/10 relative overflow-hidden">
+        <section className="min-h-[60vh] flex flex-col items-center justify-center py-16 sm:py-20 px-4 text-center border-b border-[#243324]/10 relative">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#E8DCC4]/20 via-[#FBF9F5] to-[#FBF9F5] -z-20" />
           
           {/* Faint HDB Skyline Outline */}
@@ -140,7 +140,7 @@ export default function Dashboard() {
               <h1 className="text-3xl sm:text-5xl md:text-7xl font-serif text-[#243324] tracking-tight leading-tight">
                 Singapore Public Housing Report
               </h1>
-              <DataSourcePopover source={DATA_SOURCES.hdb} align="center" />
+              <DataSourcePopover source={DATA_SOURCES.hdb} align="right" />
             </div>
             <p className="text-base sm:text-lg md:text-xl text-[#243324]/75 max-w-3xl mx-auto font-sans mb-10 leading-relaxed">
               Comprehensive analysis of Singapore&apos;s public housing market — from national macro price cycles (1990–present) to granular estate and transaction exploration (2017–present).

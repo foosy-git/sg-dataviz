@@ -22,7 +22,9 @@ export default function DataSourcePopover({
 }: DataSourcePopoverProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [popoverStyle, setPopoverStyle] = useState<React.CSSProperties>({});
 
   const handleMouseEnter = useCallback(() => {
     if (closeTimeoutRef.current) {
@@ -66,11 +68,75 @@ export default function DataSourcePopover({
     };
   }, []);
 
-  const alignClasses = {
-    left: 'left-0 sm:left-0 sm:-translate-x-0',
-    center: 'left-1/2 -translate-x-1/2',
-    right: 'right-0 sm:right-0 sm:translate-x-0'
-  }[align];
+  // Compute safe position preventing any horizontal viewport truncation
+  useEffect(() => {
+    if (!isOpen || !containerRef.current) return;
+
+    const updatePosition = () => {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      const targetWidth = Math.min(440, viewportWidth - 24); // 12px padding on each side
+
+      let leftOffset = 0;
+      if (align === 'center') {
+        leftOffset = rect.width / 2 - targetWidth / 2;
+      } else if (align === 'right') {
+        leftOffset = rect.width - targetWidth;
+      } else {
+        leftOffset = 0;
+      }
+
+      // Check overflow on right edge of window
+      const absoluteRight = rect.left + leftOffset + targetWidth;
+      if (absoluteRight > viewportWidth - 12) {
+        leftOffset -= (absoluteRight - (viewportWidth - 12));
+      }
+
+      // Check overflow on left edge of window
+      const absoluteLeft = rect.left + leftOffset;
+      if (absoluteLeft < 12) {
+        leftOffset += (12 - absoluteLeft);
+      }
+
+      setPopoverStyle({
+        left: `${leftOffset}px`,
+        width: `${targetWidth}px`,
+        maxWidth: `calc(100vw - 24px)`
+      });
+    };
+
+    updatePosition();
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, { passive: true });
+
+    return () => {
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition);
+    };
+  }, [isOpen, align]);
+
+  // Combine primary dataset and additional sources into unified references list
+  const references: { name: string; url: string; id?: string; isPrimary?: boolean }[] = [];
+  references.push({
+    name: source.datasetName,
+    url: source.url,
+    id: source.datasetId,
+    isPrimary: true
+  });
+
+  if (source.additionalSources) {
+    for (const item of source.additionalSources) {
+      if (!references.some((r) => r.url === item.url && r.name === item.name)) {
+        references.push({
+          name: item.name,
+          url: item.url,
+          id: item.id,
+          isPrimary: false
+        });
+      }
+    }
+  }
 
   const sideClasses = side === 'top'
     ? 'bottom-full mb-3'
@@ -105,12 +171,13 @@ export default function DataSourcePopover({
 
       {isOpen && (
         <div
+          ref={popoverRef}
           role="dialog"
           aria-label={`Data source for ${source.title}`}
+          style={popoverStyle}
           className={cn(
-            'absolute z-50 w-[90vw] sm:w-[420px] max-w-[440px] p-5 bg-[#1F2B1D] text-[#FBF9F5] rounded-2xl shadow-2xl border border-[#E8DCC4]/20 text-xs font-sans text-left normal-case tracking-normal animate-in fade-in-0 zoom-in-95 duration-150',
-            sideClasses,
-            alignClasses
+            'absolute z-50 p-5 bg-[#1F2B1D] text-[#FBF9F5] rounded-2xl shadow-2xl border border-[#E8DCC4]/20 text-xs font-sans text-left normal-case tracking-normal max-h-[82vh] overflow-y-auto animate-in fade-in-0 zoom-in-95 duration-150',
+            sideClasses
           )}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
@@ -118,7 +185,7 @@ export default function DataSourcePopover({
           {/* Header */}
           <div className="flex items-start justify-between gap-3 border-b border-white/10 pb-3 mb-3">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-lg bg-emerald-500/20 text-emerald-400">
+              <div className="p-2 rounded-lg bg-emerald-500/20 text-emerald-400 shrink-0">
                 <Database className="w-4 h-4" />
               </div>
               <div>
@@ -126,7 +193,7 @@ export default function DataSourcePopover({
                   <span className="font-semibold text-sm text-[#FBF9F5] tracking-tight">
                     Data Source &amp; Methodology
                   </span>
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                 </div>
                 <div className="text-[11px] text-[#E8DCC4]/80 font-medium">
                   {source.agency}
@@ -137,7 +204,7 @@ export default function DataSourcePopover({
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="text-white/40 hover:text-white p-1 rounded-md transition-colors"
+              className="text-white/40 hover:text-white p-1 rounded-md transition-colors shrink-0"
               aria-label="Close popover"
             >
               <X className="w-4 h-4" />
@@ -149,12 +216,12 @@ export default function DataSourcePopover({
             <div className="text-[11px] text-emerald-400 uppercase tracking-wider font-semibold mb-0.5">
               Primary Open Dataset
             </div>
-            <div className="font-medium text-white text-xs leading-snug">
+            <div className="font-medium text-white text-xs leading-snug break-words">
               {source.datasetName}
             </div>
             {source.frequency && (
               <div className="mt-1.5 inline-flex items-center gap-1 text-[10px] text-[#E8DCC4]/70 bg-white/5 px-2 py-0.5 rounded-md">
-                <RefreshCw className="w-2.5 h-2.5" />
+                <RefreshCw className="w-2.5 h-2.5 shrink-0" />
                 <span>Update cadence: {source.frequency}</span>
               </div>
             )}
@@ -166,7 +233,7 @@ export default function DataSourcePopover({
               <span className="font-semibold text-[#E8DCC4] block mb-0.5">
                 How data is retrieved:
               </span>
-              <p className="text-white/80 font-light">
+              <p className="text-white/80 font-light break-words">
                 {source.retrievalSummary}
               </p>
             </div>
@@ -175,54 +242,48 @@ export default function DataSourcePopover({
               <span className="font-semibold text-[#E8DCC4] block mb-0.5">
                 How insights are generated:
               </span>
-              <p className="text-white/80 font-light">
+              <p className="text-white/80 font-light break-words">
                 {source.generationSummary}
               </p>
             </div>
           </div>
 
-          {/* Secondary / Related Datasets if any */}
-          {source.additionalSources && source.additionalSources.length > 0 && (
-            <div className="mb-4 pt-2.5 border-t border-white/10">
-              <div className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wider text-[#E8DCC4]/70 font-semibold mb-1.5">
-                <Layers className="w-3 h-3" />
-                <span>Related data.gov.sg tables</span>
-              </div>
-              <div className="space-y-1">
-                {source.additionalSources.map((sec, idx) => (
-                  <a
-                    key={idx}
-                    href={sec.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between gap-2 p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/85 hover:text-white transition-colors text-[11px] group"
-                  >
-                    <span className="truncate">{sec.name}</span>
-                    <ExternalLink className="w-3 h-3 text-white/50 group-hover:text-emerald-400 shrink-0" />
-                  </a>
-                ))}
-              </div>
+          {/* All References under 'Related data.gov.sg tables' Section */}
+          <div className="pt-3 border-t border-white/10">
+            <div className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wider text-[#E8DCC4]/70 font-semibold mb-2">
+              <Layers className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Related data.gov.sg tables</span>
             </div>
-          )}
-
-          {/* Footer Link to data.gov.sg */}
-          <div className="pt-2 border-t border-white/10">
-            <a
-              href={source.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-between w-full px-3.5 py-2 rounded-xl bg-emerald-600/90 hover:bg-emerald-600 text-white text-xs font-medium transition-all shadow-sm group hover:shadow-emerald-900/40"
-            >
-              <div className="flex items-center gap-2 truncate">
-                <span>View source on data.gov.sg</span>
-                {source.datasetId && (
-                  <span className="font-mono text-[10px] text-emerald-200/80 truncate">
-                    ({source.datasetId})
-                  </span>
-                )}
-              </div>
-              <ExternalLink className="w-3.5 h-3.5 shrink-0 group-hover:translate-x-0.5 transition-transform" />
-            </a>
+            <div className="space-y-1.5">
+              {references.map((ref, idx) => (
+                <a
+                  key={idx}
+                  href={ref.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/90 hover:text-white transition-all text-xs group border border-white/5 hover:border-emerald-500/30"
+                >
+                  <div className="flex flex-col min-w-0 pr-1">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-medium text-[11.5px] text-[#FBF9F5] leading-snug group-hover:text-emerald-300 transition-colors break-words">
+                        {ref.name}
+                      </span>
+                      {ref.isPrimary && (
+                        <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-semibold tracking-wider">
+                          Primary
+                        </span>
+                      )}
+                    </div>
+                    {ref.id && (
+                      <span className="font-mono text-[10px] text-white/40 mt-0.5">
+                        ID: {ref.id}
+                      </span>
+                    )}
+                  </div>
+                  <ExternalLink className="w-3.5 h-3.5 text-white/40 group-hover:text-emerald-400 shrink-0 transition-colors" />
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       )}
