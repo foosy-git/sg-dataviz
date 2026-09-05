@@ -9,7 +9,6 @@ import {
   Users,
   TrendingUp,
   TrendingDown,
-  Calendar,
   Activity,
   Download,
   Search,
@@ -66,7 +65,6 @@ const COLOR_TOTAL = '#1F2B1D'; // Dark Green
 
 export default function RidershipDashboard({ data }: { data: RidershipRecord[] }) {
   const [selectedTab, setSelectedTab] = useState<'volume' | 'share' | 'change' | 'lines'>('volume');
-  const [timeFilter, setTimeFilter] = useState<'all' | '10y' | 'since2000'>('all');
   const [selectedYear, setSelectedYear] = useState<string>('2024');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [tableSortDirection, setTableSortDirection] = useState<'desc' | 'asc'>('desc');
@@ -113,16 +111,8 @@ export default function RidershipDashboard({ data }: { data: RidershipRecord[] }
     });
   }, [data]);
 
-  // Filter dataset by selected time horizon
-  const displayChartData = useMemo(() => {
-    if (timeFilter === '10y') {
-      return fullChartData.filter(d => parseInt(d.year) >= 2014);
-    }
-    if (timeFilter === 'since2000') {
-      return fullChartData.filter(d => parseInt(d.year) >= 2000);
-    }
-    return fullChartData;
-  }, [fullChartData, timeFilter]);
+  // Display all data by default
+  const displayChartData = fullChartData;
 
   // Derived baseline and latest summary figures
   const latestData = fullChartData[fullChartData.length - 1] || {
@@ -138,11 +128,12 @@ export default function RidershipDashboard({ data }: { data: RidershipRecord[] }
     yoyTotalPct: 0
   };
   const prevData = fullChartData[fullChartData.length - 2] || latestData;
-  const firstData = fullChartData[0] || latestData;
 
-  const totalNetGrowth = firstData.total > 0 ? (((latestData.total - firstData.total) / firstData.total) * 100).toFixed(1) : '0';
-  const mrtNetGrowth = firstData.MRT > 0 ? (((latestData.MRT - firstData.MRT) / firstData.MRT) * 100).toFixed(1) : '0';
-  const busNetGrowth = firstData.Bus > 0 ? (((latestData.Bus - firstData.Bus) / firstData.Bus) * 100).toFixed(1) : '0';
+  const yoyRailChange = latestData.railTotal - prevData.railTotal;
+  const yoyRailPct = prevData.railTotal > 0 ? Number(((yoyRailChange / prevData.railTotal) * 100).toFixed(1)) : 0;
+
+  const yoyBusChange = latestData.Bus - prevData.Bus;
+  const yoyBusPct = prevData.Bus > 0 ? Number(((yoyBusChange / prevData.Bus) * 100).toFixed(1)) : 0;
 
   // Selected year data for explorer
   const selectedYearData = useMemo(() => {
@@ -275,34 +266,10 @@ export default function RidershipDashboard({ data }: { data: RidershipRecord[] }
               Light Rail Transit (LRT), and Public Bus services from 1995 to 2024.
             </p>
           </div>
-
-          {/* Time Filter Buttons */}
-          <div className="flex flex-wrap items-center gap-2 sm:self-start lg:self-end">
-            <span className="text-xs font-medium text-[#243324]/60 uppercase tracking-wider mr-1">Time Range:</span>
-            {(
-              [
-                { id: 'all', label: 'All Years (1995–2024)' },
-                { id: 'since2000', label: '2000–2024' },
-                { id: '10y', label: 'Past 10 Years' }
-              ] as const
-            ).map(f => (
-              <button
-                key={f.id}
-                onClick={() => setTimeFilter(f.id)}
-                className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all ${
-                  timeFilter === f.id
-                    ? 'bg-[#243324] text-[#FBF9F5] shadow-sm'
-                    : 'bg-white/80 text-[#243324]/70 hover:text-[#243324] hover:bg-white border border-[#243324]/10'
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
         </div>
 
         {/* 3. Factual KPI Metrics */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
           {/* Total Average Daily Ridership */}
           <Card className="bg-white border-[#243324]/10 shadow-sm">
             <CardContent className="p-6">
@@ -327,7 +294,7 @@ export default function RidershipDashboard({ data }: { data: RidershipRecord[] }
               </div>
               <div className="pt-2.5 border-t border-[#243324]/5 flex items-center justify-between text-[11px] text-[#243324]/60">
                 <span>Net change vs {prevData.year}:</span>
-                <span className="font-semibold text-[#1F2B1D]">
+                <span className={`font-semibold ${latestData.yoyTotalChange >= 0 ? 'text-emerald-700' : 'text-red-600'}`}>
                   {latestData.yoyTotalChange >= 0 ? '+' : ''}{(latestData.yoyTotalChange / 1000).toFixed(0)}k / day
                 </span>
               </div>
@@ -342,19 +309,25 @@ export default function RidershipDashboard({ data }: { data: RidershipRecord[] }
                   <Train className="w-4 h-4" />
                   <span>Rail (MRT & LRT)</span>
                 </div>
-                <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                  {latestData.railPct}% of total
+                <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full border ${
+                  yoyRailPct >= 0
+                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                    : 'bg-red-50 text-red-700 border-red-200'
+                }`}>
+                  {yoyRailPct >= 0 ? '+' : ''}{yoyRailPct}% YoY
                 </span>
               </div>
               <div className="text-3xl sm:text-4xl font-serif text-[#1F2B1D] tracking-tight mb-1">
                 {(latestData.railTotal / 1000000).toFixed(2)}M
               </div>
               <div className="text-xs text-[#243324]/70 font-medium mb-3">
-                MRT: {(latestData.MRT / 1000000).toFixed(2)}M • LRT: {(latestData.LRT / 1000).toFixed(0)}k
+                MRT: {(latestData.MRT / 1000000).toFixed(2)}M • LRT: {(latestData.LRT / 1000).toFixed(0)}k ({latestData.railPct}% share)
               </div>
               <div className="pt-2.5 border-t border-[#243324]/5 flex items-center justify-between text-[11px] text-[#243324]/60">
-                <span>MRT change since 1995:</span>
-                <span className="font-semibold text-blue-700">+{mrtNetGrowth}%</span>
+                <span>Net change vs {prevData.year}:</span>
+                <span className={`font-semibold ${yoyRailChange >= 0 ? 'text-emerald-700' : 'text-red-600'}`}>
+                  {yoyRailChange >= 0 ? '+' : ''}{(yoyRailChange / 1000).toFixed(0)}k / day
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -367,45 +340,24 @@ export default function RidershipDashboard({ data }: { data: RidershipRecord[] }
                   <Bus className="w-4 h-4" />
                   <span>Public Bus</span>
                 </div>
-                <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  {latestData.busPct}% of total
+                <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full border ${
+                  yoyBusPct >= 0
+                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                    : 'bg-red-50 text-red-700 border-red-200'
+                }`}>
+                  {yoyBusPct >= 0 ? '+' : ''}{yoyBusPct}% YoY
                 </span>
               </div>
               <div className="text-3xl sm:text-4xl font-serif text-[#1F2B1D] tracking-tight mb-1">
                 {(latestData.Bus / 1000000).toFixed(2)}M
               </div>
               <div className="text-xs text-[#243324]/70 font-medium mb-3">
-                Average daily bus passenger volume
+                Average daily bus volume ({latestData.busPct}% share)
               </div>
               <div className="pt-2.5 border-t border-[#243324]/5 flex items-center justify-between text-[11px] text-[#243324]/60">
-                <span>Bus change since 1995:</span>
-                <span className="font-semibold text-emerald-700">+{busNetGrowth}%</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* 30-Year Net Change */}
-          <Card className="bg-[#1F2B1D] text-white border-none shadow-sm">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-3 text-white/70">
-                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#E8DCC4]">
-                  <Calendar className="w-4 h-4" />
-                  <span>1995 to {latestData.year}</span>
-                </div>
-                <span className="text-[10px] font-mono uppercase bg-white/10 px-2 py-0.5 rounded text-white/80">
-                  30 Years
-                </span>
-              </div>
-              <div className="text-3xl sm:text-4xl font-serif text-[#E8DCC4] tracking-tight mb-1">
-                +{totalNetGrowth}%
-              </div>
-              <div className="text-xs text-white/75 font-light leading-relaxed mb-3">
-                Total daily ridership increased from {(firstData.total / 1000000).toFixed(2)}M (1995) to {(latestData.total / 1000000).toFixed(2)}M ({latestData.year})
-              </div>
-              <div className="pt-2.5 border-t border-white/10 flex items-center justify-between text-[11px] text-white/70">
-                <span>Rail Share Shift:</span>
-                <span className="font-semibold text-white">
-                  {firstData.railPct}% (1995) ➔ {latestData.railPct}% ({latestData.year})
+                <span>Net change vs {prevData.year}:</span>
+                <span className={`font-semibold ${yoyBusChange >= 0 ? 'text-emerald-700' : 'text-red-600'}`}>
+                  {yoyBusChange >= 0 ? '+' : ''}{(yoyBusChange / 1000).toFixed(0)}k / day
                 </span>
               </div>
             </CardContent>
