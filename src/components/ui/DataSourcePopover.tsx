@@ -25,8 +25,25 @@ export default function DataSourcePopover({
   const popoverRef = useRef<HTMLDivElement>(null);
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [popoverStyle, setPopoverStyle] = useState<React.CSSProperties>({});
+  const isTouchRef = useRef(false);
+
+  // Reset touch state if user uses a real mouse
+  useEffect(() => {
+    const handlePointerMove = (e: PointerEvent) => {
+      if (e.pointerType === 'mouse') {
+        isTouchRef.current = false;
+      }
+    };
+    window.addEventListener('pointermove', handlePointerMove, { passive: true });
+    return () => window.removeEventListener('pointermove', handlePointerMove);
+  }, []);
 
   const handleMouseEnter = useCallback(() => {
+    // Ignore emulated hover on touch devices
+    if (isTouchRef.current) return;
+    if (typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches) {
+      return;
+    }
     if (closeTimeoutRef.current) {
       clearTimeout(closeTimeoutRef.current);
       closeTimeoutRef.current = null;
@@ -35,6 +52,10 @@ export default function DataSourcePopover({
   }, []);
 
   const handleMouseLeave = useCallback(() => {
+    if (isTouchRef.current) return;
+    if (typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches) {
+      return;
+    }
     if (closeTimeoutRef.current) {
       clearTimeout(closeTimeoutRef.current);
     }
@@ -44,7 +65,7 @@ export default function DataSourcePopover({
   }, []);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
@@ -57,10 +78,12 @@ export default function DataSourcePopover({
     };
 
     document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
     document.addEventListener('keydown', handleKeyDown);
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
       document.removeEventListener('keydown', handleKeyDown);
       if (closeTimeoutRef.current) {
         clearTimeout(closeTimeoutRef.current);
@@ -151,11 +174,15 @@ export default function DataSourcePopover({
     >
       <button
         type="button"
+        onPointerDown={(e) => {
+          if (e.pointerType === 'touch') {
+            isTouchRef.current = true;
+          }
+        }}
         onClick={(e) => {
           e.stopPropagation();
           setIsOpen((prev) => !prev);
         }}
-        onFocus={handleMouseEnter}
         className={cn(
           'inline-flex items-center justify-center p-2 rounded-xl transition-all duration-200 cursor-pointer select-none',
           'bg-white/80 hover:bg-[#243324] text-[#243324]/75 hover:text-[#FBF9F5] border border-[#243324]/15 shadow-sm hover:shadow-md hover:scale-105 active:scale-95',

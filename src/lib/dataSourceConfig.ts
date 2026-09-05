@@ -74,7 +74,7 @@ export const DATA_SOURCES: Record<string, DataSourceMetadata> = {
     retrievalSummary:
       'Extracted directly from data.gov.sg Datastore API querying official Ministry of Manpower annual unemployment surveys.',
     generationSummary:
-      'Extracts both Overall and Resident seasonally adjusted unemployment series from 1992 to the present, parses non-numeric markers, derives the resident-overall gap, and calculates Year-on-Year percentage point movements.',
+      'Extracts both Overall and Resident seasonally adjusted unemployment series from 1992 to the present, parses non-numeric markers, derives the resident-overall arithmetic difference, and calculates Year-on-Year percentage point movements. Note: In Singapore, non-resident work passes are tied to active employment, meaning non-resident unemployment is structurally near zero; Total unemployment is therefore mathematically lower than the Resident rate.',
     frequency: 'Annual / Semi-annual'
   },
   ges: {

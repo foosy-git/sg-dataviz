@@ -13,10 +13,12 @@ import {
   Download,
   Search,
   ArrowUpDown,
+  Info,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import DashboardNav from '@/components/ui/DashboardNav';
 import DataSourcePopover from '@/components/ui/DataSourcePopover';
+import ResidentGapInfoTooltip from '@/components/economy/ResidentGapInfoTooltip';
 import { DATA_SOURCES } from '@/lib/dataSourceConfig';
 import {
   LineChart,
@@ -316,14 +318,19 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
             </div>
 
             {gapVal !== null && (
-              <div className="pt-2 mt-1 border-t border-[#243324]/10 flex items-center justify-between text-[#243324]/70">
-                <span className="flex items-center gap-1">
-                  <Layers className="w-3 h-3 text-amber-600" />
-                  Difference:
-                </span>
-                <span className="font-mono font-medium text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/50">
-                  +{gapVal}% pts
-                </span>
+              <div className="pt-2 mt-1 border-t border-[#243324]/10">
+                <div className="flex items-center justify-between text-[#243324]/70">
+                  <span className="flex items-center gap-1">
+                    <Layers className="w-3 h-3 text-amber-600" />
+                    Difference:
+                  </span>
+                  <span className="font-mono font-medium text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/50">
+                    +{gapVal}% pts
+                  </span>
+                </div>
+                <div className="text-[10px] text-[#243324]/50 mt-1 leading-tight">
+                  *Total rate is lowered by non-resident pass holders tied to active employment.
+                </div>
               </div>
             )}
           </div>
@@ -493,9 +500,10 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
             <CardContent className="p-5 flex flex-col justify-between h-full">
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2 text-[#243324]/70">
+                  <div className="flex items-center gap-1.5 text-[#243324]/70">
                     <Layers className="w-4 h-4 text-amber-600" />
                     <span className="text-xs font-semibold uppercase tracking-wider">Difference</span>
+                    <ResidentGapInfoTooltip align="left" side="bottom" />
                   </div>
                   <span className="text-[11px] font-mono font-medium px-2 py-0.5 rounded bg-[#243324]/5 text-[#243324]/70">
                     Resident − Total
@@ -509,6 +517,9 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
                 <div className="text-xs text-[#243324]/70">
                   <span>In {latestData.year}: Resident {latestData.resident}% vs Total {latestData.total}%</span>
                 </div>
+                <p className="text-[11px] text-[#243324]/55 mt-1 font-light leading-snug">
+                  Non-resident pass holders must be employed to stay, lowering the total rate.
+                </p>
               </div>
 
               <div className="pt-2 border-t border-[#243324]/5 mt-3">
@@ -590,9 +601,12 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
               </div>
 
               <div className="p-2.5 rounded-lg bg-amber-500/5 border border-amber-500/10">
-                <span className="text-[11px] font-semibold text-amber-700 uppercase tracking-wider block">
-                  Resident − Overall Difference
-                </span>
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-semibold text-amber-700 uppercase tracking-wider block">
+                    Resident − Overall Difference
+                  </span>
+                  <ResidentGapInfoTooltip align="right" side="bottom" />
+                </div>
                 <span className="text-lg font-serif font-semibold text-amber-900">
                   {latestGap !== null ? `+${latestGap.toFixed(1)}% pts` : 'N/A'}
                 </span>
@@ -668,67 +682,83 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
         {/* 2 Factual Secondary Charts: Gap Trend & YoY Changes */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
           {/* Chart 1: Annual Resident - Overall Difference */}
-          <Card className="bg-white border-[#243324]/10 shadow-sm">
-            <CardHeader className="border-b border-[#243324]/10 pb-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="font-serif text-xl text-[#243324]">
-                    Resident − Overall Rate Difference
-                  </CardTitle>
-                  <CardDescription className="text-sm text-[#243324]/75 mt-0.5">
-                    Annual difference in percentage points (Resident Rate minus Total Rate).
-                  </CardDescription>
+          <Card className="bg-white border-[#243324]/10 shadow-sm flex flex-col justify-between">
+            <div>
+              <CardHeader className="border-b border-[#243324]/10 pb-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <CardTitle className="font-serif text-xl text-[#243324]">
+                        Resident − Overall Rate Difference
+                      </CardTitle>
+                      <ResidentGapInfoTooltip align="left" side="bottom" />
+                    </div>
+                    <CardDescription className="text-sm text-[#243324]/75 mt-0.5">
+                      Annual difference in percentage points (Resident Rate minus Total Rate).
+                    </CardDescription>
+                  </div>
+                  <span className="text-xs font-mono text-[#243324]/60 bg-[#243324]/5 px-2 py-1 rounded">
+                    Percentage Points (% pts)
+                  </span>
                 </div>
-                <span className="text-xs font-mono text-[#243324]/60 bg-[#243324]/5 px-2 py-1 rounded">
-                  Percentage Points (% pts)
-                </span>
+              </CardHeader>
+              <CardContent className="p-6 pb-2">
+                <div className="h-[280px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart
+                      data={filteredData.filter(d => d.gap !== null)}
+                      margin={{ top: 20, right: 10, left: 5, bottom: 10 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#24332415" />
+                      <XAxis
+                        dataKey="year"
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 12, fill: '#24332490' }}
+                        minTickGap={20}
+                      />
+                      <YAxis
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 12, fill: '#24332490' }}
+                        tickFormatter={v => `+${v}%`}
+                        dx={-10}
+                        domain={[0, 2]}
+                      />
+                      <RechartsTooltip
+                        contentStyle={{
+                          borderRadius: '10px',
+                          border: '1px solid rgba(36, 51, 36, 0.15)',
+                          backgroundColor: '#ffffff',
+                          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                        }}
+                        formatter={(value: any) => [`+${value}% pts`, 'Resident − Total Difference']}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="gap"
+                        name="Rate Difference"
+                        fill="#d97706"
+                        fillOpacity={0.2}
+                        stroke="#d97706"
+                        strokeWidth={2.5}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </div>
+
+            {/* Regulatory Context Callout */}
+            <div className="p-6 pt-0">
+              <div className="p-3 rounded-lg bg-amber-500/5 border border-amber-500/15 text-xs text-[#243324]/80 leading-relaxed font-sans flex items-start gap-2.5">
+                <Info className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-semibold text-amber-950">Why is Resident unemployment always higher than Total? </span>
+                  Under Singapore&apos;s work pass framework, non-resident passes are tied to active employment. Unemployed non-residents must repatriate unless they secure a new sponsoring employer, keeping non-resident unemployment structurally near zero by definition. Total unemployment is a weighted average of residents and non-residents, which mathematically pulls the overall figure below the resident rate.
+                </div>
               </div>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="h-[320px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart
-                    data={filteredData.filter(d => d.gap !== null)}
-                    margin={{ top: 20, right: 10, left: 5, bottom: 10 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#24332415" />
-                    <XAxis
-                      dataKey="year"
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 12, fill: '#24332490' }}
-                      minTickGap={20}
-                    />
-                    <YAxis
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 12, fill: '#24332490' }}
-                      tickFormatter={v => `+${v}%`}
-                      dx={-10}
-                      domain={[0, 2]}
-                    />
-                    <RechartsTooltip
-                      contentStyle={{
-                        borderRadius: '10px',
-                        border: '1px solid rgba(36, 51, 36, 0.15)',
-                        backgroundColor: '#ffffff',
-                        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                      }}
-                      formatter={(value: any) => [`+${value}% pts`, 'Resident − Total Difference']}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="gap"
-                      name="Rate Difference"
-                      fill="#d97706"
-                      fillOpacity={0.2}
-                      stroke="#d97706"
-                      strokeWidth={2.5}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
+            </div>
           </Card>
 
           {/* Chart 2: Year-over-Year Rate Changes */}
