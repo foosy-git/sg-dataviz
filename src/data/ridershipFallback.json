@@ -1,0 +1,452 @@
+[
+  {
+    "year": "1995",
+    "mode": "MRT",
+    "ridership": 740000
+  },
+  {
+    "year": "1995",
+    "mode": "LRT",
+    "ridership": 0
+  },
+  {
+    "year": "1995",
+    "mode": "Bus",
+    "ridership": 3009000
+  },
+  {
+    "year": "1996",
+    "mode": "MRT",
+    "ridership": 850000
+  },
+  {
+    "year": "1996",
+    "mode": "LRT",
+    "ridership": 0
+  },
+  {
+    "year": "1996",
+    "mode": "Bus",
+    "ridership": 3118000
+  },
+  {
+    "year": "1997",
+    "mode": "MRT",
+    "ridership": 911000
+  },
+  {
+    "year": "1997",
+    "mode": "LRT",
+    "ridership": 0
+  },
+  {
+    "year": "1997",
+    "mode": "Bus",
+    "ridership": 3116000
+  },
+  {
+    "year": "1998",
+    "mode": "MRT",
+    "ridership": 946000
+  },
+  {
+    "year": "1998",
+    "mode": "LRT",
+    "ridership": 0
+  },
+  {
+    "year": "1998",
+    "mode": "Bus",
+    "ridership": 3121000
+  },
+  {
+    "year": "1999",
+    "mode": "MRT",
+    "ridership": 986000
+  },
+  {
+    "year": "1999",
+    "mode": "LRT",
+    "ridership": 27000
+  },
+  {
+    "year": "1999",
+    "mode": "Bus",
+    "ridership": 3213000
+  },
+  {
+    "year": "2000",
+    "mode": "MRT",
+    "ridership": 1047000
+  },
+  {
+    "year": "2000",
+    "mode": "LRT",
+    "ridership": 39000
+  },
+  {
+    "year": "2000",
+    "mode": "Bus",
+    "ridership": 3251000
+  },
+  {
+    "year": "2001",
+    "mode": "MRT",
+    "ridership": 1071000
+  },
+  {
+    "year": "2001",
+    "mode": "LRT",
+    "ridership": 41000
+  },
+  {
+    "year": "2001",
+    "mode": "Bus",
+    "ridership": 3281000
+  },
+  {
+    "year": "2002",
+    "mode": "MRT",
+    "ridership": 1081000
+  },
+  {
+    "year": "2002",
+    "mode": "LRT",
+    "ridership": 39000
+  },
+  {
+    "year": "2002",
+    "mode": "Bus",
+    "ridership": 3197000
+  },
+  {
+    "year": "2003",
+    "mode": "MRT",
+    "ridership": 1171000
+  },
+  {
+    "year": "2003",
+    "mode": "LRT",
+    "ridership": 50000
+  },
+  {
+    "year": "2003",
+    "mode": "Bus",
+    "ridership": 2992000
+  },
+  {
+    "year": "2004",
+    "mode": "MRT",
+    "ridership": 1270000
+  },
+  {
+    "year": "2004",
+    "mode": "LRT",
+    "ridership": 55000
+  },
+  {
+    "year": "2004",
+    "mode": "Bus",
+    "ridership": 2805000
+  },
+  {
+    "year": "2005",
+    "mode": "MRT",
+    "ridership": 1321000
+  },
+  {
+    "year": "2005",
+    "mode": "LRT",
+    "ridership": 69000
+  },
+  {
+    "year": "2005",
+    "mode": "Bus",
+    "ridership": 2779000
+  },
+  {
+    "year": "2006",
+    "mode": "MRT",
+    "ridership": 1408000
+  },
+  {
+    "year": "2006",
+    "mode": "LRT",
+    "ridership": 74000
+  },
+  {
+    "year": "2006",
+    "mode": "Bus",
+    "ridership": 2833000
+  },
+  {
+    "year": "2007",
+    "mode": "MRT",
+    "ridership": 1527000
+  },
+  {
+    "year": "2007",
+    "mode": "LRT",
+    "ridership": 79000
+  },
+  {
+    "year": "2007",
+    "mode": "Bus",
+    "ridership": 2932000
+  },
+  {
+    "year": "2008",
+    "mode": "MRT",
+    "ridership": 1698000
+  },
+  {
+    "year": "2008",
+    "mode": "LRT",
+    "ridership": 88000
+  },
+  {
+    "year": "2008",
+    "mode": "Bus",
+    "ridership": 3087000
+  },
+  {
+    "year": "2009",
+    "mode": "MRT",
+    "ridership": 1782000
+  },
+  {
+    "year": "2009",
+    "mode": "LRT",
+    "ridership": 90000
+  },
+  {
+    "year": "2009",
+    "mode": "Bus",
+    "ridership": 3047000
+  },
+  {
+    "year": "2010",
+    "mode": "MRT",
+    "ridership": 2069000
+  },
+  {
+    "year": "2010",
+    "mode": "LRT",
+    "ridership": 100000
+  },
+  {
+    "year": "2010",
+    "mode": "Bus",
+    "ridership": 3199000
+  },
+  {
+    "year": "2011",
+    "mode": "MRT",
+    "ridership": 2295000
+  },
+  {
+    "year": "2011",
+    "mode": "LRT",
+    "ridership": 111000
+  },
+  {
+    "year": "2011",
+    "mode": "Bus",
+    "ridership": 3385000
+  },
+  {
+    "year": "2012",
+    "mode": "MRT",
+    "ridership": 2525000
+  },
+  {
+    "year": "2012",
+    "mode": "LRT",
+    "ridership": 124000
+  },
+  {
+    "year": "2012",
+    "mode": "Bus",
+    "ridership": 3481000
+  },
+  {
+    "year": "2013",
+    "mode": "MRT",
+    "ridership": 2623000
+  },
+  {
+    "year": "2013",
+    "mode": "LRT",
+    "ridership": 132000
+  },
+  {
+    "year": "2013",
+    "mode": "Bus",
+    "ridership": 3601000
+  },
+  {
+    "year": "2014",
+    "mode": "MRT",
+    "ridership": 2762000
+  },
+  {
+    "year": "2014",
+    "mode": "LRT",
+    "ridership": 137000
+  },
+  {
+    "year": "2014",
+    "mode": "Bus",
+    "ridership": 3751000
+  },
+  {
+    "year": "2015",
+    "mode": "MRT",
+    "ridership": 2871000
+  },
+  {
+    "year": "2015",
+    "mode": "LRT",
+    "ridership": 152000
+  },
+  {
+    "year": "2015",
+    "mode": "Bus",
+    "ridership": 3891000
+  },
+  {
+    "year": "2016",
+    "mode": "MRT",
+    "ridership": 3095000
+  },
+  {
+    "year": "2016",
+    "mode": "LRT",
+    "ridership": 180000
+  },
+  {
+    "year": "2016",
+    "mode": "Bus",
+    "ridership": 3939000
+  },
+  {
+    "year": "2017",
+    "mode": "MRT",
+    "ridership": 3122000
+  },
+  {
+    "year": "2017",
+    "mode": "LRT",
+    "ridership": 190000
+  },
+  {
+    "year": "2017",
+    "mode": "Bus",
+    "ridership": 3952000
+  },
+  {
+    "year": "2018",
+    "mode": "MRT",
+    "ridership": 3302000
+  },
+  {
+    "year": "2018",
+    "mode": "LRT",
+    "ridership": 199000
+  },
+  {
+    "year": "2018",
+    "mode": "Bus",
+    "ridership": 4037000
+  },
+  {
+    "year": "2019",
+    "mode": "MRT",
+    "ridership": 3384000
+  },
+  {
+    "year": "2019",
+    "mode": "LRT",
+    "ridership": 208000
+  },
+  {
+    "year": "2019",
+    "mode": "Bus",
+    "ridership": 4099000
+  },
+  {
+    "year": "2020",
+    "mode": "MRT",
+    "ridership": 2023000
+  },
+  {
+    "year": "2020",
+    "mode": "LRT",
+    "ridership": 139000
+  },
+  {
+    "year": "2020",
+    "mode": "Bus",
+    "ridership": 2878000
+  },
+  {
+    "year": "2021",
+    "mode": "MRT",
+    "ridership": 2100000
+  },
+  {
+    "year": "2021",
+    "mode": "LRT",
+    "ridership": 151000
+  },
+  {
+    "year": "2021",
+    "mode": "Bus",
+    "ridership": 3008000
+  },
+  {
+    "year": "2022",
+    "mode": "MRT",
+    "ridership": 2745000
+  },
+  {
+    "year": "2022",
+    "mode": "LRT",
+    "ridership": 184000
+  },
+  {
+    "year": "2022",
+    "mode": "Bus",
+    "ridership": 3461000
+  },
+  {
+    "year": "2023",
+    "mode": "MRT",
+    "ridership": 3243000
+  },
+  {
+    "year": "2023",
+    "mode": "LRT",
+    "ridership": 202000
+  },
+  {
+    "year": "2023",
+    "mode": "Bus",
+    "ridership": 3747000
+  },
+  {
+    "year": "2024",
+    "mode": "MRT",
+    "ridership": 3412000
+  },
+  {
+    "year": "2024",
+    "mode": "LRT",
+    "ridership": 210000
+  },
+  {
+    "year": "2024",
+    "mode": "Bus",
+    "ridership": 3837000
+  }
+]

@@ -1,6 +1,7 @@
 import RidershipDashboard from '@/components/transport/RidershipDashboard';
 import { Metadata } from 'next';
 import ErrorState from '@/components/ui/ErrorState';
+import fallbackRidershipData from '@/data/ridershipFallback.json';
 
 export const metadata: Metadata = {
   title: 'Public Transport Ridership | SG DataViz',
@@ -9,45 +10,76 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic';
 
-export default async function RidershipPage() {
+const RIDERSHIP_API_URL = 'https://data.gov.sg/api/action/datastore_search?resource_id=d_75248cf2fbf340de6a746dc91ec9223c&limit=1000';
+
+interface RidershipRecord {
+  year: string;
+  mode: string;
+  ridership: number;
+}
+
+let cachedRidershipData: RidershipRecord[] | null = null;
+let lastRidershipFetch = 0;
+const CACHE_TTL = 3600 * 1000; // 1 hour
+
+async function getRidershipData(): Promise<RidershipRecord[]> {
+  const now = Date.now();
+  if (cachedRidershipData && now - lastRidershipFetch < CACHE_TTL) {
+    return cachedRidershipData;
+  }
+
   try {
-    const pollRes = await fetch('https://api-open.data.gov.sg/v1/public/api/datasets/d_75248cf2fbf340de6a746dc91ec9223c/poll-download', { next: { revalidate: 86400 } });
-    if (!pollRes.ok) throw new Error('Failed to poll dataset');
-    const pollData = await pollRes.json();
-    
-    if (pollData?.code !== 0 || !pollData?.data?.url) {
-      throw new Error('Failed to get download URL');
+    const headers: Record<string, string> = {};
+    if (process.env.DATAGOV_API_KEY) {
+      headers['api-key'] = process.env.DATAGOV_API_KEY.trim();
     }
 
-    const csvRes = await fetch(pollData.data.url, { next: { revalidate: 86400 } });
-    const csvText = await csvRes.text();
+    const res = await fetch(RIDERSHIP_API_URL, {
+      headers,
+      signal: AbortSignal.timeout(8000),
+      next: { revalidate: 86400 }
+    });
 
-    const lines = csvText.split('\n').map(l => l.trim()).filter(Boolean);
-    const parsedData = [];
-    
-    for (let i = 1; i < lines.length; i++) {
-      const parts = lines[i].split(',');
-      if (parts.length < 3) continue;
-      
-      const year = parts[0];
-      const mode = parts[1];
-      const ridership = parseFloat(parts[2]);
+    if (!res.ok) throw new Error(`Failed to fetch ridership dataset: HTTP ${res.status}`);
+    const json = await res.json();
 
-      parsedData.push({
-        year,
-        mode,
-        ridership: isNaN(ridership) ? 0 : ridership
-      });
+    if (!json.success || !Array.isArray(json.result?.records) || json.result.records.length === 0) {
+      throw new Error('Invalid or empty records from ridership Datastore API');
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const parsedData: RidershipRecord[] = json.result.records.map((r: any) => ({
+      year: String(r.year),
+      mode: String(r.mode),
+      ridership: parseFloat(r.ridership) || 0
+    }));
+
+    cachedRidershipData = parsedData;
+    lastRidershipFetch = now;
+    return parsedData;
+  } catch (error) {
+    console.error('Ridership data fetch error, falling back to static dataset:', error);
+    if (cachedRidershipData && cachedRidershipData.length > 0) {
+      return cachedRidershipData;
+    }
+    return fallbackRidershipData as RidershipRecord[];
+  }
+}
+
+export default async function RidershipPage() {
+  try {
+    const data = await getRidershipData();
+    if (!data || data.length === 0) {
+      return <ErrorState />;
     }
 
     return (
       <main className="min-h-screen bg-[#FBF9F5]">
-        <RidershipDashboard data={parsedData} />
+        <RidershipDashboard data={data} />
       </main>
     );
-
   } catch (error) {
-    console.error('Ridership data fetch error:', error);
+    console.error('Ridership page error:', error);
     return <ErrorState />;
   }
 }

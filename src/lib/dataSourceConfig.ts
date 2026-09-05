@@ -127,7 +127,7 @@ export const DATA_SOURCES: Record<string, DataSourceMetadata> = {
     datasetId: 'd_75248cf2fbf340de6a746dc91ec9223c',
     url: 'https://data.gov.sg/datasets/d_75248cf2fbf340de6a746dc91ec9223c/view',
     retrievalSummary:
-      'Resolved dynamically via the data.gov.sg Poll-Download API (api-open.data.gov.sg/v1/public/api/datasets/d_75248cf2fbf340de6a746dc91ec9223c/poll-download) and parsed from CSV.',
+      'Retrieved dynamically via data.gov.sg Datastore Search API (resource d_75248cf2fbf340de6a746dc91ec9223c) with resilient caching and offline fallback.',
     generationSummary:
       'Aggregates average daily passenger volume across MRT, LRT, and Public Bus networks from 1995 to 2024, computing transit modal splits, rail-to-bus ratios, and Year-on-Year ridership growth.',
     frequency: 'Annual Publication'
