@@ -17,8 +17,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: "/og-image.png",
-        width: 1200,
-        height: 630,
+        width: 1568,
+        height: 840,
         alt: "SG DataViz Dashboard Preview",
       },
     ],
