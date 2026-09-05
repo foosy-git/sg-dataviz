@@ -49,12 +49,9 @@ export default async function HouseholdIncomePage() {
       const currentCpi = cpiRow ? Number(cpiRow.cpi) : null;
       let realMedian = null;
 
-      // Calculate Real Income (Base Year 2008)
+      // Calculate Real Income (Base Year 2008 using official SingStat CPI series)
       if (nominalMedian && currentCpi && currentCpi > 0) {
         realMedian = nominalMedian * (baseCpi / currentCpi);
-      } else if (Number(year) < 2008) {
-        // Fallback for years before 2008 where we don't have CPI data in this dataset
-        realMedian = nominalMedian; 
       }
       
       const d1 = rawDeciles.find((r: any) => r.Dollar === '1st (Lowest)')?.[year];

@@ -27,20 +27,23 @@ export default function TownHeatmap({ data, isAggregated }: { data: any[], isAgg
 
     const grouped = data.reduce((acc, curr) => {
       if (!acc[curr.town]) {
-        acc[curr.town] = { town: curr.town, count: 0, sum: 0 };
+        acc[curr.town] = [];
       }
-      acc[curr.town].count += 1;
-      acc[curr.town].sum += curr.resalePrice;
+      acc[curr.town].push(curr.resalePrice);
       return acc;
-    }, {} as Record<string, { town: string; count: number; sum: number }>);
+    }, {} as Record<string, number[]>);
 
-    return Object.values(grouped)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .map((group: any) => ({
-        town: group.town.length > 10 ? group.town.substring(0, 10) + '...' : group.town,
-        fullTown: group.town,
-        medianPrice: Math.round(group.sum / group.count)
-      }))
+    return (Object.entries(grouped) as [string, number[]][])
+      .map(([town, prices]) => {
+        prices.sort((a, b) => a - b);
+        const mid = Math.floor(prices.length / 2);
+        const median = prices.length % 2 === 1 ? prices[mid] : Math.round((prices[mid - 1] + prices[mid]) / 2);
+        return {
+          town: town.length > 10 ? town.substring(0, 10) + '...' : town,
+          fullTown: town,
+          medianPrice: median
+        };
+      })
       .sort((a, b) => b.medianPrice - a.medianPrice);
   }, [data, isAggregated]);
 

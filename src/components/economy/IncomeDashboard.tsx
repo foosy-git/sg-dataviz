@@ -219,7 +219,7 @@ export default function IncomeDashboard({ initialData }: IncomeDashboardProps) {
             <CardHeader className="pb-4">
               <CardTitle className="font-serif text-2xl text-[#243324]">The Inflation Gap: Real vs. Nominal Income</CardTitle>
               <CardDescription className="text-base text-[#243324]/70 font-sans">
-                Nominal income is what&apos;s on your payslip. Real income is your actual purchasing power (adjusted for inflation, pegged to 2008 prices).
+                Nominal income is what&apos;s on your payslip. Real income is actual purchasing power adjusted against SingStat CPI (pegged to 2008 prices; official CPI series covers 2008 onwards).
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -232,7 +232,7 @@ export default function IncomeDashboard({ initialData }: IncomeDashboardProps) {
                     <RechartsTooltip content={<CustomTooltip />} />
                     <Legend wrapperStyle={{ paddingTop: '20px' }} />
                     <Line type="monotone" name="Nominal Median Income" dataKey="median" stroke="#f43f5e" strokeWidth={2} dot={{ r: 0 }} activeDot={{ r: 6 }} />
-                    <Line type="monotone" name="Real Median Income (Purchasing Power)" dataKey="realMedian" stroke="#10b981" strokeWidth={2} strokeDasharray="5 5" dot={{ r: 0 }} activeDot={{ r: 6 }} />
+                    <Line type="monotone" name="Real Median Income (Purchasing Power)" dataKey="realMedian" stroke="#10b981" strokeWidth={2} strokeDasharray="5 5" dot={{ r: 0 }} activeDot={{ r: 6 }} connectNulls />
                   </LineChart>
                 </ResponsiveContainer>
               </div>

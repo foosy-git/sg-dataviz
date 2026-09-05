@@ -9,7 +9,7 @@ import { DATA_SOURCES } from '@/lib/dataSourceConfig';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  BarChart, Bar
+  BarChart, Bar, Cell
 } from 'recharts';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -41,6 +41,8 @@ export default function ClimateDashboard({ initialData }: { initialData: any[] }
       avg_temp: entry.count_temp > 0 ? Number((entry.sum_temp / entry.count_temp).toFixed(2)) : null,
       avg_rain: entry.count_rain > 0 ? Number((entry.sum_rain / entry.count_rain).toFixed(2)) : null,
       total_rain: entry.count_rain > 0 ? Number(entry.sum_rain.toFixed(2)) : null,
+      monthCount: entry.count_rain,
+      isPartial: entry.count_rain > 0 && entry.count_rain < 12,
     })).filter(d => Number(d.year) >= 1980); // Filter from 1980 onwards for a modern view
   }, [initialData]);
 
@@ -172,7 +174,9 @@ export default function ClimateDashboard({ initialData }: { initialData: any[] }
             <CardContent className="p-6">
               <div className="flex items-center gap-3 mb-2 text-[#243324]/60">
                 <CloudRain className="w-4 h-4" />
-                <span className="text-xs font-semibold uppercase tracking-wider">Total Rainfall {latestYearData.year === '2026' ? '(Year-to-Date)' : ''}</span>
+                <span className="text-xs font-semibold uppercase tracking-wider">
+                  Total Rainfall {latestYearData.isPartial ? `(Year-to-Date • ${latestYearData.monthCount} mos)` : ''}
+                </span>
               </div>
               <div className="text-3xl font-serif text-[#243324] mb-2 flex items-baseline gap-1">
                 {latestYearData.total_rain} <span className="text-sm font-sans font-normal text-gray-500">mm</span>
@@ -234,7 +238,9 @@ export default function ClimateDashboard({ initialData }: { initialData: any[] }
           <Card className="bg-white border-[#243324]/5 shadow-sm overflow-hidden flex flex-col">
             <CardHeader className="border-b border-[#243324]/5 bg-blue-50/30 pb-4">
               <CardTitle className="font-serif text-xl text-blue-900">Historical Rainfall Volume</CardTitle>
-              <CardDescription>Total cumulative rainfall (mm) per year</CardDescription>
+              <CardDescription>
+                Total cumulative rainfall (mm) per year {latestYearData.isPartial ? `(${latestYearData.year} is Year-to-Date based on ${latestYearData.monthCount} months)` : ''}
+              </CardDescription>
             </CardHeader>
             <CardContent className="p-6">
               <div style={{ height: 400, width: '100%' }}>
@@ -256,10 +262,22 @@ export default function ClimateDashboard({ initialData }: { initialData: any[] }
                     />
                     <Tooltip 
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                      formatter={(value: any) => [`${value} mm`, 'Total Rainfall']}
+                      formatter={(value: any, name: any, item: any) => [
+                        `${value} mm${item?.payload?.isPartial ? ` (${item.payload.monthCount} mos YTD)` : ''}`,
+                        'Total Rainfall'
+                      ]}
                       labelFormatter={(label) => `Year: ${label}`}
                     />
-                    <Bar dataKey="total_rain" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="total_rain" radius={[4, 4, 0, 0]}>
+                      {yearlyData.map((entry: any, index: number) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={entry.isPartial ? '#93c5fd' : '#3b82f6'}
+                          stroke={entry.isPartial ? '#2563eb' : 'none'}
+                          strokeDasharray={entry.isPartial ? '3 3' : 'none'}
+                        />
+                      ))}
+                    </Bar>
                   </BarChart>
                 </ResponsiveContainer>
               </div>

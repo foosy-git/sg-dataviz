@@ -30,9 +30,9 @@ export const DATA_SOURCES: Record<string, DataSourceMetadata> = {
     frequency: 'Monthly / Live API',
     additionalSources: [
       {
-        name: 'HDB Historical Resale Price Index (2009-Q1=100)',
-        url: 'https://data.gov.sg/datasets/d_16c57919e0758ebcf5594b29f0469b82/view',
-        id: 'd_16c57919e0758ebcf5594b29f0469b82'
+        name: 'HDB Resale Price Index (1Q2009 = 100), Quarterly',
+        url: 'https://data.gov.sg/datasets/d_14f63e595975691e7c24a27ae4c07c79/view',
+        id: 'd_14f63e595975691e7c24a27ae4c07c79'
       }
     ]
   },

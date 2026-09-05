@@ -26,7 +26,7 @@ export async function GET(request: Request) {
       let recentLiveRecords: any[] = [];
 
       try {
-        const apiUrl = `${API_URL}?resource_id=${RESOURCE_ID}&sort=month%20desc&limit=5000`;
+        const apiUrl = `${API_URL}?resource_id=${RESOURCE_ID}&sort=month%20desc&limit=10000`;
         const headers: Record<string, string> = {};
         if (process.env.DATAGOV_API_KEY) {
           headers['api-key'] = process.env.DATAGOV_API_KEY.trim();
@@ -95,7 +95,7 @@ export async function GET(request: Request) {
     let totalPsf = 0;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const trendMap: Record<string, any> = {};
-    const townMap: Record<string, { town: string; count: number; sum: number }> = {};
+    const townMap: Record<string, { town: string; prices: number[] }> = {};
     const millionDollar = [];
 
     for (const r of allRecords) {
@@ -120,14 +120,20 @@ export async function GET(request: Request) {
       trendMap[r.month][`${r.flatType}_count`] += 1;
       trendMap[r.month][`${r.flatType}_sum`] += r.resalePrice;
 
-      if (!townMap[r.town]) townMap[r.town] = { town: r.town, count: 0, sum: 0 };
-      townMap[r.town].count += 1;
-      townMap[r.town].sum += r.resalePrice;
+      if (!townMap[r.town]) townMap[r.town] = { town: r.town, prices: [] };
+      townMap[r.town].prices.push(r.resalePrice);
 
       if (r.resalePrice >= 1000000) millionDollar.push(r);
     }
 
-    const medianPrice = totalTransactions ? Math.round(totalPrice / totalTransactions) : 0;
+    const calcMedian = (prices: number[]) => {
+      if (prices.length === 0) return 0;
+      prices.sort((a, b) => a - b);
+      const mid = Math.floor(prices.length / 2);
+      return prices.length % 2 === 1 ? prices[mid] : Math.round((prices[mid - 1] + prices[mid]) / 2);
+    };
+
+    const medianPrice = calcMedian(allRecords.map(r => r.resalePrice));
     const avgPsf = totalTransactions ? Math.round(totalPsf / totalTransactions) : 0;
 
     const macroTrend = Object.values(trendMap)
@@ -148,8 +154,8 @@ export async function GET(request: Request) {
       .map(g => ({ 
         town: g.town.length > 10 ? g.town.substring(0,10)+'...' : g.town, 
         fullTown: g.town, 
-        medianPrice: Math.round(g.sum / g.count),
-        volume: g.count 
+        medianPrice: calcMedian(g.prices),
+        volume: g.prices.length 
       }))
       .sort((a, b) => b.medianPrice - a.medianPrice);
 

@@ -1,6 +1,13 @@
 import { format, parseISO } from 'date-fns';
 
-const fetchOpts = { next: { revalidate: 3600 } };
+const headers: Record<string, string> = process.env.DATAGOV_API_KEY 
+  ? { 'api-key': process.env.DATAGOV_API_KEY.trim() } 
+  : {};
+
+const fetchOpts: RequestInit = {
+  headers,
+  next: { revalidate: 3600 }
+} as RequestInit;
 
 export async function fetchDatasetDates() {
   try {

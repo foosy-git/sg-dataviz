@@ -70,7 +70,7 @@ export default async function SingaporeStoryPage() {
     const initYear = (y: number) => {
       if (!yearsMap[y]) yearsMap[y] = { 
         year: y, birthRate: null, medianIncome: null, 
-        coeSum: 0, coeCount: 0, hdbSum: 0, hdbCount: 0, 
+        coeSum: 0, coeCount: 0, hdbAvg: null, hdbSum: 0, hdbCount: 0, 
         tempSum: 0, tempCount: 0, unemployment: null
       };
     };
@@ -124,20 +124,21 @@ export default async function SingaporeStoryPage() {
       }
     }
 
-    // 5. HDB Resale
+    // 5. HDB Resale (Annual Average Price)
     for (const [yStr, avgPrice] of Object.entries(hdbAvgData)) {
       const y = parseInt(yStr);
       initYear(y);
-      yearsMap[y].hdbSum += avgPrice;
-      yearsMap[y].hdbCount += 1;
+      yearsMap[y].hdbAvg = avgPrice;
     }
     for (const row of hdbLiveData) {
-      if (row.month) {
-        if (row.month < '2026-09') continue; // Use live API strictly for Sep 2026 onwards
+      if (row.month && row.resale_price) {
         const y = parseInt(row.month.split('-')[0]);
-        initYear(y);
-        yearsMap[y].hdbSum += Number(row.resale_price);
-        yearsMap[y].hdbCount += 1;
+        // Only accumulate live transactions for years not covered in the benchmark historical dataset
+        if (!hdbAvgData[String(y)]) {
+          initYear(y);
+          yearsMap[y].hdbSum += Number(row.resale_price);
+          yearsMap[y].hdbCount += 1;
+        }
       }
     }
 
@@ -161,7 +162,7 @@ export default async function SingaporeStoryPage() {
       birthRate: d.birthRate,
       medianIncome: d.medianIncome,
       coePremium: d.coeCount > 0 ? Math.round(d.coeSum / d.coeCount) : null,
-      hdbPrice: d.hdbCount > 0 ? Math.round(d.hdbSum / d.hdbCount) : null,
+      hdbPrice: d.hdbAvg !== null && d.hdbAvg !== undefined ? d.hdbAvg : (d.hdbCount > 0 ? Math.round(d.hdbSum / d.hdbCount) : null),
       temperature: d.tempCount > 0 ? Number((d.tempSum / d.tempCount).toFixed(2)) : null,
       unemployment: d.unemployment,
     })).sort((a, b) => a.year - b.year);
