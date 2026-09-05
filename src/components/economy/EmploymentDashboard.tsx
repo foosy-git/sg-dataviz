@@ -7,14 +7,14 @@ import {
   Briefcase,
   TrendingUp,
   Users,
-  AlertTriangle,
-  Scale,
-  Info,
   Calendar,
   ShieldCheck,
   Activity,
   Layers,
-  Sparkles,
+  Download,
+  ExternalLink,
+  Search,
+  ArrowUpDown,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import DashboardNav from '@/components/ui/DashboardNav';
@@ -29,7 +29,7 @@ import {
   Legend,
   BarChart,
   Bar,
-  ComposedChart,
+  AreaChart,
   Area,
   ReferenceLine,
 } from 'recharts';
@@ -64,9 +64,9 @@ function MetricSparkline({
   if (validData.length === 0) return null;
 
   return (
-    <div className="h-14 w-full mt-3">
+    <div className="h-12 w-full mt-2">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={validData} margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
+        <LineChart data={validData} margin={{ top: 2, right: 2, left: 2, bottom: 2 }}>
           <XAxis hide dataKey="year" />
           <YAxis hide domain={['dataMin - 0.2', 'dataMax + 0.2']} />
           <RechartsTooltip
@@ -76,9 +76,9 @@ function MetricSparkline({
                 const item = payload[0].payload as EmploymentRecord;
                 const val = item[dataKey];
                 return (
-                  <div className="bg-[#243324] text-[#FBF9F5] text-[11px] px-2.5 py-1 rounded-md shadow-md font-sans border border-white/10 pointer-events-none">
+                  <div className="bg-[#243324] text-[#FBF9F5] text-[11px] px-2 py-0.5 rounded shadow font-sans border border-white/10 pointer-events-none">
                     <span className="font-semibold text-emerald-300">{item.year}:</span>{' '}
-                    {typeof val === 'number' ? (unit === 'k' ? `${(val / 1000).toFixed(1)}k` : `${val}${unit}`) : 'N/A'}
+                    {typeof val === 'number' ? `${val}${unit}` : 'N/A'}
                   </div>
                 );
               }
@@ -89,9 +89,9 @@ function MetricSparkline({
             type="monotone"
             dataKey={dataKey}
             stroke={color}
-            strokeWidth={2.2}
+            strokeWidth={2}
             dot={false}
-            activeDot={{ r: 4, fill: color, stroke: '#ffffff', strokeWidth: 2 }}
+            activeDot={{ r: 3, fill: color, stroke: '#ffffff', strokeWidth: 2 }}
           />
         </LineChart>
       </ResponsiveContainer>
@@ -101,13 +101,14 @@ function MetricSparkline({
 
 export default function EmploymentDashboard({ data }: EmploymentDashboardProps) {
   const [timeRange, setTimeRange] = useState<'all' | 'last20' | 'last10'>('all');
-  const [showCrises, setShowCrises] = useState<boolean>(true);
+  const [tableSearch, setTableSearch] = useState('');
+  const [sortDescending, setSortDescending] = useState(true);
 
   // Latest and previous records
-  const latestData = data[data.length - 1] || { year: '2026', total: 2.0, resident: 2.9 };
+  const latestData = data[data.length - 1] || { year: '2026', total: 2.0, resident: 2.9, gap: 0.9 };
   const previousData = data.length > 1 ? data[data.length - 2] : null;
 
-  // Accurate Rate YoY Calculations
+  // Rate YoY Calculations
   const totalDiff = latestData.total !== null && previousData?.total !== null && previousData?.total !== undefined
     ? Number((latestData.total - previousData.total).toFixed(1))
     : null;
@@ -116,11 +117,66 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
     ? Number((latestData.resident - previousData.resident).toFixed(1))
     : null;
 
-  const structuralGap = latestData.resident !== null && latestData.total !== null
+  const latestGap = latestData.gap ?? (latestData.resident !== null && latestData.total !== null
     ? Number((latestData.resident - latestData.total).toFixed(1))
-    : 0.9;
+    : null);
 
-  // Format rate difference with correct economic polarity and neutral 0-change handling
+  // Historical Highs and Lows
+  const stats = useMemo(() => {
+    let residentMax = -Infinity;
+    let residentMaxYears: string[] = [];
+    let residentMin = Infinity;
+    let residentMinYears: string[] = [];
+
+    let totalMax = -Infinity;
+    let totalMaxYears: string[] = [];
+    let totalMin = Infinity;
+    let totalMinYears: string[] = [];
+
+    data.forEach(d => {
+      if (d.resident !== null) {
+        if (d.resident > residentMax) {
+          residentMax = d.resident;
+          residentMaxYears = [d.year];
+        } else if (d.resident === residentMax) {
+          residentMaxYears.push(d.year);
+        }
+        if (d.resident < residentMin) {
+          residentMin = d.resident;
+          residentMinYears = [d.year];
+        } else if (d.resident === residentMin) {
+          residentMinYears.push(d.year);
+        }
+      }
+
+      if (d.total !== null) {
+        if (d.total > totalMax) {
+          totalMax = d.total;
+          totalMaxYears = [d.year];
+        } else if (d.total === totalMax) {
+          totalMaxYears.push(d.year);
+        }
+        if (d.total < totalMin) {
+          totalMin = d.total;
+          totalMinYears = [d.year];
+        } else if (d.total === totalMin) {
+          totalMinYears.push(d.year);
+        }
+      }
+    });
+
+    return {
+      residentMax: { val: residentMax, years: residentMaxYears.join(', ') },
+      residentMin: { val: residentMin, years: residentMinYears.join(', ') },
+      totalMax: { val: totalMax, years: totalMaxYears.join(', ') },
+      totalMin: { val: totalMin, years: totalMinYears.join(', ') },
+      count: data.length,
+      startYear: data[0]?.year ?? '1992',
+      endYear: data[data.length - 1]?.year ?? '2026',
+    };
+  }, [data]);
+
+  // Format rate difference objectively
   const formatRateDiff = (diff: number | null) => {
     if (diff === null || isNaN(diff)) {
       return { text: 'N/A', badgeClass: 'bg-slate-100 text-slate-600 border-slate-200' };
@@ -128,23 +184,18 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
     if (Math.abs(diff) < 0.001) {
       return {
         text: '0.0% pts YoY (Unchanged)',
-        badgeClass: 'bg-slate-100 text-slate-700 border-slate-200/80',
-        isNeutral: true,
+        badgeClass: 'bg-slate-100 text-slate-700 border-slate-200',
       };
     }
     if (diff > 0) {
-      // Rise in unemployment is unfavorable (red)
       return {
         text: `+${diff.toFixed(1)}% pts YoY`,
-        badgeClass: 'bg-rose-50 text-rose-700 border-rose-200/70',
-        isUnfavorable: true,
+        badgeClass: 'bg-amber-50 text-amber-800 border-amber-200',
       };
     }
-    // Drop in unemployment is favorable (emerald)
     return {
       text: `${diff.toFixed(1)}% pts YoY`,
-      badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200/70',
-      isFavorable: true,
+      badgeClass: 'bg-sky-50 text-sky-800 border-sky-200',
     };
   };
 
@@ -159,12 +210,76 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
     return data;
   }, [data, timeRange]);
 
-  // Verified retrenchment metrics (2025 Full Year: 14,490 vs 2024: 13,020; 2026 1H YTD: 8,330)
-  const fullYearRetrenchments = 14490; // 2025
-  const retrenchmentYoY = '+11.3% YoY';
-  const latestJVR = latestData.jvr ?? 1.50;
+  // Derived dataset with YoY differences for charts and table
+  const dataWithYoY = useMemo(() => {
+    return data.map((item, idx) => {
+      const prev = idx > 0 ? data[idx - 1] : null;
+      const totalYoY = prev && prev.total !== null && item.total !== null
+        ? Number((item.total - prev.total).toFixed(1))
+        : null;
+      const residentYoY = prev && prev.resident !== null && item.resident !== null
+        ? Number((item.resident - prev.resident).toFixed(1))
+        : null;
+      return {
+        ...item,
+        totalYoY,
+        residentYoY,
+      };
+    });
+  }, [data]);
 
-  // Custom Tooltip for the primary Overall vs Resident trend chart
+  // Filtered dataset with YoY for the selected time range
+  const filteredDataWithYoY = useMemo(() => {
+    if (timeRange === 'last10') {
+      return dataWithYoY.slice(-10);
+    }
+    if (timeRange === 'last20') {
+      return dataWithYoY.slice(-20);
+    }
+    return dataWithYoY;
+  }, [dataWithYoY, timeRange]);
+
+  // Table rows with search and sort
+  const tableRows = useMemo(() => {
+    let rows = [...dataWithYoY];
+    if (tableSearch.trim()) {
+      rows = rows.filter(r => r.year.includes(tableSearch.trim()));
+    }
+    if (sortDescending) {
+      rows.reverse();
+    }
+    return rows;
+  }, [dataWithYoY, tableSearch, sortDescending]);
+
+  // Export CSV handler
+  const handleExportCSV = () => {
+    const headers = [
+      'Year',
+      'Total Unemployment Rate (SA %)',
+      'Resident Unemployment Rate (SA %)',
+      'Difference (Resident - Total % pts)',
+      'Total YoY Change (% pts)',
+      'Resident YoY Change (% pts)',
+    ];
+    const rows = dataWithYoY.map(r => [
+      r.year,
+      r.total !== null ? r.total : '',
+      r.resident !== null ? r.resident : '',
+      r.gap !== null ? r.gap : '',
+      r.totalYoY !== null ? r.totalYoY : '',
+      r.residentYoY !== null ? r.residentYoY : '',
+    ]);
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `singapore_unemployment_rates_${stats.startYear}_${stats.endYear}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Custom Tooltip for the primary line chart
   const PrimaryTrendTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
       const record = payload[0].payload as EmploymentRecord;
@@ -173,51 +288,42 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
       const gapVal = residentVal !== null && totalVal !== null ? (residentVal - totalVal).toFixed(1) : null;
 
       return (
-        <div className="bg-white/95 backdrop-blur-md border border-[#243324]/15 p-4 rounded-xl shadow-xl min-w-[240px]">
-          <div className="flex items-center justify-between border-b border-[#243324]/10 pb-2 mb-2.5">
-            <span className="font-serif font-semibold text-base text-[#243324]">{label}</span>
-            <span className="text-[11px] font-mono text-[#243324]/60 uppercase tracking-wider">End June (SA)</span>
+        <div className="bg-white/95 backdrop-blur-md border border-[#243324]/15 p-3.5 rounded-xl shadow-xl min-w-[220px]">
+          <div className="flex items-center justify-between border-b border-[#243324]/10 pb-2 mb-2">
+            <span className="font-serif font-semibold text-sm text-[#243324]">{label}</span>
+            <span className="text-[11px] font-mono text-[#243324]/60 uppercase">End June (SA)</span>
           </div>
 
-          <div className="space-y-1.5 text-sm">
+          <div className="space-y-1.5 text-xs">
             <div className="flex items-center justify-between">
-              <span className="flex items-center gap-2 text-[#0284c7] font-medium">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#0284c7]" />
+              <span className="flex items-center gap-1.5 text-[#0284c7] font-medium">
+                <span className="w-2 h-2 rounded-full bg-[#0284c7]" />
                 Resident Unemp.
               </span>
-              <span className="font-semibold text-slate-800">
+              <span className="font-mono font-semibold text-slate-800">
                 {residentVal !== null ? `${residentVal.toFixed(1)}%` : 'N/A'}
               </span>
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="flex items-center gap-2 text-[#16a34a] font-medium">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#16a34a]" />
+              <span className="flex items-center gap-1.5 text-[#16a34a] font-medium">
+                <span className="w-2 h-2 rounded-full bg-[#16a34a]" />
                 Overall Unemp.
               </span>
-              <span className="font-semibold text-slate-800">
+              <span className="font-mono font-semibold text-slate-800">
                 {totalVal !== null ? `${totalVal.toFixed(1)}%` : 'N/A'}
               </span>
             </div>
 
             {gapVal !== null && (
-              <div className="pt-2 mt-1 border-t border-dashed border-[#243324]/10 flex items-center justify-between text-xs text-[#243324]/70">
-                <span className="flex items-center gap-1.5">
-                  <Layers className="w-3.5 h-3.5 text-amber-600" />
-                  Resident-Overall Gap:
+              <div className="pt-2 mt-1 border-t border-[#243324]/10 flex items-center justify-between text-[#243324]/70">
+                <span className="flex items-center gap-1">
+                  <Layers className="w-3 h-3 text-amber-600" />
+                  Difference:
                 </span>
                 <span className="font-mono font-medium text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/50">
                   +{gapVal}% pts
                 </span>
-              </div>
-            )}
-
-            {record.crisis && (
-              <div className="mt-2.5 pt-2 border-t border-[#243324]/10 bg-rose-50/70 p-2 rounded-lg border border-rose-200/60">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-rose-800">
-                  <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
-                  {record.crisis}
-                </div>
               </div>
             )}
           </div>
@@ -249,14 +355,14 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
                 <Briefcase className="w-5 h-5" />
               </div>
               <h1 className="text-xl font-serif tracking-tight text-[#243324] hidden md:block">
-                Economy & Employment
+                Employment &amp; Job Market
               </h1>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200/60 shadow-xs">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              Verified Official Data
+              data.gov.sg
             </span>
             <DashboardNav />
           </div>
@@ -269,13 +375,13 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
           <div>
             <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#243324]/60 uppercase tracking-widest mb-2">
               <Activity className="w-3.5 h-3.5 text-emerald-600" />
-              Singapore Labour Market Monitor
+              Singapore Labour Market Data
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#243324] tracking-tight mb-3">
-              Employment & Job Market
+              Employment &amp; Job Market
             </h1>
             <p className="text-base md:text-lg text-[#243324]/75 max-w-3xl font-light leading-relaxed">
-              Official analysis of Singapore&apos;s overall and resident unemployment rates, structural citizen-foreigner divergence, retrenchment cycles, and job vacancy ratios from 1992 to present.
+              Official overall and resident unemployment rates (seasonally adjusted, end June) from 1992 to {stats.endYear}, sourced directly from data.gov.sg.
             </p>
           </div>
 
@@ -287,7 +393,7 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
             </span>
             <div className="flex flex-wrap items-center gap-1 p-1 bg-white rounded-lg border border-[#243324]/15 shadow-sm max-w-full">
               {[
-                { key: 'all', label: 'All (1992–Present)' },
+                { key: 'all', label: `All (${stats.startYear}–${stats.endYear})` },
                 { key: 'last20', label: 'Last 20 Years' },
                 { key: 'last10', label: 'Last 10 Years' },
               ].map(t => (
@@ -307,10 +413,10 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
           </div>
         </div>
 
-        {/* Top 4 KPI Metrics Cards with Sparkline Visual Trends */}
+        {/* 4 Factual KPI Cards from data.gov.sg */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-          {/* Card 1: Overall Unemployment */}
-          <Card className="bg-white border-[#243324]/10 shadow-sm hover:shadow-md transition-shadow">
+          {/* Card 1: Overall Unemployment Rate */}
+          <Card className="bg-white border-[#243324]/10 shadow-sm">
             <CardContent className="p-5 flex flex-col justify-between h-full">
               <div>
                 <div className="flex items-center justify-between mb-2">
@@ -336,19 +442,18 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
                 </div>
               </div>
 
-              {/* Mini Sparkline for Overall Unemployment */}
               <div className="pt-2 border-t border-[#243324]/5 mt-3">
                 <div className="flex items-center justify-between text-[11px] text-[#243324]/60 mb-0.5">
                   <span>Overall Trend</span>
-                  <span>1992–{latestData.year}</span>
+                  <span>{stats.startYear}–{stats.endYear}</span>
                 </div>
                 <MetricSparkline data={data} dataKey="total" color="#16a34a" unit="%" />
               </div>
             </CardContent>
           </Card>
 
-          {/* Card 2: Resident Unemployment */}
-          <Card className="bg-white border-[#243324]/10 shadow-sm hover:shadow-md transition-shadow">
+          {/* Card 2: Resident Unemployment Rate */}
+          <Card className="bg-white border-[#243324]/10 shadow-sm">
             <CardContent className="p-5 flex flex-col justify-between h-full">
               <div>
                 <div className="flex items-center justify-between mb-2">
@@ -374,135 +479,104 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
                 </div>
               </div>
 
-              {/* Mini Sparkline for Resident Unemployment */}
               <div className="pt-2 border-t border-[#243324]/5 mt-3">
                 <div className="flex items-center justify-between text-[11px] text-[#243324]/60 mb-0.5">
                   <span>Resident Trend</span>
-                  <span>1992–{latestData.year}</span>
+                  <span>{stats.startYear}–{stats.endYear}</span>
                 </div>
                 <MetricSparkline data={data} dataKey="resident" color="#0284c7" unit="%" />
               </div>
             </CardContent>
           </Card>
 
-          {/* Card 3: Retrenchments */}
-          <Card className="bg-white border-[#243324]/10 shadow-sm hover:shadow-md transition-shadow">
+          {/* Card 3: Resident - Overall Difference */}
+          <Card className="bg-white border-[#243324]/10 shadow-sm">
             <CardContent className="p-5 flex flex-col justify-between h-full">
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2 text-[#243324]/70">
-                    <AlertTriangle className="w-4 h-4 text-rose-600" />
-                    <span className="text-xs font-semibold uppercase tracking-wider">Retrenchments</span>
+                    <Layers className="w-4 h-4 text-amber-600" />
+                    <span className="text-xs font-semibold uppercase tracking-wider">Difference</span>
                   </div>
                   <span className="text-[11px] font-mono font-medium px-2 py-0.5 rounded bg-[#243324]/5 text-[#243324]/70">
-                    Full-Year 2025
+                    Resident − Total
                   </span>
                 </div>
                 <div className="flex items-baseline gap-2 mb-1.5">
                   <span className="text-3xl md:text-4xl font-serif text-[#243324] font-medium tracking-tight">
-                    {fullYearRetrenchments.toLocaleString()}
+                    {latestGap !== null ? `+${latestGap.toFixed(1)}% pts` : 'N/A'}
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-xs text-[#243324]/70">
-                  <span className="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-md border bg-rose-50 text-rose-700 border-rose-200/70">
-                    {retrenchmentYoY}
-                  </span>
-                  <span className="text-[11px] text-[#243324]/60">8,330 in 1H 2026 YTD</span>
+                <div className="text-xs text-[#243324]/70">
+                  <span>In {latestData.year}: Resident {latestData.resident}% vs Total {latestData.total}%</span>
                 </div>
               </div>
 
-              {/* Mini Sparkline for Retrenchments */}
               <div className="pt-2 border-t border-[#243324]/5 mt-3">
                 <div className="flex items-center justify-between text-[11px] text-[#243324]/60 mb-0.5">
-                  <span>Layoffs Trend</span>
-                  <span>1998–2025</span>
+                  <span>Difference Trend</span>
+                  <span>{stats.startYear}–{stats.endYear}</span>
                 </div>
-                <MetricSparkline data={data} dataKey="retrenchments" color="#dc2626" unit="" />
+                <MetricSparkline data={data} dataKey="gap" color="#d97706" unit="% pts" />
               </div>
             </CardContent>
           </Card>
 
-          {/* Card 4: Job Vacancy Ratio */}
-          <Card className="bg-white border-[#243324]/10 shadow-sm hover:shadow-md transition-shadow">
+          {/* Card 4: Historical Series Summary */}
+          <Card className="bg-white border-[#243324]/10 shadow-sm">
             <CardContent className="p-5 flex flex-col justify-between h-full">
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2 text-[#243324]/70">
-                    <Scale className="w-4 h-4 text-emerald-600" />
-                    <span className="text-xs font-semibold uppercase tracking-wider">Job Vacancy Ratio</span>
+                    <Calendar className="w-4 h-4 text-[#243324]" />
+                    <span className="text-xs font-semibold uppercase tracking-wider">Series Range</span>
                   </div>
                   <span className="text-[11px] font-mono font-medium px-2 py-0.5 rounded bg-[#243324]/5 text-[#243324]/70">
-                    1Q 2026 (SA)
+                    {stats.count} Years
                   </span>
                 </div>
                 <div className="flex items-baseline gap-2 mb-1.5">
                   <span className="text-3xl md:text-4xl font-serif text-[#243324] font-medium tracking-tight">
-                    {latestJVR.toFixed(2)}
+                    {stats.startYear}–{stats.endYear}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-md border ${
-                      latestJVR >= 1.0
-                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200/70'
-                        : 'bg-rose-50 text-rose-700 border-rose-200/70'
-                    }`}
-                  >
-                    {latestJVR >= 1.0 ? '1.50 openings / seeker' : 'More seekers than jobs'}
-                  </span>
+                <div className="text-xs text-[#243324]/70 space-y-0.5">
+                  <div>Resident Peak: <strong className="text-slate-800">{stats.residentMax.val}%</strong> ({stats.residentMax.years})</div>
+                  <div>Overall Peak: <strong className="text-slate-800">{stats.totalMax.val}%</strong> ({stats.totalMax.years})</div>
                 </div>
               </div>
 
-              {/* Mini Sparkline for JVR */}
-              <div className="pt-2 border-t border-[#243324]/5 mt-3">
-                <div className="flex items-center justify-between text-[11px] text-[#243324]/60 mb-0.5">
-                  <span>Openings/Seeker</span>
-                  <span>1994–2026</span>
-                </div>
-                <MetricSparkline data={data} dataKey="jvr" color="#10b981" unit="" />
+              <div className="pt-2 border-t border-[#243324]/5 mt-3 text-[11px] text-[#243324]/60 flex items-center justify-between">
+                <span>Lowest Resident: {stats.residentMin.val}% ({stats.residentMin.years})</span>
+                <span>Lowest Total: {stats.totalMin.val}%</span>
               </div>
             </CardContent>
           </Card>
         </div>
 
         {/* PRIMARY FEATURE VISUAL TREND CHART: Overall vs. Resident Unemployment Rate */}
-        <Card className="bg-white border-[#243324]/10 shadow-sm mb-12 overflow-hidden">
-          <CardHeader className="border-b border-[#243324]/10 pb-4 bg-gradient-to-r from-white via-white to-emerald-50/20">
+        <Card className="bg-white border-[#243324]/10 shadow-sm mb-10 overflow-hidden">
+          <CardHeader className="border-b border-[#243324]/10 pb-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#0284c7] uppercase tracking-wider mb-1">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  Primary Unemployment Metric
-                </div>
                 <CardTitle className="font-serif text-2xl md:text-3xl text-[#243324]">
                   Visual Trend: Overall vs. Resident Unemployment Rate
                 </CardTitle>
                 <CardDescription className="text-sm md:text-base text-[#243324]/75 mt-1">
-                  Comparing Singapore&apos;s total workforce unemployment rate against resident (citizen &amp; PR) rates from 1992 to present (End June, Seasonally Adjusted).
+                  Comparison of Singapore&apos;s total workforce unemployment rate against resident (citizen &amp; PR) rates from {stats.startYear} to {stats.endYear} (End June, Seasonally Adjusted).
                 </CardDescription>
               </div>
 
-              {/* Toggle Crisis Markers */}
-              <div className="flex items-center gap-2 self-start md:self-auto">
-                <button
-                  onClick={() => setShowCrises(!showCrises)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
-                    showCrises
-                      ? 'bg-rose-50 text-rose-800 border-rose-200 hover:bg-rose-100'
-                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                  }`}
-                >
-                  <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
-                  {showCrises ? 'Hide Crisis Events' : 'Show Crisis Events'}
-                </button>
+              <div className="text-xs font-mono text-[#243324]/60 bg-[#243324]/5 px-3 py-1.5 rounded-lg self-start md:self-auto">
+                Dataset: d_285a079d823a1cc22dffb9cac325f81a
               </div>
             </div>
 
-            {/* Quick Stat Pill Bar */}
+            {/* Factual Quick Stat Pill Bar */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 mt-2 border-t border-[#243324]/5">
               <div className="p-2.5 rounded-lg bg-[#0284c7]/5 border border-[#0284c7]/10">
                 <span className="text-[11px] font-semibold text-[#0284c7] uppercase tracking-wider block">
-                  Latest Resident
+                  Latest Resident ({latestData.year})
                 </span>
                 <span className="text-lg font-serif font-semibold text-[#243324]">
                   {latestData.resident !== null ? `${latestData.resident.toFixed(1)}%` : 'N/A'}
@@ -512,7 +586,7 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
 
               <div className="p-2.5 rounded-lg bg-[#16a34a]/5 border border-[#16a34a]/10">
                 <span className="text-[11px] font-semibold text-[#16a34a] uppercase tracking-wider block">
-                  Latest Overall
+                  Latest Overall ({latestData.year})
                 </span>
                 <span className="text-lg font-serif font-semibold text-[#243324]">
                   {latestData.total !== null ? `${latestData.total.toFixed(1)}%` : 'N/A'}
@@ -522,37 +596,37 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
 
               <div className="p-2.5 rounded-lg bg-amber-500/5 border border-amber-500/10">
                 <span className="text-[11px] font-semibold text-amber-700 uppercase tracking-wider block">
-                  Citizen-Buffer Gap
+                  Resident − Overall Difference
                 </span>
                 <span className="text-lg font-serif font-semibold text-amber-900">
-                  +{structuralGap}% pts
+                  {latestGap !== null ? `+${latestGap.toFixed(1)}% pts` : 'N/A'}
                 </span>
-                <span className="text-[11px] text-[#243324]/60 block">Resident - Overall</span>
+                <span className="text-[11px] text-[#243324]/60 block">Arithmetic Gap</span>
               </div>
 
               <div className="p-2.5 rounded-lg bg-slate-500/5 border border-slate-500/10">
                 <span className="text-[11px] font-semibold text-slate-700 uppercase tracking-wider block">
-                  Historical Peak
+                  Historical Peak (Resident)
                 </span>
                 <span className="text-lg font-serif font-semibold text-slate-900">
-                  4.7% Resident
+                  {stats.residentMax.val}%
                 </span>
-                <span className="text-[11px] text-[#243324]/60 block">SARS (2003)</span>
+                <span className="text-[11px] text-[#243324]/60 block">Years: {stats.residentMax.years}</span>
               </div>
             </div>
           </CardHeader>
 
           <CardContent className="p-6">
-            <div className="h-[430px] w-full">
+            <div className="h-[420px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={filteredData} margin={{ top: 25, right: 30, left: 10, bottom: 10 }}>
+                <LineChart data={filteredData} margin={{ top: 20, right: 30, left: 10, bottom: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#24332415" />
                   <XAxis
                     dataKey="year"
                     axisLine={false}
                     tickLine={false}
                     tick={{ fontSize: 12, fill: '#24332490' }}
-                    minTickGap={24}
+                    minTickGap={20}
                     dy={5}
                   />
                   <YAxis
@@ -571,196 +645,55 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
                     iconType="circle"
                   />
 
-                  {/* Crisis Markers */}
-                  {showCrises && (
-                    <>
-                      <ReferenceLine
-                        x="1998"
-                        stroke="#dc2626"
-                        strokeDasharray="4 4"
-                        strokeWidth={1.5}
-                        label={{
-                          value: 'Asian Fin. Crisis (1998)',
-                          position: 'insideTopLeft',
-                          fill: '#dc2626',
-                          fontSize: 10,
-                        }}
-                      />
-                      <ReferenceLine
-                        x="2003"
-                        stroke="#dc2626"
-                        strokeDasharray="4 4"
-                        strokeWidth={1.5}
-                        label={{
-                          value: 'SARS Peak 4.7% (2003)',
-                          position: 'insideTopLeft',
-                          fill: '#dc2626',
-                          fontSize: 10,
-                        }}
-                      />
-                      <ReferenceLine
-                        x="2009"
-                        stroke="#dc2626"
-                        strokeDasharray="4 4"
-                        strokeWidth={1.5}
-                        label={{
-                          value: 'GFC Peak 4.5% (2009)',
-                          position: 'insideTopLeft',
-                          fill: '#dc2626',
-                          fontSize: 10,
-                        }}
-                      />
-                      <ReferenceLine
-                        x="2020"
-                        stroke="#dc2626"
-                        strokeDasharray="4 4"
-                        strokeWidth={1.5}
-                        label={{
-                          value: 'COVID-19 4.1% (2020)',
-                          position: 'insideTopLeft',
-                          fill: '#dc2626',
-                          fontSize: 10,
-                        }}
-                      />
-                    </>
-                  )}
-
-                  {/* Lines for Resident and Overall */}
+                  {/* Factual Lines for Resident and Overall */}
                   <Line
                     type="monotone"
                     dataKey="resident"
                     name="Resident Unemployment Rate"
                     stroke="#0284c7"
-                    strokeWidth={3.5}
+                    strokeWidth={3}
                     dot={{ r: 2.5, fill: '#0284c7', strokeWidth: 0 }}
-                    activeDot={{ r: 7, fill: '#0284c7', stroke: '#ffffff', strokeWidth: 2 }}
+                    activeDot={{ r: 6, fill: '#0284c7', stroke: '#ffffff', strokeWidth: 2 }}
                   />
                   <Line
                     type="monotone"
                     dataKey="total"
                     name="Overall Unemployment Rate"
                     stroke="#16a34a"
-                    strokeWidth={3}
+                    strokeWidth={2.5}
                     dot={{ r: 2.5, fill: '#16a34a', strokeWidth: 0 }}
-                    activeDot={{ r: 7, fill: '#16a34a', stroke: '#ffffff', strokeWidth: 2 }}
+                    activeDot={{ r: 6, fill: '#16a34a', stroke: '#ffffff', strokeWidth: 2 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
             </div>
-
-            <div className="mt-4 p-3 bg-[#FBF9F5] rounded-lg border border-[#243324]/10 text-xs text-[#243324]/75 flex items-start gap-2.5">
-              <Info className="w-4 h-4 text-[#0284c7] shrink-0 mt-0.5" />
-              <span>
-                <strong>Understanding the Gap:</strong> Resident unemployment is consistently 0.7% to 1.1% points higher than the overall rate. This is because non-resident work pass holders (WP, S-Pass, EP) must hold valid employment to stay in Singapore. If laid off, their passes are revoked, which keeps non-resident unemployment near zero and acts as an employment shock absorber for the wider economy.
-              </span>
-            </div>
           </CardContent>
         </Card>
 
-        {/* 3 Secondary Detailed Charts Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          {/* Demographic Age Group Unemployment */}
-          <Card className="bg-white border-[#243324]/10 shadow-sm lg:col-span-2">
-            <CardHeader className="border-b border-[#243324]/10 pb-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                  <CardTitle className="font-serif text-2xl text-[#243324]">
-                    Resident Unemployment by Demographic Age Group
-                  </CardTitle>
-                  <CardDescription className="text-sm text-[#243324]/75 mt-0.5">
-                    Official SingStat Table M183401: Youth jobseekers (15–24) transition into entry-level roles, leading to higher frictional unemployment compared to mid-career and senior workers (50+).
-                  </CardDescription>
-                </div>
-                <span className="text-xs font-mono text-[#243324]/60 bg-[#243324]/5 px-2 py-1 rounded">
-                  SingStat M183401
-                </span>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="h-[380px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={filteredData} margin={{ top: 20, right: 30, left: 10, bottom: 10 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#24332415" />
-                    <XAxis
-                      dataKey="year"
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 12, fill: '#24332490' }}
-                      minTickGap={20}
-                    />
-                    <YAxis
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 12, fill: '#24332490' }}
-                      tickFormatter={v => `${v}%`}
-                      dx={-10}
-                      domain={[0, 12]}
-                    />
-                    <RechartsTooltip
-                      contentStyle={{
-                        borderRadius: '10px',
-                        border: '1px solid rgba(36, 51, 36, 0.15)',
-                        backgroundColor: '#ffffff',
-                        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                      }}
-                      formatter={(value: any) => [`${value}%`, '']}
-                    />
-                    <Legend wrapperStyle={{ paddingTop: '15px' }} iconType="circle" />
-                    <Line
-                      type="monotone"
-                      dataKey="youthUnemp"
-                      name="Youth (15–24 Years)"
-                      stroke="#f59e0b"
-                      strokeWidth={2.5}
-                      dot={false}
-                      activeDot={{ r: 6 }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="resident"
-                      name="Average Resident (All Ages)"
-                      stroke="#0284c7"
-                      strokeWidth={3}
-                      dot={false}
-                      activeDot={{ r: 6 }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="olderUnemp"
-                      name="Seniors (50 & Over)"
-                      stroke="#16a34a"
-                      strokeWidth={2.5}
-                      dot={false}
-                      activeDot={{ r: 6 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Historical Retrenchments Chart */}
+        {/* 2 Factual Secondary Charts: Gap Trend & YoY Changes */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+          {/* Chart 1: Annual Resident - Overall Difference */}
           <Card className="bg-white border-[#243324]/10 shadow-sm">
             <CardHeader className="border-b border-[#243324]/10 pb-4">
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="font-serif text-xl text-[#243324]">
-                    Historical Retrenchments (Layoffs)
+                    Resident − Overall Rate Difference
                   </CardTitle>
                   <CardDescription className="text-sm text-[#243324]/75 mt-0.5">
-                    Ministry of Manpower annual retrenchment records (1998–2025).
+                    Annual difference in percentage points (Resident Rate minus Total Rate).
                   </CardDescription>
                 </div>
                 <span className="text-xs font-mono text-[#243324]/60 bg-[#243324]/5 px-2 py-1 rounded">
-                  MOM MRSD
+                  Percentage Points (% pts)
                 </span>
               </div>
             </CardHeader>
             <CardContent className="p-6">
-              <div className="h-[340px] w-full">
+              <div className="h-[320px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={filteredData.filter(d => d.retrenchments !== null)}
+                  <AreaChart
+                    data={filteredData.filter(d => d.gap !== null)}
                     margin={{ top: 20, right: 10, left: 5, bottom: 10 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#24332415" />
@@ -775,8 +708,9 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
                       axisLine={false}
                       tickLine={false}
                       tick={{ fontSize: 12, fill: '#24332490' }}
-                      tickFormatter={v => `${v / 1000}k`}
+                      tickFormatter={v => `+${v}%`}
                       dx={-10}
+                      domain={[0, 2]}
                     />
                     <RechartsTooltip
                       contentStyle={{
@@ -785,118 +719,234 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
                         backgroundColor: '#ffffff',
                         boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
                       }}
-                      formatter={(value: any) => [value?.toLocaleString(), 'Retrenchments']}
+                      formatter={(value: any) => [`+${value}% pts`, 'Resident − Total Difference']}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="gap"
+                      name="Rate Difference"
+                      fill="#d97706"
+                      fillOpacity={0.2}
+                      stroke="#d97706"
+                      strokeWidth={2.5}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Chart 2: Year-over-Year Rate Changes */}
+          <Card className="bg-white border-[#243324]/10 shadow-sm">
+            <CardHeader className="border-b border-[#243324]/10 pb-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="font-serif text-xl text-[#243324]">
+                    Annual Year-over-Year Changes
+                  </CardTitle>
+                  <CardDescription className="text-sm text-[#243324]/75 mt-0.5">
+                    Year-on-year change in percentage points for Total and Resident unemployment.
+                  </CardDescription>
+                </div>
+                <span className="text-xs font-mono text-[#243324]/60 bg-[#243324]/5 px-2 py-1 rounded">
+                  YoY Δ (% pts)
+                </span>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="h-[320px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={filteredDataWithYoY.filter(d => d.totalYoY !== null || d.residentYoY !== null)}
+                    margin={{ top: 20, right: 10, left: 5, bottom: 10 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#24332415" />
+                    <XAxis
+                      dataKey="year"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12, fill: '#24332490' }}
+                      minTickGap={20}
+                    />
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12, fill: '#24332490' }}
+                      tickFormatter={v => `${v > 0 ? `+${v}` : v}%`}
+                      dx={-10}
+                    />
+                    <ReferenceLine y={0} stroke="#94a3b8" strokeWidth={1} />
+                    <RechartsTooltip
+                      contentStyle={{
+                        borderRadius: '10px',
+                        border: '1px solid rgba(36, 51, 36, 0.15)',
+                        backgroundColor: '#ffffff',
+                        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                      }}
+                      formatter={(value: any) => [`${value !== null ? (value > 0 ? `+${value}` : value) : 'N/A'}% pts`, '']}
+                    />
+                    <Legend wrapperStyle={{ paddingTop: '10px' }} iconType="circle" />
+                    <Bar
+                      dataKey="residentYoY"
+                      name="Resident YoY Δ"
+                      fill="#0284c7"
+                      fillOpacity={0.85}
+                      radius={[2, 2, 0, 0]}
                     />
                     <Bar
-                      dataKey="retrenchments"
-                      name="Retrenched Employees"
-                      fill="#dc2626"
+                      dataKey="totalYoY"
+                      name="Overall YoY Δ"
+                      fill="#16a34a"
                       fillOpacity={0.85}
-                      radius={[4, 4, 0, 0]}
+                      radius={[2, 2, 0, 0]}
                     />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             </CardContent>
           </Card>
-
-          {/* Job Vacancy to Unemployed Ratio Chart */}
-          <Card className="bg-white border-[#243324]/10 shadow-sm">
-            <CardHeader className="border-b border-[#243324]/10 pb-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="font-serif text-xl text-[#243324]">
-                    Job Vacancy to Unemployed Ratio (JVR)
-                  </CardTitle>
-                  <CardDescription className="text-sm text-[#243324]/75 mt-0.5">
-                    SingStat Table M181641: Ratio &gt; 1.0 indicates more vacancies than jobseekers.
-                  </CardDescription>
-                </div>
-                <span className="text-xs font-mono text-[#243324]/60 bg-[#243324]/5 px-2 py-1 rounded">
-                  SingStat M181641
-                </span>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="h-[340px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart
-                    data={filteredData.filter(d => d.jvr !== null)}
-                    margin={{ top: 20, right: 10, left: 5, bottom: 10 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#24332415" />
-                    <XAxis
-                      dataKey="year"
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 12, fill: '#24332490' }}
-                      minTickGap={20}
-                    />
-                    <YAxis
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 12, fill: '#24332490' }}
-                      dx={-10}
-                      domain={[0, 3]}
-                    />
-                    <RechartsTooltip
-                      contentStyle={{
-                        borderRadius: '10px',
-                        border: '1px solid rgba(36, 51, 36, 0.15)',
-                        backgroundColor: '#ffffff',
-                        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                      }}
-                      formatter={(value: any) => [`${value} openings / seeker`, 'JVR']}
-                    />
-                    {/* Parity Reference Line at 1.0 */}
-                    <ReferenceLine
-                      y={1.0}
-                      stroke="#64748b"
-                      strokeDasharray="4 4"
-                      strokeWidth={1.5}
-                      label={{
-                        value: 'Parity (1.0)',
-                        position: 'insideTopRight',
-                        fill: '#64748b',
-                        fontSize: 11,
-                      }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="jvr"
-                      name="Job Vacancy Ratio"
-                      fill="#10b981"
-                      fillOpacity={0.15}
-                      stroke="#10b981"
-                      strokeWidth={3}
-                    />
-                  </ComposedChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
         </div>
 
-        {/* Data Citations & Methodology Footer */}
+        {/* Complete Factual Data Table from data.gov.sg */}
+        <Card className="bg-white border-[#243324]/10 shadow-sm mb-10 overflow-hidden">
+          <CardHeader className="border-b border-[#243324]/10 pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <CardTitle className="font-serif text-xl text-[#243324]">
+                  Factual Records Table
+                </CardTitle>
+                <CardDescription className="text-sm text-[#243324]/75 mt-0.5">
+                  Complete annual records as published on data.gov.sg ({stats.startYear}–{stats.endYear}).
+                </CardDescription>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-[#243324]/40 pointer-events-none" />
+                  <input
+                    type="text"
+                    placeholder="Search year..."
+                    value={tableSearch}
+                    onChange={e => setTableSearch(e.target.value)}
+                    className="pl-8 pr-3 py-1.5 text-xs bg-[#FBF9F5] border border-[#243324]/15 rounded-md focus:outline-none focus:ring-1 focus:ring-[#243324]/30 w-32 sm:w-40"
+                  />
+                </div>
+
+                <button
+                  onClick={() => setSortDescending(!sortDescending)}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium border border-[#243324]/15 rounded-md hover:bg-[#243324]/5 text-[#243324]/70 transition-colors cursor-pointer"
+                  title="Toggle sort order"
+                >
+                  <ArrowUpDown className="w-3.5 h-3.5" />
+                  <span>{sortDescending ? 'Newest First' : 'Oldest First'}</span>
+                </button>
+
+                <button
+                  onClick={handleExportCSV}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-[#243324] text-[#FBF9F5] rounded-md hover:bg-[#243324]/90 transition-colors cursor-pointer shadow-xs"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Export CSV</span>
+                </button>
+              </div>
+            </div>
+          </CardHeader>
+
+          <CardContent className="p-0">
+            <div className="overflow-x-auto max-h-[460px] overflow-y-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead className="sticky top-0 bg-[#FBF9F5] border-b border-[#243324]/10 text-[#243324]/70 font-semibold uppercase tracking-wider z-10">
+                  <tr>
+                    <th className="py-3 px-4">Year</th>
+                    <th className="py-3 px-4">Total Unemployment Rate (SA)</th>
+                    <th className="py-3 px-4">Resident Unemployment Rate (SA)</th>
+                    <th className="py-3 px-4">Difference (Resident − Total)</th>
+                    <th className="py-3 px-4">Total YoY Δ</th>
+                    <th className="py-3 px-4">Resident YoY Δ</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#243324]/5">
+                  {tableRows.map(row => (
+                    <tr key={row.year} className="hover:bg-[#243324]/[0.02] transition-colors">
+                      <td className="py-2.5 px-4 font-mono font-medium text-[#243324]">
+                        {row.year}
+                      </td>
+                      <td className="py-2.5 px-4 font-mono text-slate-800">
+                        {row.total !== null ? `${row.total.toFixed(1)}%` : '—'}
+                      </td>
+                      <td className="py-2.5 px-4 font-mono text-slate-800">
+                        {row.resident !== null ? `${row.resident.toFixed(1)}%` : '—'}
+                      </td>
+                      <td className="py-2.5 px-4 font-mono text-amber-800">
+                        {row.gap !== null ? `+${row.gap.toFixed(1)}% pts` : '—'}
+                      </td>
+                      <td className="py-2.5 px-4 font-mono text-slate-600">
+                        {row.totalYoY !== null
+                          ? row.totalYoY > 0
+                            ? `+${row.totalYoY.toFixed(1)}% pts`
+                            : `${row.totalYoY.toFixed(1)}% pts`
+                          : '—'}
+                      </td>
+                      <td className="py-2.5 px-4 font-mono text-slate-600">
+                        {row.residentYoY !== null
+                          ? row.residentYoY > 0
+                            ? `+${row.residentYoY.toFixed(1)}% pts`
+                            : `${row.residentYoY.toFixed(1)}% pts`
+                          : '—'}
+                      </td>
+                    </tr>
+                  ))}
+                  {tableRows.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="py-8 text-center text-[#243324]/60">
+                        No records matching &quot;{tableSearch}&quot;.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Data Citations & Dataset Metadata (Strictly Factual) */}
         <div className="p-6 rounded-xl bg-white border border-[#243324]/10 shadow-sm text-sm text-[#243324]/80">
-          <h3 className="font-serif text-lg text-[#243324] font-semibold mb-2">
-            Data Sources &amp; Statistical Methodology
-          </h3>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 pb-3 border-b border-[#243324]/10">
+            <h3 className="font-serif text-lg text-[#243324] font-semibold">
+              Dataset Information &amp; Official Source
+            </h3>
+            <a
+              href="https://data.gov.sg/datasets/d_285a079d823a1cc22dffb9cac325f81a/view"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-xs text-[#0284c7] hover:underline"
+            >
+              <span>View dataset on data.gov.sg</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs leading-relaxed text-[#243324]/75">
             <div>
-              <p className="mb-1.5">
-                <strong>Unemployment Rates (SA):</strong> Sourced from Ministry of Manpower &amp; Singapore Department of Statistics (Table M182332 / data.gov.sg). Seasonally adjusted end-June figures eliminate seasonal holiday/graduate hiring distortions.
+              <p className="mb-2">
+                <strong>Source Agency:</strong> Ministry of Manpower (MOM) / Singapore Department of Statistics.
+              </p>
+              <p className="mb-2">
+                <strong>Dataset:</strong> Total and Resident Unemployment Rate, Seasonally Adjusted, End June (Resource ID: <code>d_285a079d823a1cc22dffb9cac325f81a</code>).
               </p>
               <p>
-                <strong>Resident vs Overall:</strong> Total workforce covers Singapore Residents (Citizens &amp; PRs) and non-residents holding work passes. Because work passes are contingent on active employment, non-resident unemployment is minimal.
+                <strong>Coverage:</strong> Annual observations from {stats.startYear} to {stats.endYear} (as of End June each year).
               </p>
             </div>
             <div>
-              <p className="mb-1.5">
-                <strong>Retrenchment Series:</strong> Published by MOM Manpower Research &amp; Statistics Department (MRSD) tracking permanent and term-contract employee layoffs due to redundancy across private and public sectors.
+              <p className="mb-2">
+                <strong>Total Unemployment Rate:</strong> Seasonally adjusted unemployment rate for the total labour force in Singapore.
+              </p>
+              <p className="mb-2">
+                <strong>Resident Unemployment Rate:</strong> Seasonally adjusted unemployment rate for Singapore Residents (Singapore Citizens and Permanent Residents).
               </p>
               <p>
-                <strong>Job Vacancy to Unemployed Ratio (JVR):</strong> SingStat Table M181641 measuring labour market tightness. A ratio above 1.0 signifies more job openings than unemployed persons.
+                <strong>Seasonal Adjustment (SA):</strong> Standard statistical technique applied by MOM to eliminate regular seasonal fluctuations to reflect underlying economic trends.
               </p>
             </div>
           </div>

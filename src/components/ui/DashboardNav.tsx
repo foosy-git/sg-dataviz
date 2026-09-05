@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
@@ -25,7 +25,7 @@ export const DASHBOARD_LINKS = [
   { href: '/singapore-story', label: 'The Singapore Story', icon: Sparkles, desc: 'Cross-decade indicator timeline' },
   { href: '/hdb', label: 'HDB Housing', icon: Building2, desc: 'Resale prices & lease decay' },
   { href: '/economy/income', label: 'Income & Wages', icon: DollarSign, desc: 'Household income & inequality' },
-  { href: '/economy/employment', label: 'Employment & Labor', icon: TrendingUp, desc: 'Jobs, retrenchment & unemployment' },
+  { href: '/economy/employment', label: 'Employment & Labor', icon: TrendingUp, desc: 'Overall & resident unemployment rates' },
   { href: '/education/ges', label: 'Graduate Employment', icon: GraduationCap, desc: 'University degrees & starting pay' },
   { href: '/demographics/birth-rates', label: 'Birth Rates & TFR', icon: Users, desc: 'Demographics & fertility trends' },
   { href: '/transport/coe', label: 'COE Bidding', icon: Car, desc: 'Vehicle quota premiums & quotas' },
