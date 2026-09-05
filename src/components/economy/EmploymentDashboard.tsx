@@ -6,18 +6,17 @@ import {
   ArrowLeft,
   Briefcase,
   TrendingUp,
+  TrendingDown,
   Calendar,
-  ShieldCheck,
-  Activity,
   Download,
-  ExternalLink,
   Search,
   ArrowUpDown,
   BarChart2,
-  Percent,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import DashboardNav from '@/components/ui/DashboardNav';
+import DataSourcePopover from '@/components/ui/DataSourcePopover';
+import { DATA_SOURCES } from '@/lib/dataSourceConfig';
 import {
   LineChart,
   Line,
@@ -28,6 +27,7 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
+  Cell,
   AreaChart,
   Area,
   ReferenceLine,
@@ -152,26 +152,37 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
     };
   }, [data]);
 
-  // Format rate difference objectively
+  // Format rate difference consistent with other dashboards (Emerald for positive growth/up, Rose for negative/down)
   const formatRateDiff = (diff: number | null) => {
     if (diff === null || isNaN(diff)) {
-      return { text: 'N/A', badgeClass: 'bg-slate-100 text-slate-600 border-slate-200' };
+      return {
+        text: 'N/A',
+        badgeClass: 'bg-slate-100 text-slate-600 border-slate-200',
+        isPositive: false,
+        isNegative: false,
+      };
     }
     if (Math.abs(diff) < 0.001) {
       return {
         text: '0.0% pts YoY (Unchanged)',
         badgeClass: 'bg-slate-100 text-slate-700 border-slate-200',
+        isPositive: false,
+        isNegative: false,
       };
     }
     if (diff > 0) {
       return {
         text: `+${diff.toFixed(1)}% pts YoY`,
-        badgeClass: 'bg-amber-50 text-amber-800 border-amber-200',
+        badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200/70',
+        isPositive: true,
+        isNegative: false,
       };
     }
     return {
       text: `${diff.toFixed(1)}% pts YoY`,
-      badgeClass: 'bg-sky-50 text-sky-800 border-sky-200',
+      badgeClass: 'bg-rose-50 text-rose-700 border-rose-200/70',
+      isPositive: false,
+      isNegative: true,
     };
   };
 
@@ -307,7 +318,13 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
             {yoyVal !== undefined && yoyVal !== null && (
               <div className="pt-2 mt-1 border-t border-[#243324]/10 flex items-center justify-between text-[#243324]/70">
                 <span>Annual Change:</span>
-                <span className="font-mono font-medium text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded">
+                <span className={`font-mono font-medium px-1.5 py-0.5 rounded ${
+                  yoyVal > 0
+                    ? 'text-emerald-700 bg-emerald-50 border border-emerald-200/60'
+                    : yoyVal < 0
+                    ? 'text-rose-700 bg-rose-50 border border-rose-200/60'
+                    : 'text-slate-700 bg-slate-100'
+                }`}>
                   {yoyVal > 0 ? `+${yoyVal.toFixed(1)}% pts` : `${yoyVal.toFixed(1)}% pts`}
                 </span>
               </div>
@@ -336,35 +353,26 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
             </Link>
             <div className="h-6 w-px bg-[#243324]/10 hidden md:block" />
             <div className="flex items-center gap-2">
-              <div className="bg-[#243324] text-[#FBF9F5] p-1.5 rounded-lg shadow-sm">
-                <Briefcase className="w-5 h-5" />
-              </div>
-              <h1 className="text-xl font-serif tracking-tight text-[#243324] hidden md:block">
-                Resident Employment &amp; Labour
+              <Briefcase className="w-5 h-5 text-[#3B4D36]" />
+              <h1 className="font-serif text-lg font-medium text-[#243324] tracking-tight hidden md:block">
+                Resident Employment
               </h1>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200/60 shadow-xs">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              data.gov.sg
-            </span>
-            <DashboardNav />
-          </div>
+          <DashboardNav />
         </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
-        {/* Page Header */}
-        <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-[#243324]/10">
+        {/* Page Header with Standard DataSourcePopover */}
+        <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-[#243324]/10">
           <div>
-            <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#243324]/60 uppercase tracking-widest mb-2">
-              <Activity className="w-3.5 h-3.5 text-emerald-600" />
-              Singapore Labour Market Data
+            <div className="flex items-center gap-3.5 mb-3 flex-wrap">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#243324] tracking-tight">
+                Employment &amp; Job Market
+              </h1>
+              <DataSourcePopover source={DATA_SOURCES.employment} />
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#243324] tracking-tight mb-3">
-              Employment &amp; Job Market
-            </h1>
             <p className="text-base md:text-lg text-[#243324]/75 max-w-3xl font-light leading-relaxed">
               Official resident unemployment rates (Singapore Citizens &amp; Permanent Residents, seasonally adjusted, end June) from {stats.startYear} to {stats.endYear}, sourced directly from data.gov.sg.
             </p>
@@ -420,8 +428,10 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
                 </div>
                 <div className="flex items-center gap-2">
                   <span
-                    className={`inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-md border ${residentDiffFormatted.badgeClass}`}
+                    className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-md border ${residentDiffFormatted.badgeClass}`}
                   >
+                    {residentDiffFormatted.isPositive && <TrendingUp className="w-3.5 h-3.5" />}
+                    {residentDiffFormatted.isNegative && <TrendingDown className="w-3.5 h-3.5" />}
                     {residentDiffFormatted.text}
                   </span>
                 </div>
@@ -442,21 +452,35 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
             <CardContent className="p-5 flex flex-col justify-between h-full">
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2 text-[#243324]/70">
-                    <Percent className="w-4 h-4 text-slate-600" />
-                    <span className="text-xs font-semibold uppercase tracking-wider">Annual Change</span>
+                  <div className="flex items-center gap-1.5 text-[#243324]/70">
+                    {residentDiff !== null && residentDiff >= 0 ? (
+                      <TrendingUp className="w-4 h-4 text-emerald-600" />
+                    ) : (
+                      <TrendingDown className="w-4 h-4 text-rose-600" />
+                    )}
+                    <span className="text-xs font-semibold uppercase tracking-wider">Annual YoY Change</span>
                   </div>
                   <span className="text-[11px] font-mono font-medium px-2 py-0.5 rounded bg-[#243324]/5 text-[#243324]/70">
                     {previousData?.year} → {latestData.year}
                   </span>
                 </div>
                 <div className="flex items-baseline gap-2 mb-1.5">
-                  <span className="text-3xl md:text-4xl font-serif text-[#243324] font-medium tracking-tight">
+                  <span
+                    className={`text-3xl md:text-4xl font-serif font-medium tracking-tight ${
+                      residentDiff === null
+                        ? 'text-[#243324]'
+                        : residentDiff > 0
+                        ? 'text-emerald-700'
+                        : residentDiff < 0
+                        ? 'text-rose-700'
+                        : 'text-[#243324]'
+                    }`}
+                  >
                     {residentDiff !== null ? (residentDiff > 0 ? `+${residentDiff.toFixed(1)}% pts` : `${residentDiff.toFixed(1)}% pts`) : 'N/A'}
                   </span>
                 </div>
                 <div className="text-xs text-[#243324]/70">
-                  <span>Previous Rate: {previousData?.resident !== null ? `${previousData?.resident.toFixed(1)}%` : 'N/A'} in {previousData?.year}</span>
+                  <span>Previous Rate: {previousData?.resident !== null ? `${previousData?.resident.toFixed(1)}%` : 'N/A'} ({previousData?.year})</span>
                 </div>
               </div>
 
@@ -539,10 +563,6 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
                 <CardDescription className="text-sm md:text-base text-[#243324]/75 mt-1">
                   Annual resident (Singapore Citizens &amp; Permanent Residents) unemployment rate from {stats.startYear} to {stats.endYear} (End June, Seasonally Adjusted).
                 </CardDescription>
-              </div>
-
-              <div className="text-xs font-mono text-[#243324]/60 bg-[#243324]/5 px-3 py-1.5 rounded-lg self-start md:self-auto">
-                Dataset: d_285a079d823a1cc22dffb9cac325f81a
               </div>
             </div>
 
@@ -637,7 +657,7 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
 
         {/* 2 Factual Secondary Charts: Annual YoY Changes & 5-Year Cohort Averages */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
-          {/* Chart 1: Annual Year-over-Year Rate Changes */}
+          {/* Chart 1: Annual Year-over-Year Rate Changes with Standard YoY Color Coding */}
           <Card className="bg-white border-[#243324]/10 shadow-sm">
             <CardHeader className="border-b border-[#243324]/10 pb-4">
               <div className="flex items-center justify-between">
@@ -655,7 +675,7 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
               </div>
             </CardHeader>
             <CardContent className="p-6">
-              <div className="h-[320px] w-full">
+              <div className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={filteredDataWithYoY.filter(d => d.residentYoY !== null)}
@@ -689,15 +709,34 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
                         'Annual Resident Change',
                       ]}
                     />
-                    <Bar
-                      dataKey="residentYoY"
-                      name="Resident YoY Δ"
-                      fill="#0284c7"
-                      fillOpacity={0.85}
-                      radius={[2, 2, 0, 0]}
-                    />
+                    <Bar dataKey="residentYoY" name="Resident YoY Δ" radius={[2, 2, 0, 0]}>
+                      {filteredDataWithYoY
+                        .filter(d => d.residentYoY !== null)
+                        .map((entry, index) => {
+                          const isPos = entry.residentYoY !== null && entry.residentYoY >= 0;
+                          return (
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={isPos ? '#10b981' : '#ef4444'}
+                              fillOpacity={0.85}
+                            />
+                          );
+                        })}
+                    </Bar>
                   </BarChart>
                 </ResponsiveContainer>
+              </div>
+
+              {/* Standard Positive/Negative YoY Legend */}
+              <div className="flex items-center gap-4 text-xs font-sans text-[#243324]/70 pt-3 mt-2 border-t border-[#243324]/5">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-xs bg-[#10b981]" />
+                  <span>Positive YoY Increase</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-xs bg-[#ef4444]" />
+                  <span>Negative YoY Decrease</span>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -720,7 +759,7 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
               </div>
             </CardHeader>
             <CardContent className="p-6">
-              <div className="h-[320px] w-full">
+              <div className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={periodAverages} margin={{ top: 20, right: 10, left: 5, bottom: 10 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#24332415" />
@@ -756,6 +795,12 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
                     />
                   </BarChart>
                 </ResponsiveContainer>
+              </div>
+
+              {/* Series Baseline Context */}
+              <div className="flex items-center justify-between text-xs text-[#243324]/70 pt-3 mt-2 border-t border-[#243324]/5">
+                <span>35-Year Series Average:</span>
+                <span className="font-mono font-semibold text-slate-800">{stats.seriesAvg}% (SA)</span>
               </div>
             </CardContent>
           </Card>
@@ -826,12 +871,26 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
                       <td className="py-2.5 px-4 font-mono text-slate-800 font-semibold">
                         {row.resident !== null ? `${row.resident.toFixed(1)}%` : '—'}
                       </td>
-                      <td className="py-2.5 px-4 font-mono text-slate-600">
-                        {row.residentYoY !== null
-                          ? row.residentYoY > 0
-                            ? `+${row.residentYoY.toFixed(1)}% pts`
-                            : `${row.residentYoY.toFixed(1)}% pts`
-                          : '—'}
+                      <td className="py-2.5 px-4 font-mono">
+                        {row.residentYoY !== null ? (
+                          <span
+                            className={`inline-flex items-center gap-1 font-medium ${
+                              row.residentYoY > 0
+                                ? 'text-emerald-700'
+                                : row.residentYoY < 0
+                                ? 'text-rose-700'
+                                : 'text-slate-600'
+                            }`}
+                          >
+                            {row.residentYoY > 0 && <TrendingUp className="w-3 h-3" />}
+                            {row.residentYoY < 0 && <TrendingDown className="w-3 h-3" />}
+                            {row.residentYoY > 0
+                              ? `+${row.residentYoY.toFixed(1)}% pts`
+                              : `${row.residentYoY.toFixed(1)}% pts`}
+                          </span>
+                        ) : (
+                          '—'
+                        )}
                       </td>
                       <td className="py-2.5 px-4 font-mono text-slate-600">
                         {row.diffFromAvg !== null
@@ -854,49 +913,6 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
             </div>
           </CardContent>
         </Card>
-
-        {/* Data Citations & Dataset Metadata (Strictly Factual) */}
-        <div className="p-6 rounded-xl bg-white border border-[#243324]/10 shadow-sm text-sm text-[#243324]/80">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 pb-3 border-b border-[#243324]/10">
-            <h3 className="font-serif text-lg text-[#243324] font-semibold">
-              Dataset Information &amp; Official Source
-            </h3>
-            <a
-              href="https://data.gov.sg/datasets/d_285a079d823a1cc22dffb9cac325f81a/view"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs text-[#0284c7] hover:underline"
-            >
-              <span>View dataset on data.gov.sg</span>
-              <ExternalLink className="w-3 h-3" />
-            </a>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs leading-relaxed text-[#243324]/75">
-            <div>
-              <p className="mb-2">
-                <strong>Source Agency:</strong> Ministry of Manpower (MOM) / Singapore Department of Statistics.
-              </p>
-              <p className="mb-2">
-                <strong>Dataset:</strong> Resident Unemployment Rate, Seasonally Adjusted, End June (Resource ID: <code>d_285a079d823a1cc22dffb9cac325f81a</code>).
-              </p>
-              <p>
-                <strong>Coverage:</strong> Annual observations from {stats.startYear} to {stats.endYear} (as of End June each year).
-              </p>
-            </div>
-            <div>
-              <p className="mb-2">
-                <strong>Resident Population:</strong> Covers Singapore Residents (Singapore Citizens and Permanent Residents) in the labour force.
-              </p>
-              <p className="mb-2">
-                <strong>Resident Unemployment Rate:</strong> Percentage of unemployed persons among the economically active resident population.
-              </p>
-              <p>
-                <strong>Seasonal Adjustment (SA):</strong> Standard statistical technique applied by MOM to eliminate regular seasonal fluctuations to reflect underlying economic trends.
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
