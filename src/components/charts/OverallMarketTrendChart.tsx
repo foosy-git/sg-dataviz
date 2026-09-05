@@ -365,19 +365,14 @@ export default function OverallMarketTrendChart({
           </ResponsiveContainer>
         </div>
 
-        {/* Footer Note and Legend Clarification */}
-        <div className="mt-4 pt-3 border-t border-[#243324]/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-[#243324]/60">
-          <div className="flex items-center gap-2">
-            <span className="inline-block w-3 h-3 rounded-sm bg-emerald-500/80 border border-emerald-600"></span>
-            <span>Positive YoY Growth</span>
-            <span className="inline-block w-3 h-3 rounded-sm bg-rose-500/80 border border-rose-600 ml-2"></span>
-            <span>Negative YoY Contraction</span>
-            <span className="inline-block w-4 h-0.5 bg-[#243324] ml-2"></span>
-            <span>Price Index Trajectory</span>
-          </div>
-          <div className="text-[11px] text-[#243324]/50">
-            Source: Housing &amp; Development Board (HDB) &amp; SingStat via data.gov.sg
-          </div>
+        {/* Legend Clarification */}
+        <div className="mt-4 pt-3 border-t border-[#243324]/10 flex items-center gap-2 text-xs text-[#243324]/60 flex-wrap">
+          <span className="inline-block w-3 h-3 rounded-sm bg-emerald-500/80 border border-emerald-600"></span>
+          <span>Positive YoY Growth</span>
+          <span className="inline-block w-3 h-3 rounded-sm bg-rose-500/80 border border-rose-600 ml-2"></span>
+          <span>Negative YoY Contraction</span>
+          <span className="inline-block w-4 h-0.5 bg-[#243324] ml-2"></span>
+          <span>Price Index Trajectory</span>
         </div>
       </CardContent>
     </Card>

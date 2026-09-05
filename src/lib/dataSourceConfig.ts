@@ -154,21 +154,26 @@ export const DATA_SOURCES: Record<string, DataSourceMetadata> = {
   airQuality: {
     title: 'Air Quality & Haze Monitoring',
     agency: 'National Environment Agency (NEA)',
-    datasetName: 'Real-time PSI & PM2.5 Readings API',
-    url: 'https://data.gov.sg',
+    datasetName: 'Pollutant Standards Index (PSI) & PM2.5',
+    url: 'https://data.gov.sg/datasets?query=Pollutant+Standards+Index',
     retrievalSummary:
-      'Streamed live directly from NEA open environmental APIs on data.gov.sg (api.data.gov.sg/v1/environment/psi and pm25) with automated client polling.',
+      'Streamed live directly from NEA open environmental APIs on data.gov.sg with automated client polling.',
     generationSummary:
       'Parses real-time 24-hr PSI and 1-hr PM2.5 readings across Singapore’s five geographic regions (North, South, East, West, Central), calculates national peak/average metrics, and evaluates them against NEA health advisory bands.',
     frequency: 'Hourly (Real-Time)',
     additionalSources: [
       {
-        name: 'NEA Live PSI API',
-        url: 'https://api.data.gov.sg/v1/environment/psi'
+        name: 'Pollutant Standards Index (PSI) Datasets',
+        url: 'https://data.gov.sg/datasets?query=Pollutant+Standards+Index'
       },
       {
-        name: 'NEA Live PM2.5 API',
-        url: 'https://api.data.gov.sg/v1/environment/pm25'
+        name: 'Air Pollutant - Particulate Matter PM2.5',
+        url: 'https://data.gov.sg/datasets/d_397fe8de643aea9927bdee32e49307ff/view',
+        id: 'd_397fe8de643aea9927bdee32e49307ff'
+      },
+      {
+        name: 'Particulate Matter (PM2.5) Datasets',
+        url: 'https://data.gov.sg/datasets?query=PM2.5'
       }
     ]
   }

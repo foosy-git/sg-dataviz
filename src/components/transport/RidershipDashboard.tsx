@@ -16,8 +16,7 @@ import {
   ArrowUpDown,
   Table as TableIcon,
   BarChart3,
-  Layers,
-  Info
+  Layers
 } from 'lucide-react';
 import DashboardNav from '@/components/ui/DashboardNav';
 import DataSourcePopover from '@/components/ui/DataSourcePopover';
@@ -265,10 +264,6 @@ export default function RidershipDashboard({ data }: { data: RidershipRecord[] }
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8 border-b border-[#243324]/10 pb-8">
           <div className="space-y-3 max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#243324]/5 border border-[#243324]/10 text-xs font-medium text-[#243324]/80">
-              <Activity className="w-3.5 h-3.5 text-blue-600" />
-              <span>Dataset: d_75248cf2fbf340de6a746dc91ec9223c • data.gov.sg</span>
-            </div>
             <div className="flex items-center gap-3.5 flex-wrap">
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#1F2B1D] tracking-tight leading-tight">
                 Public Transport Ridership
@@ -850,7 +845,7 @@ export default function RidershipDashboard({ data }: { data: RidershipRecord[] }
                   Annual Ridership Records
                 </CardTitle>
                 <CardDescription>
-                  Exact numerical figures from data.gov.sg across all recorded calendar years.
+                  Exact numerical figures across all recorded calendar years.
                 </CardDescription>
               </div>
 
@@ -863,13 +858,20 @@ export default function RidershipDashboard({ data }: { data: RidershipRecord[] }
                     placeholder="Search year..."
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
-                    aria-label="Filter rows by year"
-                    className="text-xs pl-8 pr-3 py-1.5 rounded-lg border border-[#243324]/15 bg-white text-[#243324] placeholder:text-[#243324]/40 focus:outline-none focus:ring-1 focus:ring-[#243324]"
+                    className="pl-8 pr-3 py-1.5 text-xs bg-[#FBF9F5] border border-[#243324]/15 rounded-md focus:outline-none focus:ring-1 focus:ring-[#243324]/30 w-32 sm:w-40"
                   />
                 </div>
                 <button
+                  onClick={() => setTableSortDirection(d => d === 'desc' ? 'asc' : 'desc')}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium border border-[#243324]/15 rounded-md hover:bg-[#243324]/5 text-[#243324]/70 transition-colors cursor-pointer"
+                  title="Toggle sort order"
+                >
+                  <ArrowUpDown className="w-3.5 h-3.5" />
+                  <span>{tableSortDirection === 'desc' ? 'Newest First' : 'Oldest First'}</span>
+                </button>
+                <button
                   onClick={handleExportCSV}
-                  className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-[#243324]/15 bg-white hover:bg-[#243324]/5 text-[#243324] font-medium transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-[#243324] text-[#FBF9F5] rounded-md hover:bg-[#243324]/90 transition-colors cursor-pointer shadow-xs"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>Export CSV</span>
@@ -877,77 +879,65 @@ export default function RidershipDashboard({ data }: { data: RidershipRecord[] }
               </div>
             </div>
           </CardHeader>
-
-          <CardContent className="p-0 overflow-x-auto">
-            <table className="w-full text-xs text-left border-collapse">
-              <thead>
-                <tr className="border-b border-[#243324]/10 bg-[#243324]/5 text-[#243324]/70 uppercase tracking-wider font-semibold">
-                  <th
-                    className="p-3.5 cursor-pointer hover:text-[#243324]"
-                    onClick={() => setTableSortDirection(prev => (prev === 'desc' ? 'asc' : 'desc'))}
-                  >
-                    <div className="flex items-center gap-1">
-                      <span>Year</span>
-                      <ArrowUpDown className="w-3 h-3" />
-                    </div>
-                  </th>
-                  <th className="p-3.5 text-right">MRT (Daily)</th>
-                  <th className="p-3.5 text-right">LRT (Daily)</th>
-                  <th className="p-3.5 text-right">Rail Total</th>
-                  <th className="p-3.5 text-right">Bus (Daily)</th>
-                  <th className="p-3.5 text-right">Total Ridership</th>
-                  <th className="p-3.5 text-right">Rail Share</th>
-                  <th className="p-3.5 text-right">Bus Share</th>
-                  <th className="p-3.5 text-right">YoY Change</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#243324]/5 font-sans">
-                {tableData.map(row => (
-                  <tr key={row.year} className="hover:bg-[#243324]/[0.02] transition-colors">
-                    <td className="p-3.5 font-semibold text-[#1F2B1D]">{row.year}</td>
-                    <td className="p-3.5 text-right font-mono">{row.MRT.toLocaleString()}</td>
-                    <td className="p-3.5 text-right font-mono">{row.LRT.toLocaleString()}</td>
-                    <td className="p-3.5 text-right font-mono text-blue-700 font-medium">
-                      {row.railTotal.toLocaleString()}
-                    </td>
-                    <td className="p-3.5 text-right font-mono text-emerald-700 font-medium">
-                      {row.Bus.toLocaleString()}
-                    </td>
-                    <td className="p-3.5 text-right font-mono font-semibold text-[#1F2B1D]">
-                      {row.total.toLocaleString()}
-                    </td>
-                    <td className="p-3.5 text-right font-mono text-[#243324]/70">{row.railPct}%</td>
-                    <td className="p-3.5 text-right font-mono text-[#243324]/70">{row.busPct}%</td>
-                    <td className={`p-3.5 text-right font-mono font-medium ${
-                      row.yoyTotalChange > 0
-                        ? 'text-emerald-700'
-                        : row.yoyTotalChange < 0
-                        ? 'text-red-600'
-                        : 'text-[#243324]/50'
-                    }`}>
-                      {row.yoyTotalChange > 0 ? '+' : ''}{row.yoyTotalChange.toLocaleString()}
-                    </td>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto max-h-[460px] overflow-y-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead className="sticky top-0 bg-[#FBF9F5] border-b border-[#243324]/10 text-[#243324]/70 font-semibold uppercase tracking-wider z-10">
+                  <tr>
+                    <th className="py-3 px-4">Year</th>
+                    <th className="py-3 px-4">MRT (Trips/Day)</th>
+                    <th className="py-3 px-4">LRT (Trips/Day)</th>
+                    <th className="py-3 px-4">Rail Subtotal</th>
+                    <th className="py-3 px-4">Bus (Trips/Day)</th>
+                    <th className="py-3 px-4">Total Transit Daily</th>
+                    <th className="py-3 px-4">Rail Share</th>
+                    <th className="py-3 px-4">Bus Share</th>
+                    <th className="py-3 px-4">YoY Change</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-[#243324]/5">
+                  {tableData.map(row => (
+                    <tr key={row.year} className="hover:bg-[#243324]/[0.02] transition-colors">
+                      <td className="py-2.5 px-4 font-mono font-medium text-[#243324]">
+                        {row.year}
+                      </td>
+                      <td className="py-2.5 px-4 font-mono text-slate-800">
+                        {row.MRT ? row.MRT.toLocaleString() : '—'}
+                      </td>
+                      <td className="py-2.5 px-4 font-mono text-slate-800">
+                        {row.LRT ? row.LRT.toLocaleString() : '—'}
+                      </td>
+                      <td className="py-2.5 px-4 font-mono text-slate-800">
+                        {row.railTotal ? row.railTotal.toLocaleString() : '—'}
+                      </td>
+                      <td className="py-2.5 px-4 font-mono text-slate-800">
+                        {row.Bus ? row.Bus.toLocaleString() : '—'}
+                      </td>
+                      <td className="py-2.5 px-4 font-mono font-semibold text-[#1F2B1D]">
+                        {row.total ? row.total.toLocaleString() : '—'}
+                      </td>
+                      <td className="py-2.5 px-4 font-mono text-blue-700">
+                        {row.railPct ? `${row.railPct.toFixed(1)}%` : '—'}
+                      </td>
+                      <td className="py-2.5 px-4 font-mono text-emerald-700">
+                        {row.busPct ? `${row.busPct.toFixed(1)}%` : '—'}
+                      </td>
+                      <td className="py-2.5 px-4 font-mono text-slate-600">
+                        {row.yoyTotalChange !== 0 ? (
+                          <span className={row.yoyTotalChange > 0 ? 'text-emerald-700 font-medium' : 'text-rose-700 font-medium'}>
+                            {row.yoyTotalChange > 0 ? '+' : ''}{(row.yoyTotalChange / 1000).toFixed(0)}k ({row.yoyTotalPct > 0 ? '+' : ''}{row.yoyTotalPct}%)
+                          </span>
+                        ) : (
+                          '—'
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </CardContent>
         </Card>
-
-        {/* 7. Dataset Attribution and Methodology */}
-        <div className="p-6 rounded-xl bg-white/70 border border-[#243324]/10 text-xs text-[#243324]/70 space-y-2">
-          <div className="font-semibold text-[#1F2B1D] uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-            <Info className="w-3.5 h-3.5" />
-            <span>Dataset Information</span>
-          </div>
-          <p className="leading-relaxed">
-            <strong>Source:</strong> Land Transport Authority (LTA) via data.gov.sg (Dataset ID:{' '}
-            <code className="text-[#1F2B1D] font-mono bg-[#243324]/5 px-1 py-0.5 rounded">d_75248cf2fbf340de6a746dc91ec9223c</code>).
-          </p>
-          <p className="leading-relaxed">
-            <strong>Metric Definition:</strong> Public transport utilisation figures represent the average daily passenger trips across all operating days in each calendar year. Rail journeys are counted based on station fare gate tap-ins; bus journeys are counted based on passenger boardings.
-          </p>
-        </div>
       </div>
     </div>
   );

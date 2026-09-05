@@ -8,11 +8,9 @@ import {
   TrendingUp,
   Users,
   Calendar,
-  ShieldCheck,
   Activity,
   Layers,
   Download,
-  ExternalLink,
   Search,
   ArrowUpDown,
 } from 'lucide-react';
@@ -362,10 +360,6 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200/60 shadow-xs">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              data.gov.sg
-            </span>
             <DashboardNav />
           </div>
         </div>
@@ -386,7 +380,7 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
               <DataSourcePopover source={DATA_SOURCES.employment} />
             </div>
             <p className="text-base md:text-lg text-[#243324]/75 max-w-3xl font-light leading-relaxed">
-              Official overall and resident unemployment rates (seasonally adjusted, end June) from 1992 to {stats.endYear}, sourced directly from data.gov.sg.
+              Official overall and resident unemployment rates (seasonally adjusted, end June) from 1992 to {stats.endYear}.
             </p>
           </div>
 
@@ -418,7 +412,7 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
           </div>
         </div>
 
-        {/* 4 Factual KPI Cards from data.gov.sg */}
+        {/* 4 Factual KPI Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           {/* Card 1: Overall Unemployment Rate */}
           <Card className="bg-white border-[#243324]/10 shadow-sm">
@@ -570,10 +564,6 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
                 <CardDescription className="text-sm md:text-base text-[#243324]/75 mt-1">
                   Comparison of Singapore&apos;s total workforce unemployment rate against resident (citizen &amp; PR) rates from {stats.startYear} to {stats.endYear} (End June, Seasonally Adjusted).
                 </CardDescription>
-              </div>
-
-              <div className="text-xs font-mono text-[#243324]/60 bg-[#243324]/5 px-3 py-1.5 rounded-lg self-start md:self-auto">
-                Dataset: d_285a079d823a1cc22dffb9cac325f81a
               </div>
             </div>
 
@@ -812,7 +802,7 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
           </Card>
         </div>
 
-        {/* Complete Factual Data Table from data.gov.sg */}
+        {/* Complete Factual Data Table */}
         <Card className="bg-white border-[#243324]/10 shadow-sm mb-10 overflow-hidden">
           <CardHeader className="border-b border-[#243324]/10 pb-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -821,7 +811,7 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
                   Factual Records Table
                 </CardTitle>
                 <CardDescription className="text-sm text-[#243324]/75 mt-0.5">
-                  Complete annual records as published on data.gov.sg ({stats.startYear}–{stats.endYear}).
+                  Complete annual records ({stats.startYear}–{stats.endYear}).
                 </CardDescription>
               </div>
 
@@ -833,78 +823,84 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
                     placeholder="Search year..."
                     value={tableSearch}
                     onChange={e => setTableSearch(e.target.value)}
-                    className="pl-8 pr-3 py-1.5 text-xs bg-[#FBF9F5] border border-[#243324]/15 rounded-md focus:outline-none focus:ring-1 focus:ring-[#243324]/30 w-32 sm:w-40"
+                    className="pl-8 pr-3 py-1.5 bg-[#243324]/5 border border-[#243324]/10 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#243324]/20 w-32 sm:w-40"
                   />
                 </div>
-
                 <button
+                  type="button"
                   onClick={() => setSortDescending(!sortDescending)}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium border border-[#243324]/15 rounded-md hover:bg-[#243324]/5 text-[#243324]/70 transition-colors cursor-pointer"
-                  title="Toggle sort order"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#243324]/5 hover:bg-[#243324]/10 text-xs font-medium text-[#243324] rounded-lg transition-colors cursor-pointer"
+                  title="Toggle Chronological Order"
                 >
-                  <ArrowUpDown className="w-3.5 h-3.5" />
-                  <span>{sortDescending ? 'Newest First' : 'Oldest First'}</span>
+                  <ArrowUpDown className="w-3 h-3" />
+                  <span className="hidden sm:inline">{sortDescending ? 'Newest First' : 'Oldest First'}</span>
                 </button>
-
                 <button
+                  type="button"
                   onClick={handleExportCSV}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-[#243324] text-[#FBF9F5] rounded-md hover:bg-[#243324]/90 transition-colors cursor-pointer shadow-xs"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#243324] hover:bg-[#3B4D36] text-xs font-medium text-[#FBF9F5] rounded-lg transition-colors cursor-pointer shadow-xs"
+                  title="Download CSV"
                 >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Export CSV</span>
+                  <Download className="w-3 h-3" />
+                  <span className="hidden sm:inline">Export CSV</span>
                 </button>
               </div>
             </div>
           </CardHeader>
-
           <CardContent className="p-0">
-            <div className="overflow-x-auto max-h-[460px] overflow-y-auto">
-              <table className="w-full text-left border-collapse text-xs">
-                <thead className="sticky top-0 bg-[#FBF9F5] border-b border-[#243324]/10 text-[#243324]/70 font-semibold uppercase tracking-wider z-10">
+            <div className="max-h-[480px] overflow-y-auto">
+              <table className="w-full text-left border-collapse text-xs font-sans">
+                <thead className="sticky top-0 bg-[#FBF9F5] border-b border-[#243324]/10 text-[#243324]/70 uppercase tracking-wider font-semibold text-[10.5px]">
                   <tr>
-                    <th className="py-3 px-4">Year</th>
-                    <th className="py-3 px-4">Total Unemployment Rate (SA)</th>
-                    <th className="py-3 px-4">Resident Unemployment Rate (SA)</th>
-                    <th className="py-3 px-4">Difference (Resident − Total)</th>
-                    <th className="py-3 px-4">Total YoY Δ</th>
-                    <th className="py-3 px-4">Resident YoY Δ</th>
+                    <th className="py-2.5 px-4">Year (End June)</th>
+                    <th className="py-2.5 px-4 text-right">Total Unemp. (SA %)</th>
+                    <th className="py-2.5 px-4 text-right">Resident Unemp. (SA %)</th>
+                    <th className="py-2.5 px-4 text-right">Resident - Total Gap</th>
+                    <th className="py-2.5 px-4 text-right">Total YoY</th>
+                    <th className="py-2.5 px-4 text-right">Resident YoY</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#243324]/5">
-                  {tableRows.map(row => (
-                    <tr key={row.year} className="hover:bg-[#243324]/[0.02] transition-colors">
-                      <td className="py-2.5 px-4 font-mono font-medium text-[#243324]">
-                        {row.year}
-                      </td>
-                      <td className="py-2.5 px-4 font-mono text-slate-800">
-                        {row.total !== null ? `${row.total.toFixed(1)}%` : '—'}
-                      </td>
-                      <td className="py-2.5 px-4 font-mono text-slate-800">
-                        {row.resident !== null ? `${row.resident.toFixed(1)}%` : '—'}
-                      </td>
-                      <td className="py-2.5 px-4 font-mono text-amber-800">
-                        {row.gap !== null ? `+${row.gap.toFixed(1)}% pts` : '—'}
-                      </td>
-                      <td className="py-2.5 px-4 font-mono text-slate-600">
-                        {row.totalYoY !== null
-                          ? row.totalYoY > 0
-                            ? `+${row.totalYoY.toFixed(1)}% pts`
-                            : `${row.totalYoY.toFixed(1)}% pts`
-                          : '—'}
-                      </td>
-                      <td className="py-2.5 px-4 font-mono text-slate-600">
-                        {row.residentYoY !== null
-                          ? row.residentYoY > 0
-                            ? `+${row.residentYoY.toFixed(1)}% pts`
-                            : `${row.residentYoY.toFixed(1)}% pts`
-                          : '—'}
-                      </td>
-                    </tr>
-                  ))}
-                  {tableRows.length === 0 && (
+                <tbody className="divide-y divide-[#243324]/5 font-mono">
+                  {tableRows.length > 0 ? (
+                    tableRows.map((r, idx) => {
+                      const isEven = idx % 2 === 0;
+                      return (
+                        <tr key={r.year} className={`hover:bg-[#243324]/[0.02] transition-colors ${isEven ? 'bg-white' : 'bg-[#FBF9F5]/30'}`}>
+                          <td className="py-2.5 px-4 font-sans font-medium text-[#243324]">{r.year}</td>
+                          <td className="py-2.5 px-4 text-right text-[#0284c7] font-semibold">
+                            {r.total !== null ? `${r.total.toFixed(1)}%` : '—'}
+                          </td>
+                          <td className="py-2.5 px-4 text-right text-[#10b981] font-semibold">
+                            {r.resident !== null ? `${r.resident.toFixed(1)}%` : '—'}
+                          </td>
+                          <td className="py-2.5 px-4 text-right text-[#243324]/80">
+                            {r.gap !== null ? `+${r.gap.toFixed(1)}% pt` : '—'}
+                          </td>
+                          <td className="py-2.5 px-4 text-right">
+                            {r.totalYoY !== null ? (
+                              <span className={r.totalYoY > 0 ? 'text-amber-700 font-medium' : r.totalYoY < 0 ? 'text-emerald-700 font-medium' : 'text-[#243324]/60'}>
+                                {r.totalYoY > 0 ? `+${r.totalYoY.toFixed(1)}` : r.totalYoY < 0 ? `${r.totalYoY.toFixed(1)}` : '0.0'}% pt
+                              </span>
+                            ) : (
+                              <span className="text-[#243324]/30">—</span>
+                            )}
+                          </td>
+                          <td className="py-2.5 px-4 text-right">
+                            {r.residentYoY !== null ? (
+                              <span className={r.residentYoY > 0 ? 'text-amber-700 font-medium' : r.residentYoY < 0 ? 'text-emerald-700 font-medium' : 'text-[#243324]/60'}>
+                                {r.residentYoY > 0 ? `+${r.residentYoY.toFixed(1)}` : r.residentYoY < 0 ? `${r.residentYoY.toFixed(1)}` : '0.0'}% pt
+                              </span>
+                            ) : (
+                              <span className="text-[#243324]/30">—</span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (
                     <tr>
-                      <td colSpan={6} className="py-8 text-center text-[#243324]/60">
-                        No records matching &quot;{tableSearch}&quot;.
+                      <td colSpan={6} className="py-8 text-center text-[#243324]/50 font-sans">
+                        No records matching &quot;{tableSearch}&quot;
                       </td>
                     </tr>
                   )}
@@ -913,49 +909,6 @@ export default function EmploymentDashboard({ data }: EmploymentDashboardProps) 
             </div>
           </CardContent>
         </Card>
-
-        {/* Data Citations & Dataset Metadata (Strictly Factual) */}
-        <div className="p-6 rounded-xl bg-white border border-[#243324]/10 shadow-sm text-sm text-[#243324]/80">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 pb-3 border-b border-[#243324]/10">
-            <h3 className="font-serif text-lg text-[#243324] font-semibold">
-              Dataset Information &amp; Official Source
-            </h3>
-            <a
-              href="https://data.gov.sg/datasets/d_285a079d823a1cc22dffb9cac325f81a/view"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs text-[#0284c7] hover:underline"
-            >
-              <span>View dataset on data.gov.sg</span>
-              <ExternalLink className="w-3 h-3" />
-            </a>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs leading-relaxed text-[#243324]/75">
-            <div>
-              <p className="mb-2">
-                <strong>Source Agency:</strong> Ministry of Manpower (MOM) / Singapore Department of Statistics.
-              </p>
-              <p className="mb-2">
-                <strong>Dataset:</strong> Total and Resident Unemployment Rate, Seasonally Adjusted, End June (Resource ID: <code>d_285a079d823a1cc22dffb9cac325f81a</code>).
-              </p>
-              <p>
-                <strong>Coverage:</strong> Annual observations from {stats.startYear} to {stats.endYear} (as of End June each year).
-              </p>
-            </div>
-            <div>
-              <p className="mb-2">
-                <strong>Total Unemployment Rate:</strong> Seasonally adjusted unemployment rate for the total labour force in Singapore.
-              </p>
-              <p className="mb-2">
-                <strong>Resident Unemployment Rate:</strong> Seasonally adjusted unemployment rate for Singapore Residents (Singapore Citizens and Permanent Residents).
-              </p>
-              <p>
-                <strong>Seasonal Adjustment (SA):</strong> Standard statistical technique applied by MOM to eliminate regular seasonal fluctuations to reflect underlying economic trends.
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
