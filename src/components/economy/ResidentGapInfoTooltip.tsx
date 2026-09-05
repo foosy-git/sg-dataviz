@@ -21,9 +21,20 @@ export function ResidentGapInfoTooltip({
 }: ResidentGapInfoTooltipProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const isTouchRef = useRef(false);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handlePointerMove = (e: PointerEvent) => {
+      if (e.pointerType === 'mouse') {
+        isTouchRef.current = false;
+      }
+    };
+    window.addEventListener('pointermove', handlePointerMove, { passive: true });
+    return () => window.removeEventListener('pointermove', handlePointerMove);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
@@ -35,9 +46,11 @@ export function ResidentGapInfoTooltip({
     };
 
     document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
     document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
@@ -57,16 +70,28 @@ export function ResidentGapInfoTooltip({
     <div
       ref={containerRef}
       className={cn('relative inline-flex items-center select-none', className)}
-      onMouseEnter={() => setIsOpen(true)}
-      onMouseLeave={() => setIsOpen(false)}
+      onMouseEnter={() => {
+        if (isTouchRef.current) return;
+        if (typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches) return;
+        setIsOpen(true);
+      }}
+      onMouseLeave={() => {
+        if (isTouchRef.current) return;
+        if (typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches) return;
+        setIsOpen(false);
+      }}
     >
       <button
         type="button"
+        onPointerDown={(e) => {
+          if (e.pointerType === 'touch') {
+            isTouchRef.current = true;
+          }
+        }}
         onClick={(e) => {
           e.stopPropagation();
           setIsOpen((prev) => !prev);
         }}
-        onFocus={() => setIsOpen(true)}
         className={cn(
           'inline-flex items-center justify-center w-4 h-4 rounded-full text-amber-700/60 hover:text-amber-800 hover:bg-amber-100/60 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-600/40 cursor-pointer',
           iconClassName
