@@ -4,8 +4,34 @@ import FeedbackWidget from "@/components/ui/FeedbackWidget";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "SG DataViz | Open Data Portal",
-  description: "Interactive visualizations built on data.gov.sg.",
+  metadataBase: new URL("https://sgdataviz.fsyhub.com"),
+  title: "SG DataViz | Singapore Trends",
+  description:
+    "Explore interactive dashboards and historical trends across Singapore's housing, income, employment, transport, and climate.",
+  openGraph: {
+    title: "SG DataViz | Singapore Trends",
+    description:
+      "Explore interactive dashboards and historical trends across Singapore's housing, income, employment, transport, and climate.",
+    url: "https://sgdataviz.fsyhub.com",
+    siteName: "SG DataViz",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "SG DataViz Dashboard Preview",
+      },
+    ],
+    locale: "en_SG",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SG DataViz | Singapore Trends",
+    description:
+      "Explore interactive dashboards and historical trends across Singapore's housing, income, employment, transport, and climate.",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function RootLayout({
