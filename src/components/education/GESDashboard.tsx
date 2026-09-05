@@ -39,6 +39,15 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
     return initialData.filter(d => String(d.year) === selectedYear);
   }, [initialData, selectedYear]);
 
+  const UNI_CONFIG: Record<string, { short: string; name: string; color: string }> = {
+    NUS: { short: 'NUS', name: 'National University of Singapore', color: '#f97316' },
+    NTU: { short: 'NTU', name: 'Nanyang Technological University', color: '#ef4444' },
+    SMU: { short: 'SMU', name: 'Singapore Management University', color: '#0ea5e9' },
+    SUTD: { short: 'SUTD', name: 'Singapore University of Technology and Design', color: '#8b5cf6' },
+    SIT: { short: 'SIT', name: 'Singapore Institute of Technology', color: '#10b981' },
+    SUSS: { short: 'SUSS', name: 'Singapore University of Social Sciences', color: '#f43f5e' },
+  };
+
   const getUniShort = (name: string) => {
     if (name.includes('National University of Singapore')) return 'NUS';
     if (name.includes('Nanyang Technological University')) return 'NTU';
@@ -85,6 +94,47 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
         id: `${d.university} - ${d.degree}`,
       }));
   }, [yearData]);
+
+  // Scatter Data grouped by school/university
+  const scatterBySchool = useMemo(() => {
+    const map = new Map<string, any[]>();
+    scatterData.forEach(d => {
+      const uniShort = getUniShort(d.university);
+      if (!map.has(uniShort)) {
+        map.set(uniShort, []);
+      }
+      map.get(uniShort)!.push({
+        ...d,
+        x: Number(d.employment_rate_ft_perm),
+        y: Number(d.gross_monthly_median),
+      });
+    });
+
+    const uniOrder = ['NUS', 'NTU', 'SMU', 'SUTD', 'SIT', 'SUSS'];
+    const sortedKeys = Array.from(map.keys()).sort((a, b) => {
+      const idxA = uniOrder.indexOf(a);
+      const idxB = uniOrder.indexOf(b);
+      if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+      if (idxA !== -1) return -1;
+      if (idxB !== -1) return 1;
+      return a.localeCompare(b);
+    });
+
+    return sortedKeys.map(key => {
+      const config = UNI_CONFIG[key] || {
+        short: key,
+        name: key,
+        color: '#6366f1'
+      };
+      return {
+        key,
+        short: config.short,
+        name: config.name,
+        color: config.color,
+        points: map.get(key) || []
+      };
+    });
+  }, [scatterData]);
 
   // Trend Data: Avg Median Salary and FT Employment by Uni over years
   const trendData = useMemo(() => {
@@ -235,42 +285,6 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
       });
   }, [yearData]);
 
-  // Degree Cluster Analysis
-  const clusterData = useMemo(() => {
-    if (yearData.length === 0) return [];
-    
-    const clusterDefs = [
-      { name: 'Healthcare / Med', keywords: ['medicine', 'nursing', 'health', 'dental', 'pharmacy', 'therapy'] },
-      { name: 'Law', keywords: ['law', 'jurisprudence', 'legal'] },
-      { name: 'Computing / IT', keywords: ['computer science', 'computing', 'software', 'information', 'data', 'security'] },
-      { name: 'Engineering', keywords: ['engineering', 'mechanical', 'electrical', 'civil', 'aerospace', 'mechatronics'] },
-      { name: 'Business / Fin', keywords: ['business', 'finance', 'accountancy', 'accounting', 'economics', 'commerce', 'marketing'] },
-      { name: 'Arts / Humanities', keywords: ['arts', 'humanities', 'sociology', 'psychology', 'history', 'communication', 'literature'] }
-    ];
-    
-    const results = clusterDefs.map(c => ({ name: c.name, count: 0, sumSalary: 0, sumEmp: 0, median: 0, emp: 0 }));
-    
-    yearData.forEach(d => {
-       const deg = d.degree.toLowerCase();
-       for (const def of clusterDefs) {
-          if (def.keywords.some(kw => deg.includes(kw))) {
-             const idx = results.findIndex(r => r.name === def.name);
-             if (d.gross_monthly_median) {
-                results[idx].count++;
-                results[idx].sumSalary += d.gross_monthly_median;
-                results[idx].sumEmp += (d.employment_rate_ft_perm || 0);
-             }
-             break;
-          }
-       }
-    });
-    
-    return results.filter(r => r.count > 0).map(r => ({
-       name: r.name,
-       median: Math.round(r.sumSalary / r.count),
-       emp: Math.round(r.sumEmp / r.count)
-    })).sort((a,b) => b.median - a.median);
-  }, [yearData]);
 
   // Custom multi-line SVG YAxis Tick component for degrees
   const DegreeYAxisTick = (props: any) => {
@@ -326,13 +340,33 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const d = payload[0].payload;
-      if (d.university && d.school) { // Scatter
+      if (d.university && d.gross_monthly_median !== undefined && d.employment_rate_ft_perm !== undefined && d.salary === undefined) { // Scatter
+        const uniShort = getUniShort(d.university);
+        const conf = UNI_CONFIG[uniShort] || { color: '#10b981', short: uniShort, name: d.university };
         return (
-          <div className="bg-white/95 p-3 rounded-xl shadow-lg border border-[#243324]/10 text-sm max-w-xs">
-            <div className="font-semibold text-[#243324]">{d.degree}</div>
-            <div className="text-xs text-[#243324]/60 mb-2">{d.university}</div>
-            <div>Salary: <span className="font-bold">${d.gross_monthly_median}</span></div>
-            <div>FT Perm Rate: <span className="font-bold">{d.employment_rate_ft_perm}%</span></div>
+          <div className="bg-white/95 p-3 rounded-xl shadow-lg border border-[#243324]/10 text-xs sm:text-sm max-w-xs space-y-1.5">
+            <div className="font-semibold text-[#1F2B1D] leading-snug">{cleanDegreeTitle(d.degree)}</div>
+            <div className="text-[11px] text-[#243324]/70 flex items-center gap-1.5 pb-1 border-b border-[#243324]/10">
+              <span className="font-semibold px-1.5 py-0.5 rounded text-white text-[10px]" style={{ backgroundColor: conf.color }}>
+                {conf.short}
+              </span>
+              <span className="truncate">{d.university}</span>
+            </div>
+            {d.school && d.school !== d.university && (
+              <div className="text-[11px] text-[#243324]/60">
+                {d.school}
+              </div>
+            )}
+            <div className="space-y-0.5 pt-0.5 text-xs">
+              <div className="flex justify-between">
+                <span className="text-[#243324]/70">Gross Monthly Median:</span>
+                <span className="font-bold text-[#1F2B1D]">${Number(d.gross_monthly_median)?.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[#243324]/70">FT Perm Employment:</span>
+                <span className="font-bold text-[#1F2B1D]">{d.employment_rate_ft_perm}%</span>
+              </div>
+            </div>
           </div>
         );
       }
@@ -466,38 +500,47 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
         {/* Top Metrics Cards */}
         {topMetrics && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
-            <Card className="bg-white border-[#243324]/5 shadow-sm">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-2 text-[#243324]/60">
-                  <TrendingUp className="w-5 h-5 text-emerald-600" />
-                  <h3 className="font-medium text-sm uppercase tracking-wider">Median Salary</h3>
+            <Card className="bg-white border-[#243324]/5 shadow-sm flex flex-col">
+              <CardContent className="p-6 flex flex-col justify-between flex-1">
+                <div>
+                  <div className="flex items-center gap-3 mb-2 text-[#243324]/60">
+                    <TrendingUp className="w-5 h-5 text-emerald-600" />
+                    <h3 className="font-medium text-sm uppercase tracking-wider">Median Salary</h3>
+                  </div>
+                  <div className="text-4xl font-serif text-[#1F2B1D]">${topMetrics.overallMedian.toLocaleString()}</div>
                 </div>
-                <div className="text-4xl font-serif text-[#1F2B1D]">${topMetrics.overallMedian.toLocaleString()}</div>
-                <p className="text-sm text-[#243324]/50 mt-1">Unweighted across all degree programmes in {selectedYear}</p>
+                <p className="text-sm text-[#243324]/50 mt-3 pt-2 border-t border-[#243324]/5">Unweighted across all degree programmes in {selectedYear}</p>
               </CardContent>
             </Card>
 
-            <Card className="bg-white border-[#243324]/5 shadow-sm">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-2 text-[#243324]/60">
-                  <Briefcase className="w-5 h-5 text-blue-600" />
-                  <h3 className="font-medium text-sm uppercase tracking-wider">FT Employment Rate</h3>
+            <Card className="bg-white border-[#243324]/5 shadow-sm flex flex-col">
+              <CardContent className="p-6 flex flex-col justify-between flex-1">
+                <div>
+                  <div className="flex items-center gap-3 mb-2 text-[#243324]/60">
+                    <Briefcase className="w-5 h-5 text-blue-600" />
+                    <h3 className="font-medium text-sm uppercase tracking-wider">FT Employment Rate</h3>
+                  </div>
+                  <div className="text-4xl font-serif text-[#1F2B1D]">{topMetrics.avgEmp.toFixed(1)}%</div>
                 </div>
-                <div className="text-4xl font-serif text-[#1F2B1D]">{topMetrics.avgEmp.toFixed(1)}%</div>
-                <p className="text-sm text-[#243324]/50 mt-1">Unweighted average full-time permanent rate</p>
+                <p className="text-sm text-[#243324]/50 mt-3 pt-2 border-t border-[#243324]/5">Unweighted average full-time permanent rate</p>
               </CardContent>
             </Card>
 
-            <Card className="bg-white border-[#243324]/5 shadow-sm">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-2 text-[#243324]/60">
-                  <GraduationCap className="w-5 h-5 text-purple-600" />
-                  <h3 className="font-medium text-sm uppercase tracking-wider">Highest Paying Degree</h3>
+            <Card className="bg-white border-[#243324]/5 shadow-sm flex flex-col">
+              <CardContent className="p-6 flex flex-col justify-between flex-1">
+                <div>
+                  <div className="flex items-center gap-3 mb-2 text-[#243324]/60">
+                    <GraduationCap className="w-5 h-5 text-purple-600" />
+                    <h3 className="font-medium text-sm uppercase tracking-wider">Highest Paying Degree</h3>
+                  </div>
+                  <div 
+                    className="text-xl sm:text-2xl font-serif text-[#1F2B1D] leading-snug break-words" 
+                    title={cleanDegreeTitle(topMetrics.topDegree.degree)}
+                  >
+                    {cleanDegreeTitle(topMetrics.topDegree.degree)}
+                  </div>
                 </div>
-                <div className="text-2xl font-serif text-[#1F2B1D] leading-tight line-clamp-1" title={topMetrics.topDegree.degree}>
-                  {topMetrics.topDegree.degree}
-                </div>
-                <p className="text-sm text-[#243324]/50 mt-1">
+                <p className="text-sm text-[#243324]/50 mt-3 pt-2 border-t border-[#243324]/5">
                   ${topMetrics.topDegree.gross_monthly_median.toLocaleString()} • {getUniShort(topMetrics.topDegree.university)}
                 </p>
               </CardContent>
@@ -566,10 +609,10 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
           <Card className="bg-white border-[#243324]/5 shadow-sm overflow-hidden flex flex-col lg:col-span-2">
             <CardHeader className="border-b border-[#243324]/5 bg-gray-50/50 pb-4">
               <CardTitle className="font-serif text-xl">The Golden Quadrant ({selectedYear})</CardTitle>
-              <CardDescription>Employment Rate vs Median Salary by Degree</CardDescription>
+              <CardDescription>Employment Rate vs Median Salary by Degree & School</CardDescription>
             </CardHeader>
             <CardContent className="p-6">
-              <div style={{ height: 400, width: '100%' }}>
+              <div style={{ height: 420, width: '100%' }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <ScatterChart margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#24332410" />
@@ -596,7 +639,27 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
                     />
                     <ZAxis range={[60, 60]} />
                     <Tooltip cursor={{ strokeDasharray: '3 3' }} content={<CustomTooltip />} />
-                    <Scatter name="Degrees" data={scatterData.map(d => ({...d, x: Number(d.employment_rate_ft_perm), y: Number(d.gross_monthly_median)}))} fill="#10b981" fillOpacity={0.6} />
+                    <Legend
+                      iconType="circle"
+                      wrapperStyle={{ fontSize: isMobile ? 11 : 12, paddingTop: 16 }}
+                      formatter={(value: string) => {
+                        const meta = UNI_CONFIG[value];
+                        return (
+                          <span className="text-xs text-[#243324]/80 font-medium">
+                            {isMobile ? (meta ? meta.short : value) : (meta ? `${meta.short} - ${meta.name}` : value)}
+                          </span>
+                        );
+                      }}
+                    />
+                    {scatterBySchool.map((group) => (
+                      <Scatter
+                        key={group.key}
+                        name={group.short}
+                        data={group.points}
+                        fill={group.color}
+                        fillOpacity={0.7}
+                      />
+                    ))}
                   </ScatterChart>
                 </ResponsiveContainer>
               </div>
@@ -872,32 +935,6 @@ export default function GESDashboard({ initialData }: { initialData: any[] }) {
             </CardContent>
           </Card>
 
-          {/* Degree Clusters */}
-          <Card className="bg-white border-[#243324]/5 shadow-sm overflow-hidden flex flex-col lg:col-span-2">
-            <CardHeader className="border-b border-[#243324]/5 bg-gray-50/50 pb-4">
-              <CardTitle className="font-serif text-xl">Faculty / Cluster Analysis</CardTitle>
-              <CardDescription>Average median pay across discipline clusters</CardDescription>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div style={{ height: 400, width: '100%' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={clusterData} margin={isMobile ? { top: 25, right: 0, left: -20, bottom: 45 } : { top: 30, right: 10, left: 10, bottom: 30 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#24332410" />
-                    <XAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: isMobile ? 10 : 12, fill: '#24332480' }} angle={-45} textAnchor="end" interval={0} />
-                    <YAxis yAxisId="left" type="number" axisLine={false} tickLine={false} tick={{ fontSize: isMobile ? 10 : 12, fill: '#24332480' }} tickFormatter={(v) => `$${v}`} />
-                    <YAxis yAxisId="right" orientation="right" type="number" domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fontSize: isMobile ? 10 : 12, fill: '#24332480' }} tickFormatter={(v) => `${v}%`} />
-                    <Tooltip />
-                    <Bar yAxisId="left" dataKey="median" name="Median Salary" fill="#f59e0b" radius={[4, 4, 0, 0]} barSize={isMobile ? 20 : 32}>
-                      <LabelList dataKey="median" position="top" formatter={(v: any) => `$${v}`} style={{ fontSize: isMobile ? 9 : 11, fill: '#243324' }} />
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="text-center text-xs text-[#243324]/50 mt-2">
-                Grouped by keywords (e.g. Computing includes Computer Science, Information Systems, etc.)
-              </div>
-            </CardContent>
-          </Card>
           
         </div>
       </div>
