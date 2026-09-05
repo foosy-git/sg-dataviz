@@ -68,14 +68,14 @@ export const DATA_SOURCES: Record<string, DataSourceMetadata> = {
   employment: {
     title: 'Economy & Labour Market',
     agency: 'Ministry of Manpower (MOM)',
-    datasetName: 'Unemployment Rate (Seasonally Adjusted, End-June)',
+    datasetName: 'Resident Unemployment Rate (Seasonally Adjusted, End-June)',
     datasetId: 'd_285a079d823a1cc22dffb9cac325f81a',
     url: 'https://data.gov.sg/datasets/d_285a079d823a1cc22dffb9cac325f81a/view',
     retrievalSummary:
       'Extracted directly from data.gov.sg Datastore API querying official Ministry of Manpower annual unemployment surveys.',
     generationSummary:
-      'Extracts both Overall and Resident seasonally adjusted unemployment series from 1992 to the present, parses non-numeric markers, derives the resident-overall arithmetic difference, and calculates Year-on-Year percentage point movements. Note: In Singapore, non-resident work passes are tied to active employment, meaning non-resident unemployment is structurally near zero; Total unemployment is therefore mathematically lower than the Resident rate.',
-    frequency: 'Annual / Semi-annual'
+      'Extracts the Resident seasonally adjusted unemployment series from 1992 to the present, parses non-numeric markers, and calculates Year-on-Year percentage point movements.',
+    frequency: 'Annual'
   },
   ges: {
     title: 'Graduate Employment Survey',

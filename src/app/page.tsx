@@ -19,7 +19,7 @@ export default async function Home() {
     },
     {
       title: 'Economy & Employment',
-      description: 'Tracking Singapore\'s overall and resident unemployment rates sourced from data.gov.sg.',
+      description: 'Tracking Singapore\'s resident unemployment rate sourced from data.gov.sg.',
       icon: LineChart,
       href: '/economy/employment',
       status: dates.employment,

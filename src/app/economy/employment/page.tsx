@@ -4,8 +4,8 @@ import ErrorState from '@/components/ui/ErrorState';
 import { buildEmploymentDataset } from '@/lib/employmentData';
 
 export const metadata: Metadata = {
-  title: 'Economy & Employment | SG DataViz',
-  description: 'Analyze Singapore\'s overall and resident unemployment rates over time.',
+  title: 'Resident Employment & Labour | SG DataViz',
+  description: 'Analyze Singapore\'s resident unemployment rate over time sourced from data.gov.sg.',
 };
 
 export const dynamic = 'force-dynamic';
@@ -18,21 +18,18 @@ export default async function EmploymentPage() {
     const unempData = await unempRes.json();
     const rawUnemp = unempData.result?.records || [];
     
-    const totalSeries = rawUnemp.find((r: any) => r.DataSeries && r.DataSeries.includes('Total Unemployment Rate'));
     const residentSeries = rawUnemp.find((r: any) => r.DataSeries && r.DataSeries.includes('Resident Unemployment Rate'));
     
-    if (!totalSeries || !residentSeries) throw new Error('Missing DataSeries in payload');
+    if (!residentSeries) throw new Error('Missing Resident Unemployment Rate DataSeries in payload');
 
-    const years = Object.keys(totalSeries)
+    const years = Object.keys(residentSeries)
       .filter(k => !isNaN(Number(k)) && Number(k) > 1990)
       .sort((a, b) => Number(a) - Number(b));
 
     const rawSeriesData = years.map(year => {
-      const total = totalSeries[year];
       const resident = residentSeries[year];
       return {
         year,
-        total: (total === 'na' || total === '-' || !total) ? null : parseFloat(total),
         resident: (resident === 'na' || resident === '-' || !resident) ? null : parseFloat(resident),
       };
     });
