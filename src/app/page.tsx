@@ -1,9 +1,12 @@
 import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { Building2, Train, Leaf, ArrowRight, LineChart, GraduationCap, Car, Baby, Wallet, Wind } from 'lucide-react';
 import DashboardNav from '@/components/ui/DashboardNav';
 import { fetchDatasetDates } from '@/lib/fetchDates';
+import VersionBadge from '@/components/ui/VersionBadge';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function Home() {
   const dates = await fetchDatasetDates();
@@ -97,6 +100,7 @@ export default async function Home() {
           <div className="flex items-center gap-2">
             <LineChart className="w-6 h-6" />
             <span className="font-serif font-medium text-xl tracking-tight">SG DataViz</span>
+            <VersionBadge />
           </div>
           <DashboardNav />
         </div>
@@ -149,31 +153,36 @@ export default async function Home() {
         <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
           {dashboards.map((dashboard, i) => (
             <Link key={i} href={dashboard.href} className={`group md:col-span-3 lg:col-span-2 ${dashboard.href === '#' ? 'pointer-events-none' : ''}`}>
-              <Card className={`h-full transition-all duration-300 border-[#243324]/10 shadow-sm ${dashboard.href !== '#' ? 'hover:shadow-md hover:border-[#243324]/20 hover:-translate-y-1 bg-white' : 'bg-[#243324]/[0.02] opacity-80'}`}>
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className={`p-3 rounded-xl ${dashboard.color}`}>
-                      <dashboard.icon className="w-6 h-6" />
-                    </div>
-                    {dashboard.status && (
-                      <Badge className="bg-[#243324] hover:bg-[#243324] text-white">
-                        {dashboard.status}
-                      </Badge>
-                    )}
+              <Card className={`relative h-full p-4 sm:p-5 flex flex-col justify-between transition-all duration-300 border-[#243324]/10 shadow-sm overflow-hidden ${dashboard.href !== '#' ? 'hover:shadow-md hover:border-[#243324]/20 hover:-translate-y-1 bg-white' : 'bg-[#243324]/[0.02] opacity-80'}`}>
+                {/* Badge Flush Tag in top-right corner */}
+                {dashboard.status && (
+                  <div className="absolute top-0 right-0">
+                    <span className="inline-block bg-[#243324] text-white text-[11px] font-medium tracking-tight px-3 py-1 rounded-bl-lg rounded-tr-xl">
+                      {dashboard.status}
+                    </span>
                   </div>
-                  <CardTitle className="font-serif text-2xl group-hover:text-emerald-700 transition-colors">
+                )}
+
+                <div className="flex-1">
+                  <div className="mb-3.5">
+                    <div className={`p-2.5 rounded-xl w-fit ${dashboard.color}`}>
+                      <dashboard.icon className="w-5 h-5" />
+                    </div>
+                  </div>
+                  <CardTitle className="font-serif text-xl sm:text-2xl group-hover:text-emerald-700 transition-colors">
                     {dashboard.title}
                   </CardTitle>
-                  <CardDescription className="text-base text-[#243324]/70 leading-relaxed mt-2">
+                  <CardDescription className="text-sm sm:text-base text-[#243324]/70 leading-relaxed mt-2">
                     {dashboard.description}
                   </CardDescription>
-                </CardHeader>
-                <CardContent>
+                </div>
+
+                <div className="pt-4 mt-4 border-t border-[#243324]/5">
                   <div className={`flex items-center gap-2 text-sm font-medium ${dashboard.href !== '#' ? 'text-[#243324]' : 'text-[#243324]/40'}`}>
                     {dashboard.href !== '#' ? 'Launch Dashboard' : 'In Development'}
                     <ArrowRight className={`w-4 h-4 ${dashboard.href !== '#' ? 'group-hover:translate-x-1 transition-transform' : ''}`} />
                   </div>
-                </CardContent>
+                </div>
               </Card>
             </Link>
           ))}

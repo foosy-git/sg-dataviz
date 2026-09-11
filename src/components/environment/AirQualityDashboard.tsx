@@ -2,23 +2,35 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, Activity, Wind, AlertCircle, Factory, RotateCw } from 'lucide-react';
+import { ArrowLeft, Activity, Wind, AlertCircle, Factory, RotateCw, TrendingUp, TrendingDown, Minus, Clock, Layers } from 'lucide-react';
 import DashboardNav from '@/components/ui/DashboardNav';
 import DataSourcePopover from '@/components/ui/DataSourcePopover';
 import { DATA_SOURCES } from '@/lib/dataSourceConfig';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
+  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
+  LineChart, Line, ReferenceLine
 } from 'recharts';
 import { ComposableMap, Geographies, Geography, Marker } from 'react-simple-maps';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function AirQualityDashboard({ psiData: initialPsiData }: { psiData: { psi: any, pm25: any } }) {
+export default function AirQualityDashboard({ psiData: initialPsiData }: { psiData: { psi: any, pm25: any, psiHistory?: any[], pm25History?: any[] } }) {
   const [psiData, setPsiData] = useState(initialPsiData);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [geoData, setGeoData] = useState<any>(null);
   const [mapMetric, setMapMetric] = useState<'psi' | 'pm25'>('pm25');
+  const [trendMetric, setTrendMetric] = useState<'pm25' | 'psi'>('pm25');
+  const [trendTimeframe, setTrendTimeframe] = useState<'24h' | '3d' | '7d'>('24h');
+  const [visibleSeries, setVisibleSeries] = useState<{ [key: string]: boolean }>({
+    north: true,
+    south: true,
+    east: true,
+    west: true,
+    central: true,
+    avg: true,
+  });
   
   const updateTimestamp = psiData?.psi?.update_timestamp;
   const formattedTime = updateTimestamp ? new Date(updateTimestamp).toLocaleString('en-SG', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }) : 'N.A.';
@@ -32,16 +44,37 @@ export default function AirQualityDashboard({ psiData: initialPsiData }: { psiDa
   const refreshData = useCallback(async () => {
     setIsRefreshing(true);
     try {
-      const [psiRes, pm25Res] = await Promise.all([
-        fetch('https://api.data.gov.sg/v1/environment/psi', { cache: 'no-store' }),
-        fetch('https://api.data.gov.sg/v1/environment/pm25', { cache: 'no-store' })
+      const now = new Date();
+      const sgTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+      const dateStrs: string[] = [];
+      for (let i = 7; i >= 0; i--) {
+        const d = new Date(sgTime.getTime() - i * 24 * 60 * 60 * 1000);
+        dateStrs.push(d.toISOString().split('T')[0]);
+      }
+
+      const psiPromises = dateStrs.map(ds => 
+        fetch(`https://api.data.gov.sg/v1/environment/psi?date=${ds}`, { cache: 'no-store' })
+          .then(r => r.ok ? r.json() : null).catch(() => null)
+      );
+      const pm25Promises = dateStrs.map(ds => 
+        fetch(`https://api.data.gov.sg/v1/environment/pm25?date=${ds}`, { cache: 'no-store' })
+          .then(r => r.ok ? r.json() : null).catch(() => null)
+      );
+
+      const [psiResults, pm25Results] = await Promise.all([
+        Promise.all(psiPromises),
+        Promise.all(pm25Promises)
       ]);
-      const psiJson = psiRes.ok ? await psiRes.json() : null;
-      const pm25Json = pm25Res.ok ? await pm25Res.json() : null;
-      if (psiJson?.items?.[0] || pm25Json?.items?.[0]) {
+
+      const allPsiItems = psiResults.flatMap(r => r?.items || []);
+      const allPm25Items = pm25Results.flatMap(r => r?.items || []);
+
+      if (allPsiItems.length > 0 || allPm25Items.length > 0) {
         setPsiData((prev: any) => ({
-          psi: psiJson?.items?.[0] || prev?.psi,
-          pm25: pm25Json?.items?.[0] || prev?.pm25
+          psi: allPsiItems[allPsiItems.length - 1] || prev?.psi,
+          pm25: allPm25Items[allPm25Items.length - 1] || prev?.pm25,
+          psiHistory: allPsiItems.length > 0 ? allPsiItems : prev?.psiHistory,
+          pm25History: allPm25Items.length > 0 ? allPm25Items : prev?.pm25History
         }));
       }
     } catch (e) {
@@ -140,17 +173,20 @@ export default function AirQualityDashboard({ psiData: initialPsiData }: { psiDa
   const psiStats = getRegionalStats(psiData?.psi?.readings?.psi_twenty_four_hourly);
   const pm25Stats = getRegionalStats(psiData?.pm25?.readings?.pm25_one_hourly);
 
-  const nationalPsi = psiStats?.max ?? null;
-  const nationalPm25hr1 = pm25Stats?.max ?? null;
-  const nationalInfo = getPsiData(nationalPsi);
-  const pm25Info = getPm25Data(nationalPm25hr1);
+  const nationalPsiPeak = psiStats?.max ?? null;
+  const nationalPsiAvg = psiStats?.avg ?? null;
+  const nationalPm25Avg = pm25Stats?.avg ?? null;
+
+  // Severity classifications based on islandwide average as requested
+  const nationalInfo = getPsiData(nationalPsiAvg);
+  const pm25Info = getPm25Data(nationalPm25Avg);
 
   const historicalHaze = [
     { name: '1997 Haze', psi: 226, year: 1997 },
     { name: '2013 Crisis', psi: 401, year: 2013 },
     { name: '2015 Haze', psi: 321, year: 2015 },
     { name: '2019 Haze', psi: 154, year: 2019 },
-    { name: 'Current (Peak)', psi: nationalPsi ?? 0, year: new Date().getFullYear() },
+    { name: 'Current (Peak)', psi: nationalPsiPeak ?? 0, year: new Date().getFullYear() },
   ].sort((a, b) => a.year - b.year);
 
   // Approximate longitude/latitude for the 5 regions
@@ -170,6 +206,189 @@ export default function AirQualityDashboard({ psiData: initialPsiData }: { psiDa
     { subject: 'SO2', A: getNationalMax(psiData?.psi?.readings?.so2_sub_index) ?? 0, fullMark: 200 },
     { subject: 'CO', A: getNationalMax(psiData?.psi?.readings?.co_sub_index) ?? 0, fullMark: 200 },
   ];
+
+  // Historical Air Quality Trend calculations (24h, 3d, 7d)
+  const isTrendPsi = trendMetric === 'psi';
+
+  const trendData = useMemo(() => {
+    const activeHistory = isTrendPsi ? (psiData?.psiHistory || []) : (psiData?.pm25History || []);
+    if (!activeHistory || activeHistory.length === 0) return [];
+
+    const pointCount = trendTimeframe === '24h' ? 24 : trendTimeframe === '3d' ? 72 : 168;
+    const sliced = activeHistory.slice(-pointCount);
+
+    return sliced.map((item: any) => {
+      const d = new Date(item.timestamp);
+      const hourStr = d.toLocaleTimeString('en-SG', { hour: 'numeric', hour12: true });
+      const dateStr = d.toLocaleDateString('en-SG', { day: 'numeric', month: 'short' });
+      const weekdayStr = d.toLocaleDateString('en-SG', { weekday: 'short' });
+      const fullTimeStr = `${weekdayStr}, ${dateStr}, ${hourStr}`;
+      const dayHourStr = `${weekdayStr} ${hourStr}`;
+
+      const readings = isTrendPsi ? item.readings?.psi_twenty_four_hourly : item.readings?.pm25_one_hourly;
+      const north = typeof readings?.north === 'number' ? readings.north : null;
+      const south = typeof readings?.south === 'number' ? readings.south : null;
+      const east = typeof readings?.east === 'number' ? readings.east : null;
+      const west = typeof readings?.west === 'number' ? readings.west : null;
+      const central = typeof readings?.central === 'number' ? readings.central : null;
+
+      const validVals = [north, south, east, west, central].filter((v): v is number => v !== null);
+      const avg = validVals.length > 0 ? Math.round(validVals.reduce((a, b) => a + b, 0) / validVals.length) : null;
+      const max = validVals.length > 0 ? Math.max(...validVals) : null;
+      const min = validVals.length > 0 ? Math.min(...validVals) : null;
+
+      return {
+        time: hourStr,
+        dayHour: dayHourStr,
+        date: dateStr,
+        fullTime: fullTimeStr,
+        timestamp: item.timestamp,
+        north,
+        south,
+        east,
+        west,
+        central,
+        avg,
+        max,
+        min,
+      };
+    });
+  }, [psiData?.psiHistory, psiData?.pm25History, isTrendPsi, trendTimeframe]);
+
+  const trendStats = useMemo(() => {
+    if (!trendData || trendData.length === 0) return null;
+    
+    let peakVal = -Infinity;
+    let peakRegion = '';
+    let peakTime = '';
+    
+    let lowVal = Infinity;
+    let lowRegion = '';
+    let lowTime = '';
+
+    let totalSum = 0;
+    let totalCount = 0;
+
+    const regionKeys = ['north', 'south', 'east', 'west', 'central'] as const;
+    const regionNames: Record<string, string> = {
+      north: 'North',
+      south: 'South',
+      east: 'East',
+      west: 'West',
+      central: 'Central',
+    };
+
+    trendData.forEach(pt => {
+      regionKeys.forEach(rk => {
+        const val = pt[rk];
+        if (typeof val === 'number') {
+          totalSum += val;
+          totalCount += 1;
+          if (val > peakVal) {
+            peakVal = val;
+            peakRegion = regionNames[rk];
+            peakTime = pt.fullTime;
+          }
+          if (val < lowVal) {
+            lowVal = val;
+            lowRegion = regionNames[rk];
+            lowTime = pt.fullTime;
+          }
+        }
+      });
+    });
+
+    const overallAvg = totalCount > 0 ? Math.round(totalSum / totalCount) : null;
+
+    let trajectory: { direction: 'down' | 'up' | 'steady'; diff: number; text: string } = {
+      direction: 'steady',
+      diff: 0,
+      text: 'Stable'
+    };
+
+    const compareOffset = trendTimeframe === '24h' ? 3 : trendTimeframe === '3d' ? 24 : 48;
+    const compareLabel = trendTimeframe === '24h' ? 'last 3h' : trendTimeframe === '3d' ? 'vs 24h ago' : 'vs 48h ago';
+
+    if (trendData.length > compareOffset) {
+      const latestAvg = trendData[trendData.length - 1].avg;
+      const pastAvg = trendData[trendData.length - 1 - compareOffset].avg;
+      if (latestAvg !== null && pastAvg !== null) {
+        const diff = latestAvg - pastAvg;
+        if (diff <= -2) {
+          trajectory = { direction: 'down', diff: Math.abs(diff), text: `Improving (-${Math.abs(diff)} ${compareLabel})` };
+        } else if (diff >= 2) {
+          trajectory = { direction: 'up', diff, text: `Rising (+${diff} ${compareLabel})` };
+        } else {
+          trajectory = { direction: 'steady', diff: 0, text: `Stable (${compareLabel})` };
+        }
+      }
+    }
+
+    return {
+      peakVal: peakVal === -Infinity ? null : peakVal,
+      peakRegion,
+      peakTime,
+      lowVal: lowVal === Infinity ? null : lowVal,
+      lowRegion,
+      lowTime,
+      overallAvg,
+      trajectory
+    };
+  }, [trendData, trendTimeframe]);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const CustomTrendTooltip = ({ active, payload }: any) => {
+    if (!active || !payload || !payload.length) return null;
+    const dataPoint = payload[0]?.payload;
+    if (!dataPoint) return null;
+
+    const seriesConfig: Record<string, { label: string; color: string }> = {
+      avg: { label: 'Islandwide Avg', color: '#1E293B' },
+      north: { label: 'North', color: '#2563EB' },
+      south: { label: 'South', color: '#059669' },
+      east: { label: 'East', color: '#7C3AED' },
+      west: { label: 'West', color: '#D97706' },
+      central: { label: 'Central', color: '#DC2626' },
+    };
+
+    return (
+      <div className="bg-white/95 backdrop-blur-md border border-[#243324]/15 rounded-xl p-3 shadow-xl text-xs min-w-[210px]">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
+          <div className="flex items-center gap-1.5 font-bold text-[#243324]">
+            <Clock className="w-3.5 h-3.5 text-slate-500" />
+            <span>{dataPoint.fullTime}</span>
+          </div>
+          {dataPoint.avg !== null && (
+            <span className="text-[10px] font-bold bg-[#243324]/5 text-[#243324] px-1.5 py-0.5 rounded">
+              Avg: {dataPoint.avg} {isTrendPsi ? '' : 'µg/m³'}
+            </span>
+          )}
+        </div>
+        <div className="space-y-1">
+          {Object.entries(seriesConfig).map(([key, cfg]) => {
+            const val = dataPoint[key];
+            if (val === null || val === undefined || !visibleSeries[key]) return null;
+            const info = isTrendPsi ? getPsiData(val) : getPm25Data(val);
+            const isAvg = key === 'avg';
+            return (
+              <div key={key} className={`flex items-center justify-between gap-2 py-0.5 ${isAvg ? 'font-bold border-b border-slate-100 pb-1 mb-1' : ''}`}>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: cfg.color }} />
+                  <span className="text-slate-700">{cfg.label}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-mono font-bold text-[#243324]">{val} {isTrendPsi ? '' : 'µg/m³'}</span>
+                  <span className={`text-[9px] font-semibold px-1 py-0.5 rounded ${info.color} bg-slate-50`}>
+                    {info.status}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-[#FBF9F5] pb-20">
@@ -481,6 +700,355 @@ export default function AirQualityDashboard({ psiData: initialPsiData }: { psiDa
                       <><span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Normal (≤12)</span><span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-amber-500" /> Elev (13–35)</span><span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-orange-500" /> High (36+)</span></>
                     )}
                   </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Historical Air Quality Trend Analysis Card */}
+        <div className="mb-12">
+          <Card className="bg-white border-[#243324]/5 shadow-sm overflow-hidden flex flex-col w-full">
+            <CardHeader className="border-b border-[#243324]/5 bg-slate-50/50 pb-4">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="font-serif text-xl text-[#243324]">Air Quality Historical Trend</CardTitle>
+                    <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-800 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                      {trendTimeframe === '24h' ? 'Rolling 24h' : trendTimeframe === '3d' ? 'Past 3 Days' : 'Past 7 Days'}
+                    </span>
+                  </div>
+                  <CardDescription className="mt-1">
+                    Hourly {isTrendPsi ? '24-hr PSI readings' : '1-hr PM2.5 concentration (µg/m³)'} across all Singapore regions over the {trendTimeframe === '24h' ? 'past 24 hours' : trendTimeframe === '3d' ? 'past 3 days' : 'past 7 days'}.
+                  </CardDescription>
+                </div>
+
+                {/* Selectors: Timeframe & Metric */}
+                <div className="flex flex-wrap items-center gap-2.5 self-start lg:self-auto">
+                  {/* Timeframe Selector */}
+                  <div className="inline-flex rounded-lg bg-slate-200/80 p-1 text-xs font-medium shadow-inner">
+                    <button
+                      type="button"
+                      onClick={() => setTrendTimeframe('24h')}
+                      className={`px-3 py-1.5 rounded-md transition-all ${
+                        trendTimeframe === '24h'
+                          ? 'bg-white text-[#243324] shadow font-semibold'
+                          : 'text-[#243324]/70 hover:text-[#243324]'
+                      }`}
+                    >
+                      24 Hours
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setTrendTimeframe('3d')}
+                      className={`px-3 py-1.5 rounded-md transition-all ${
+                        trendTimeframe === '3d'
+                          ? 'bg-white text-[#243324] shadow font-semibold'
+                          : 'text-[#243324]/70 hover:text-[#243324]'
+                      }`}
+                    >
+                      3 Days
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setTrendTimeframe('7d')}
+                      className={`px-3 py-1.5 rounded-md transition-all ${
+                        trendTimeframe === '7d'
+                          ? 'bg-white text-[#243324] shadow font-semibold'
+                          : 'text-[#243324]/70 hover:text-[#243324]'
+                      }`}
+                    >
+                      7 Days
+                    </button>
+                  </div>
+
+                  {/* Metric Switcher Toggle */}
+                  <div className="inline-flex rounded-lg bg-slate-200/80 p-1 text-xs font-medium shadow-inner">
+                    <button
+                      type="button"
+                      onClick={() => setTrendMetric('pm25')}
+                      className={`px-3 py-1.5 rounded-md transition-all ${
+                        trendMetric === 'pm25'
+                          ? 'bg-white text-[#243324] shadow font-semibold'
+                          : 'text-[#243324]/70 hover:text-[#243324]'
+                      }`}
+                    >
+                      1-hr PM2.5
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setTrendMetric('psi')}
+                      className={`px-3 py-1.5 rounded-md transition-all ${
+                        trendMetric === 'psi'
+                          ? 'bg-white text-[#243324] shadow font-semibold'
+                          : 'text-[#243324]/70 hover:text-[#243324]'
+                      }`}
+                    >
+                      24-hr PSI
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </CardHeader>
+
+            <CardContent className="p-6">
+              {/* KPI Summary Strip */}
+              {trendStats && (
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+                  <div className="bg-[#243324]/[0.03] border border-[#243324]/10 rounded-xl p-3">
+                    <div className="text-[11px] font-semibold text-[#243324]/60 uppercase tracking-wider mb-1">
+                      {trendTimeframe === '24h' ? '24-hr' : trendTimeframe === '3d' ? '3-Day' : '7-Day'} Islandwide Avg
+                    </div>
+                    <div className="text-2xl font-serif font-bold text-[#243324] flex items-baseline gap-1">
+                      {trendStats.overallAvg ?? 'N.A.'}
+                      <span className="text-xs font-sans font-normal text-slate-500">
+                        {isTrendPsi ? 'PSI' : 'µg/m³'}
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-slate-500 mt-0.5">
+                      Mean across all 5 regions
+                    </div>
+                  </div>
+
+                  <div className="bg-red-500/[0.04] border border-red-500/15 rounded-xl p-3">
+                    <div className="text-[11px] font-semibold text-red-700/80 uppercase tracking-wider mb-1">
+                      {trendTimeframe === '24h' ? '24-hr' : trendTimeframe === '3d' ? '3-Day' : '7-Day'} Peak Reading
+                    </div>
+                    <div className="text-2xl font-serif font-bold text-red-700 flex items-baseline gap-1">
+                      {trendStats.peakVal ?? 'N.A.'}
+                      <span className="text-xs font-sans font-normal text-red-500">
+                        {isTrendPsi ? 'PSI' : 'µg/m³'}
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-slate-600 truncate mt-0.5">
+                      {trendStats.peakRegion ? `${trendStats.peakRegion} (${trendStats.peakTime})` : 'N.A.'}
+                    </div>
+                  </div>
+
+                  <div className="bg-emerald-500/[0.04] border border-emerald-500/15 rounded-xl p-3">
+                    <div className="text-[11px] font-semibold text-emerald-700/80 uppercase tracking-wider mb-1">
+                      {trendTimeframe === '24h' ? '24-hr' : trendTimeframe === '3d' ? '3-Day' : '7-Day'} Cleanest Reading
+                    </div>
+                    <div className="text-2xl font-serif font-bold text-emerald-700 flex items-baseline gap-1">
+                      {trendStats.lowVal ?? 'N.A.'}
+                      <span className="text-xs font-sans font-normal text-emerald-500">
+                        {isTrendPsi ? 'PSI' : 'µg/m³'}
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-slate-600 truncate mt-0.5">
+                      {trendStats.lowRegion ? `${trendStats.lowRegion} (${trendStats.lowTime})` : 'N.A.'}
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3">
+                    <div className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                      {trendTimeframe === '24h' ? 'Recent Trajectory' : trendTimeframe === '3d' ? '3-Day Trajectory' : '7-Day Trajectory'}
+                    </div>
+                    <div className="flex items-center gap-1.5 text-base font-bold text-[#243324] mt-1">
+                      {trendStats.trajectory.direction === 'down' ? (
+                        <TrendingDown className="w-5 h-5 text-emerald-600" />
+                      ) : trendStats.trajectory.direction === 'up' ? (
+                        <TrendingUp className="w-5 h-5 text-red-600" />
+                      ) : (
+                        <Minus className="w-5 h-5 text-slate-500" />
+                      )}
+                      <span className="text-sm font-semibold truncate">{trendStats.trajectory.text}</span>
+                    </div>
+                    <div className="text-[11px] text-slate-500 mt-1">
+                      {trendTimeframe === '24h' ? 'Based on last 3 hours' : trendTimeframe === '3d' ? 'Compared to 24h ago' : 'Compared to 48h ago'}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Region Filter Buttons */}
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-xs font-semibold text-[#243324]/70 mr-1 flex items-center gap-1">
+                    <Layers className="w-3.5 h-3.5 text-slate-400" /> Series:
+                  </span>
+                  {[
+                    { key: 'avg', label: 'Islandwide (Avg)', color: '#1E293B' },
+                    { key: 'north', label: 'North', color: '#2563EB' },
+                    { key: 'south', label: 'South', color: '#059669' },
+                    { key: 'east', label: 'East', color: '#7C3AED' },
+                    { key: 'west', label: 'West', color: '#D97706' },
+                    { key: 'central', label: 'Central', color: '#DC2626' },
+                  ].map(s => {
+                    const active = visibleSeries[s.key];
+                    return (
+                      <button
+                        key={s.key}
+                        type="button"
+                        onClick={() => setVisibleSeries(prev => ({ ...prev, [s.key]: !prev[s.key] }))}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold transition-all border ${
+                          active
+                            ? 'bg-white shadow-xs border-slate-300 text-slate-900'
+                            : 'bg-slate-100/70 border-transparent text-slate-400 hover:text-slate-600 line-through'
+                        }`}
+                      >
+                        <span
+                          className="w-2.5 h-2.5 rounded-full shrink-0"
+                          style={{ backgroundColor: active ? s.color : '#cbd5e1' }}
+                        />
+                        <span>{s.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="flex items-center gap-2 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setVisibleSeries({ north: true, south: true, east: true, west: true, central: true, avg: true })}
+                    className="text-xs text-[#243324]/60 hover:text-[#243324] underline underline-offset-2"
+                  >
+                    Select All
+                  </button>
+                  <span className="text-slate-300">|</span>
+                  <button
+                    type="button"
+                    onClick={() => setVisibleSeries({ north: false, south: false, east: false, west: false, central: false, avg: true })}
+                    className="text-xs text-[#243324]/60 hover:text-[#243324] underline underline-offset-2"
+                  >
+                    Avg Only
+                  </button>
+                </div>
+              </div>
+
+              {/* Chart Container */}
+              <div style={{ height: 380, width: '100%' }}>
+                {trendData.length === 0 ? (
+                  <div className="h-full flex items-center justify-center text-slate-400 text-sm">
+                    Loading trend data...
+                  </div>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={trendData} margin={{ top: 15, right: 20, left: -10, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#24332410" />
+                      <XAxis
+                        dataKey={trendTimeframe === '24h' ? 'time' : trendTimeframe === '3d' ? 'dayHour' : 'date'}
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 11, fill: '#64748b' }}
+                        interval={trendTimeframe === '24h' ? 'preserveStartEnd' : trendTimeframe === '3d' ? 8 : 23}
+                      />
+                      <YAxis
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 11, fill: '#64748b' }}
+                        domain={[0, 'auto']}
+                        allowDecimals={false}
+                      />
+                      <Tooltip content={<CustomTrendTooltip />} />
+
+                      {/* Reference lines for NEA standard thresholds */}
+                      {isTrendPsi ? (
+                        <>
+                          <ReferenceLine y={50} stroke="#10b981" strokeDasharray="4 4" strokeWidth={1.5} />
+                          <ReferenceLine y={100} stroke="#f59e0b" strokeDasharray="4 4" strokeWidth={1.5} />
+                        </>
+                      ) : (
+                        <>
+                          <ReferenceLine y={12} stroke="#10b981" strokeDasharray="4 4" strokeWidth={1.5} />
+                          <ReferenceLine y={35} stroke="#f59e0b" strokeDasharray="4 4" strokeWidth={1.5} />
+                          <ReferenceLine y={55} stroke="#f97316" strokeDasharray="4 4" strokeWidth={1.5} />
+                        </>
+                      )}
+
+                      {/* Regional lines */}
+                      {visibleSeries.north && (
+                        <Line
+                          type="monotone"
+                          dataKey="north"
+                          name="North"
+                          stroke="#2563EB"
+                          strokeWidth={2}
+                          dot={trendTimeframe === '24h' ? { r: 2, fill: '#2563EB' } : false}
+                          activeDot={{ r: 5 }}
+                        />
+                      )}
+                      {visibleSeries.south && (
+                        <Line
+                          type="monotone"
+                          dataKey="south"
+                          name="South"
+                          stroke="#059669"
+                          strokeWidth={2}
+                          dot={trendTimeframe === '24h' ? { r: 2, fill: '#059669' } : false}
+                          activeDot={{ r: 5 }}
+                        />
+                      )}
+                      {visibleSeries.east && (
+                        <Line
+                          type="monotone"
+                          dataKey="east"
+                          name="East"
+                          stroke="#7C3AED"
+                          strokeWidth={2}
+                          dot={trendTimeframe === '24h' ? { r: 2, fill: '#7C3AED' } : false}
+                          activeDot={{ r: 5 }}
+                        />
+                      )}
+                      {visibleSeries.west && (
+                        <Line
+                          type="monotone"
+                          dataKey="west"
+                          name="West"
+                          stroke="#D97706"
+                          strokeWidth={2}
+                          dot={trendTimeframe === '24h' ? { r: 2, fill: '#D97706' } : false}
+                          activeDot={{ r: 5 }}
+                        />
+                      )}
+                      {visibleSeries.central && (
+                        <Line
+                          type="monotone"
+                          dataKey="central"
+                          name="Central"
+                          stroke="#DC2626"
+                          strokeWidth={2}
+                          dot={trendTimeframe === '24h' ? { r: 2, fill: '#DC2626' } : false}
+                          activeDot={{ r: 5 }}
+                        />
+                      )}
+                      {visibleSeries.avg && (
+                        <Line
+                          type="monotone"
+                          dataKey="avg"
+                          name="Islandwide Avg"
+                          stroke="#1E293B"
+                          strokeWidth={3}
+                          strokeDasharray="4 4"
+                          dot={trendTimeframe === '24h' ? { r: 3, fill: '#1E293B' } : false}
+                          activeDot={{ r: 6 }}
+                        />
+                      )}
+                    </LineChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+
+              {/* Threshold indicator reference bar at bottom of chart */}
+              <div className="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-[11px] text-slate-500">
+                <div className="flex items-center gap-1 font-semibold text-[#243324]">
+                  NEA Air Quality Scale Guidelines:
+                </div>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px]">
+                  {isTrendPsi ? (
+                    <>
+                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-1 bg-emerald-500 inline-block rounded" /> Good (0–50)</span>
+                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-1 bg-amber-500 inline-block rounded" /> Moderate (51–100)</span>
+                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-1 bg-orange-500 inline-block rounded" /> Unhealthy (101–200)</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-1 bg-emerald-500 inline-block rounded" /> Normal (≤12 µg/m³)</span>
+                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-1 bg-amber-500 inline-block rounded" /> Elevated (13–35 µg/m³)</span>
+                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-1 bg-orange-500 inline-block rounded" /> High (36–55 µg/m³)</span>
+                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-1 bg-red-500 inline-block rounded" /> Very High (&gt;55 µg/m³)</span>
+                    </>
+                  )}
                 </div>
               </div>
             </CardContent>

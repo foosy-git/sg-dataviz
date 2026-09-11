@@ -154,22 +154,25 @@ export const DATA_SOURCES: Record<string, DataSourceMetadata> = {
   airQuality: {
     title: 'Air Quality & Haze Monitoring',
     agency: 'National Environment Agency (NEA)',
-    datasetName: 'Pollutant Standards Index (PSI) & PM2.5',
+    datasetName: 'Pollutant Standards Index (PSI) & PM2.5 Hourly API',
     url: 'https://data.gov.sg/datasets?query=Pollutant+Standards+Index',
     retrievalSummary:
-      'Streamed live directly from NEA open environmental APIs on data.gov.sg with automated client polling.',
+      'Streamed live directly from NEA environmental endpoints (v1/environment/psi and v1/environment/pm25) on data.gov.sg. Queries rolling historical date batches to construct continuous multi-day time-series spanning 24-hour, 3-day, and 7-day observation horizons.',
     generationSummary:
-      'Parses real-time 24-hr PSI and 1-hr PM2.5 readings across Singapore’s five geographic regions (North, South, East, West, Central), calculates national peak/average metrics, and evaluates them against NEA health advisory bands.',
+      'Parses hourly readings across Singapore’s five geographic regions (North, South, East, West, Central) and computes an islandwide composite mean. Tracks rolling 24-hour, 3-day, and 7-day trends, identifying peak and cleanest reading timestamps, multi-hour trajectory vectors, and benchmarks against official NEA health advisory bands (Normal, Elevated, High, Very High for PM2.5; Good, Moderate, Unhealthy for PSI).',
     frequency: 'Hourly (Real-Time)',
     additionalSources: [
       {
-        name: 'Pollutant Standards Index (PSI) Datasets',
-        url: 'https://data.gov.sg/datasets?query=Pollutant+Standards+Index'
+        name: 'NEA Live PSI API Endpoint',
+        url: 'https://api.data.gov.sg/v1/environment/psi'
       },
       {
-        name: 'Air Pollutant - Particulate Matter PM2.5',
-        url: 'https://data.gov.sg/datasets/d_397fe8de643aea9927bdee32e49307ff/view',
-        id: 'd_397fe8de643aea9927bdee32e49307ff'
+        name: 'NEA Live PM2.5 API Endpoint',
+        url: 'https://api.data.gov.sg/v1/environment/pm25'
+      },
+      {
+        name: 'Pollutant Standards Index (PSI) Datasets',
+        url: 'https://data.gov.sg/datasets?query=Pollutant+Standards+Index'
       },
       {
         name: 'Particulate Matter (PM2.5) Datasets',
