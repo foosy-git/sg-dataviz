@@ -25,7 +25,7 @@ export default function FeedbackWidget() {
       const response = await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, message, email, website }),
+        body: JSON.stringify({ app: 'SG Datavis', type, message, email, website }),
       });
 
       if (response.ok) {
@@ -45,7 +45,7 @@ export default function FeedbackWidget() {
       setStatus('error');
       
       // Fallback to mailto if API fails or isn't configured
-      const subject = encodeURIComponent(`[SG DataViz ${type}] Feedback`);
+      const subject = encodeURIComponent(`[SG Datavis ${type}] Feedback`);
       const body = encodeURIComponent(`From: ${email || 'Anonymous'}\n\nMessage:\n${message}`);
       window.location.href = `mailto:shiyunn.dream@gmail.com?subject=${subject}&body=${body}`;
       
@@ -58,11 +58,16 @@ export default function FeedbackWidget() {
       {isOpen ? (
         <div className="bg-white rounded-2xl shadow-2xl w-[calc(100vw-2rem)] sm:w-[360px] max-w-[360px] border border-[#243324]/10 overflow-hidden flex flex-col transform transition-all duration-300 origin-bottom-right">
           <div className="bg-[#243324] p-4 flex justify-between items-center text-white">
-            <h3 className="font-serif font-medium text-lg flex items-center gap-2">
-              <MessageSquarePlus className="w-5 h-5" />
-              Send Feedback
-            </h3>
-            <button onClick={() => setIsOpen(false)} className="text-white/70 hover:text-white transition-colors">
+            <div className="flex items-center gap-2">
+              <MessageSquarePlus className="w-5 h-5 text-emerald-400 shrink-0" />
+              <div className="flex items-center gap-2">
+                <h3 className="font-serif font-medium text-lg leading-tight">Send Feedback</h3>
+                <span className="text-[10px] font-sans font-semibold tracking-wide bg-white/15 text-emerald-300 px-2 py-0.5 rounded-full uppercase">
+                  SG Datavis
+                </span>
+              </div>
+            </div>
+            <button onClick={() => setIsOpen(false)} className="text-white/70 hover:text-white transition-colors cursor-pointer p-1 rounded-lg hover:bg-white/10" aria-label="Close feedback modal">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -123,7 +128,7 @@ export default function FeedbackWidget() {
                     maxLength={2000}
                     value={message}
                     onChange={e => setMessage(e.target.value)}
-                    placeholder="How can we improve this dashboard?"
+                    placeholder="How can we improve SG Datavis?"
                     rows={4}
                     className="w-full bg-[#FBF9F5] border border-[#243324]/20 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3B4D36] resize-none"
                   />

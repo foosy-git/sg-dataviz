@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { type, email, message, website } = body;
+    const { app = 'SG Datavis', type, email, message, website } = body;
 
     // Honeypot check: If the hidden 'website' field is populated, silently drop the bot submission
     if (website) {
@@ -86,7 +86,10 @@ export async function POST(req: Request) {
         headers: { 'Content-Type': 'application/json' },
         signal: controller.signal,
         body: JSON.stringify({
-          type: sanitizedType,
+          app: 'SG Datavis',
+          source: 'SG Datavis',
+          type: `[SG Datavis] ${sanitizedType}`,
+          rawType: sanitizedType,
           email: email ? sanitizeForSpreadsheet(email.trim()) : 'Anonymous',
           message: sanitizeForSpreadsheet(message.trim()),
           timestamp: new Date().toISOString()
