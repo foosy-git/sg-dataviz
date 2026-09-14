@@ -113,22 +113,21 @@ export default function AirQualityDashboard({ psiData: initialPsiData }: { psiDa
     if (val === null || val === undefined) {
       return { status: 'N.A.', color: 'text-slate-600', bg: 'bg-slate-500', border: 'border-slate-500', hex: '#64748b', pulse: false };
     }
-    if (val <= 50) return { status: 'Good', color: 'text-emerald-600', bg: 'bg-emerald-500', border: 'border-emerald-500', hex: '#10b981', pulse: false };
-    if (val <= 100) return { status: 'Moderate', color: 'text-amber-600', bg: 'bg-amber-500', border: 'border-amber-500', hex: '#f59e0b', pulse: false };
-    if (val <= 200) return { status: 'Unhealthy', color: 'text-orange-600', bg: 'bg-orange-500', border: 'border-orange-500', hex: '#f97316', pulse: true };
-    if (val <= 300) return { status: 'Very Unhealthy', color: 'text-red-600', bg: 'bg-red-500', border: 'border-red-500', hex: '#ef4444', pulse: true };
-    return { status: 'Hazardous', color: 'text-purple-600', bg: 'bg-purple-500', border: 'border-purple-500', hex: '#a855f7', pulse: true };
+    if (val <= 50) return { status: 'Good', color: 'text-emerald-600', bg: 'bg-emerald-500', border: 'border-emerald-500', hex: '#479b02', pulse: false };
+    if (val <= 100) return { status: 'Moderate', color: 'text-sky-600', bg: 'bg-sky-500', border: 'border-sky-500', hex: '#006fa1', pulse: false };
+    if (val <= 200) return { status: 'Unhealthy', color: 'text-amber-600', bg: 'bg-amber-500', border: 'border-amber-500', hex: '#f59e0b', pulse: true };
+    if (val <= 300) return { status: 'Very Unhealthy', color: 'text-orange-600', bg: 'bg-orange-500', border: 'border-orange-500', hex: '#f97316', pulse: true };
+    return { status: 'Hazardous', color: 'text-red-600', bg: 'bg-red-500', border: 'border-red-500', hex: '#d60000', pulse: true };
   };
 
   const getPm25Data = (val: number | null) => {
     if (val === null || val === undefined) {
       return { status: 'N.A.', color: 'text-slate-600', bg: 'bg-slate-500', border: 'border-slate-500', hex: '#64748b', pulse: false };
     }
-    if (val <= 12) return { status: 'Normal', color: 'text-emerald-600', bg: 'bg-emerald-500', border: 'border-emerald-500', hex: '#10b981', pulse: false };
-    if (val <= 35) return { status: 'Elevated', color: 'text-amber-600', bg: 'bg-amber-500', border: 'border-amber-500', hex: '#f59e0b', pulse: false };
-    if (val <= 55) return { status: 'High', color: 'text-orange-600', bg: 'bg-orange-500', border: 'border-orange-500', hex: '#f97316', pulse: true };
-    if (val <= 150) return { status: 'Very High', color: 'text-red-600', bg: 'bg-red-500', border: 'border-red-500', hex: '#ef4444', pulse: true };
-    return { status: 'Hazardous', color: 'text-purple-600', bg: 'bg-purple-500', border: 'border-purple-500', hex: '#a855f7', pulse: true };
+    if (val <= 55) return { status: 'Normal', color: 'text-emerald-600', bg: 'bg-emerald-500', border: 'border-emerald-500', hex: '#10b981', pulse: false };
+    if (val <= 150) return { status: 'Elevated', color: 'text-amber-600', bg: 'bg-amber-500', border: 'border-amber-500', hex: '#f59e0b', pulse: false };
+    if (val <= 250) return { status: 'High', color: 'text-orange-600', bg: 'bg-orange-500', border: 'border-orange-500', hex: '#f97316', pulse: true };
+    return { status: 'Very High', color: 'text-red-600', bg: 'bg-red-500', border: 'border-red-500', hex: '#ef4444', pulse: true };
   };
 
   // Helper to extract comprehensive stats across Singapore's 5 regions
@@ -666,12 +665,23 @@ export default function AirQualityDashboard({ psiData: initialPsiData }: { psiDa
                   </ComposableMap>
                 )}
                 <div className="hidden sm:block absolute bottom-3 right-3 bg-white/95 backdrop-blur-sm border border-[#243324]/10 rounded-lg p-2.5 shadow-sm text-xs text-[#243324]/80 max-w-lg">
-                  <div className="font-semibold text-[11px] mb-1.5 text-[#243324]">{mapMetric === 'psi' ? '24-hr PSI Scale (NEA)' : '1-hr PM2.5 Concentration Bands (NEA)'}</div>
+                  <div className="font-semibold text-[11px] mb-1.5 text-[#243324]">{mapMetric === 'psi' ? '24-hr PSI Bands (haze.gov.sg)' : '1-hr PM2.5 Bands (haze.gov.sg)'}</div>
                   <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px]">
                     {mapMetric === 'psi' ? (
-                      <><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Good (0–50)</span><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500" /> Moderate (51–100)</span><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-500" /> Unhealthy (101–200)</span></>
+                      <>
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Good (0–50)</span>
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-sky-600" /> Moderate (51–100)</span>
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500" /> Unhealthy (101–200)</span>
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-500" /> Very Unhealthy (201–300)</span>
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500" /> Hazardous (&gt;300)</span>
+                      </>
                     ) : (
-                      <><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Normal (≤12)</span><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500" /> Elevated (13–35)</span><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-500" /> High (36+)</span></>
+                      <>
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Normal (0–55)</span>
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500" /> Elevated (56–150)</span>
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-500" /> High (151–250)</span>
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500" /> Very High (≥251)</span>
+                      </>
                     )}
                   </div>
                 </div>
@@ -942,17 +952,18 @@ export default function AirQualityDashboard({ psiData: initialPsiData }: { psiDa
                       />
                       <Tooltip content={<CustomTrendTooltip />} />
 
-                      {/* Reference lines for NEA standard thresholds */}
+                      {/* Reference lines for official thresholds from haze.gov.sg */}
                       {isTrendPsi ? (
                         <>
-                          <ReferenceLine y={50} stroke="#10b981" strokeDasharray="4 4" strokeWidth={1.5} />
-                          <ReferenceLine y={100} stroke="#f59e0b" strokeDasharray="4 4" strokeWidth={1.5} />
+                          <ReferenceLine y={50} stroke="#479b02" strokeDasharray="4 4" strokeWidth={1.5} />
+                          <ReferenceLine y={100} stroke="#006fa1" strokeDasharray="4 4" strokeWidth={1.5} />
+                          <ReferenceLine y={200} stroke="#f59e0b" strokeDasharray="4 4" strokeWidth={1.5} />
                         </>
                       ) : (
                         <>
-                          <ReferenceLine y={12} stroke="#10b981" strokeDasharray="4 4" strokeWidth={1.5} />
-                          <ReferenceLine y={35} stroke="#f59e0b" strokeDasharray="4 4" strokeWidth={1.5} />
-                          <ReferenceLine y={55} stroke="#f97316" strokeDasharray="4 4" strokeWidth={1.5} />
+                          <ReferenceLine y={55} stroke="#10b981" strokeDasharray="4 4" strokeWidth={1.5} />
+                          <ReferenceLine y={150} stroke="#f59e0b" strokeDasharray="4 4" strokeWidth={1.5} />
+                          <ReferenceLine y={250} stroke="#f97316" strokeDasharray="4 4" strokeWidth={1.5} />
                         </>
                       )}
 
@@ -1032,21 +1043,23 @@ export default function AirQualityDashboard({ psiData: initialPsiData }: { psiDa
               {/* Threshold indicator reference bar at bottom of chart */}
               <div className="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-[11px] text-slate-500">
                 <div className="flex items-center gap-1 font-semibold text-[#243324]">
-                  NEA Air Quality Scale Guidelines:
+                  haze.gov.sg Banding:
                 </div>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px]">
                   {isTrendPsi ? (
                     <>
-                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-1 bg-emerald-500 inline-block rounded" /> Good (0–50)</span>
-                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-1 bg-amber-500 inline-block rounded" /> Moderate (51–100)</span>
-                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-1 bg-orange-500 inline-block rounded" /> Unhealthy (101–200)</span>
+                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-1 bg-[#479b02] inline-block rounded" /> Good (0–50)</span>
+                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-1 bg-[#006fa1] inline-block rounded" /> Moderate (51–100)</span>
+                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-1 bg-amber-500 inline-block rounded" /> Unhealthy (101–200)</span>
+                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-1 bg-orange-500 inline-block rounded" /> Very Unhealthy (201–300)</span>
+                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-1 bg-red-500 inline-block rounded" /> Hazardous (&gt;300)</span>
                     </>
                   ) : (
                     <>
-                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-1 bg-emerald-500 inline-block rounded" /> Normal (≤12 µg/m³)</span>
-                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-1 bg-amber-500 inline-block rounded" /> Elevated (13–35 µg/m³)</span>
-                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-1 bg-orange-500 inline-block rounded" /> High (36–55 µg/m³)</span>
-                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-1 bg-red-500 inline-block rounded" /> Very High (&gt;55 µg/m³)</span>
+                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-1 bg-emerald-500 inline-block rounded" /> Normal (0–55 µg/m³)</span>
+                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-1 bg-amber-500 inline-block rounded" /> Elevated (56–150 µg/m³)</span>
+                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-1 bg-orange-500 inline-block rounded" /> High (151–250 µg/m³)</span>
+                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-1 bg-red-500 inline-block rounded" /> Very High (≥251 µg/m³)</span>
                     </>
                   )}
                 </div>

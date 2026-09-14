@@ -159,9 +159,13 @@ export const DATA_SOURCES: Record<string, DataSourceMetadata> = {
     retrievalSummary:
       'Streamed live directly from NEA environmental endpoints (v1/environment/psi and v1/environment/pm25) on data.gov.sg. Queries rolling historical date batches to construct continuous multi-day time-series spanning 24-hour, 3-day, and 7-day observation horizons.',
     generationSummary:
-      'Parses hourly readings across Singapore’s five geographic regions (North, South, East, West, Central) and computes an islandwide composite mean. Tracks rolling 24-hour, 3-day, and 7-day trends, identifying peak and cleanest reading timestamps, multi-hour trajectory vectors, and benchmarks against official NEA health advisory bands (Normal, Elevated, High, Very High for PM2.5; Good, Moderate, Unhealthy for PSI).',
+      'Parses hourly readings across Singapore’s five geographic regions (North, South, East, West, Central) and computes an islandwide composite mean. Tracks rolling 24-hour, 3-day, and 7-day trends, identifying peak and cleanest reading timestamps, multi-hour trajectory vectors, and benchmarks against official haze.gov.sg health advisory bands (1-hr PM2.5: Normal 0–55, Elevated 56–150, High 151–250, Very High ≥251 µg/m³; 24-hr PSI: Good 0–50, Moderate 51–100, Unhealthy 101–200, Very Unhealthy 201–300, Hazardous >300).',
     frequency: 'Hourly (Real-Time)',
     additionalSources: [
+      {
+        name: 'Official Singapore Haze Microsite (haze.gov.sg)',
+        url: 'https://www.haze.gov.sg/'
+      },
       {
         name: 'NEA Live PSI API Endpoint',
         url: 'https://api.data.gov.sg/v1/environment/psi'
