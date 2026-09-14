@@ -122,12 +122,12 @@ export default function AirQualityDashboard({ psiData: initialPsiData }: { psiDa
 
   const getPm25Data = (val: number | null) => {
     if (val === null || val === undefined) {
-      return { status: 'N.A.', color: 'text-slate-600', bg: 'bg-slate-500', border: 'border-slate-500', hex: '#64748b', pulse: false };
+      return { status: 'N.A.', band: null, color: 'text-slate-600', bg: 'bg-slate-500', border: 'border-slate-500', hex: '#64748b', pulse: false };
     }
-    if (val <= 55) return { status: 'Normal', color: 'text-emerald-600', bg: 'bg-emerald-500', border: 'border-emerald-500', hex: '#10b981', pulse: false };
-    if (val <= 150) return { status: 'Elevated', color: 'text-amber-600', bg: 'bg-amber-500', border: 'border-amber-500', hex: '#f59e0b', pulse: false };
-    if (val <= 250) return { status: 'High', color: 'text-orange-600', bg: 'bg-orange-500', border: 'border-orange-500', hex: '#f97316', pulse: true };
-    return { status: 'Very High', color: 'text-red-600', bg: 'bg-red-500', border: 'border-red-500', hex: '#ef4444', pulse: true };
+    if (val <= 55) return { status: 'Normal', band: 'Band 1', color: 'text-emerald-600', bg: 'bg-emerald-500', border: 'border-emerald-500', hex: '#10b981', pulse: false };
+    if (val <= 150) return { status: 'Elevated', band: 'Band 2', color: 'text-amber-600', bg: 'bg-amber-500', border: 'border-amber-500', hex: '#f59e0b', pulse: false };
+    if (val <= 250) return { status: 'High', band: 'Band 3', color: 'text-orange-600', bg: 'bg-orange-500', border: 'border-orange-500', hex: '#f97316', pulse: true };
+    return { status: 'Very High', band: 'Band 4', color: 'text-red-600', bg: 'bg-red-500', border: 'border-red-500', hex: '#ef4444', pulse: true };
   };
 
   // Helper to extract comprehensive stats across Singapore's 5 regions
@@ -524,8 +524,8 @@ export default function AirQualityDashboard({ psiData: initialPsiData }: { psiDa
                   <CardTitle className="font-serif text-xl text-[#243324]">Regional Air Quality Map</CardTitle>
                   <CardDescription>
                     {mapMetric === 'psi'
-                      ? 'Live 24-hr PSI readings across Singapore (North, South, East, West, Central)'
-                      : 'Live 1-hr PM2.5 concentrations (µg/m³) across Singapore (North, South, East, West, Central)'}
+                      ? 'Live 24-hr PSI readings across Singapore (North, South, East, West, Central) classified per haze.gov.sg'
+                      : 'Live 1-hr PM2.5 concentrations (µg/m³) across Singapore (North, South, East, West, Central) with 4-band health advisories'}
                   </CardDescription>
                 </div>
                 
@@ -575,6 +575,9 @@ export default function AirQualityDashboard({ psiData: initialPsiData }: { psiDa
                       const isPsi = mapMetric === 'psi';
                       const val = isPsi ? psiData?.psi?.readings?.psi_twenty_four_hourly?.[region.id] ?? null : psiData?.pm25?.readings?.pm25_one_hourly?.[region.id] ?? null;
                       const info = isPsi ? getPsiData(val) : getPm25Data(val);
+                      const tagText = !isPsi && 'band' in info && info.band ? `${info.band} · ${info.status}` : info.status;
+                      const pillWidth = Math.max(62, tagText.length * 6.5 + 16);
+                      const pillX = -pillWidth / 2;
                       return (
                         <Marker key={region.id} coordinates={region.coords as [number, number]}>
                           <g className="cursor-pointer select-none">
@@ -639,9 +642,9 @@ export default function AirQualityDashboard({ psiData: initialPsiData }: { psiDa
 
                             {/* Status Tag Pill below circle */}
                             <rect
-                              x="-28"
+                              x={pillX}
                               y="34"
-                              width="56"
+                              width={pillWidth}
                               height="18"
                               rx="9"
                               fill="rgba(255,255,255,0.95)"
@@ -656,7 +659,7 @@ export default function AirQualityDashboard({ psiData: initialPsiData }: { psiDa
                               fontWeight="700"
                               fill={info.hex}
                             >
-                              {info.status}
+                              {tagText}
                             </text>
                           </g>
                         </Marker>
@@ -664,23 +667,23 @@ export default function AirQualityDashboard({ psiData: initialPsiData }: { psiDa
                     })}
                   </ComposableMap>
                 )}
-                <div className="hidden sm:block absolute bottom-3 right-3 bg-white/95 backdrop-blur-sm border border-[#243324]/10 rounded-lg p-2.5 shadow-sm text-xs text-[#243324]/80 max-w-lg">
+                <div className="hidden sm:block absolute bottom-3 right-3 bg-white/95 backdrop-blur-sm border border-[#243324]/10 rounded-lg p-2.5 shadow-sm text-xs text-[#243324]/80 max-w-xl">
                   <div className="font-semibold text-[11px] mb-1.5 text-[#243324]">{mapMetric === 'psi' ? '24-hr PSI Bands (haze.gov.sg)' : '1-hr PM2.5 Bands (haze.gov.sg)'}</div>
                   <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px]">
                     {mapMetric === 'psi' ? (
                       <>
-                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Good (0–50)</span>
-                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-sky-600" /> Moderate (51–100)</span>
-                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500" /> Unhealthy (101–200)</span>
-                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-500" /> Very Unhealthy (201–300)</span>
-                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500" /> Hazardous (&gt;300)</span>
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#479b02' }} /> Good (0–50)</span>
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#006fa1' }} /> Moderate (51–100)</span>
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#f59e0b' }} /> Unhealthy (101–200)</span>
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#f97316' }} /> Very Unhealthy (201–300)</span>
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#d60000' }} /> Hazardous (&gt;300)</span>
                       </>
                     ) : (
                       <>
-                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Normal (0–55)</span>
-                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500" /> Elevated (56–150)</span>
-                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-500" /> High (151–250)</span>
-                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500" /> Very High (≥251)</span>
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Band 1: Normal (0–55)</span>
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500" /> Band 2: Elevated (56–150)</span>
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-500" /> Band 3: High (151–250)</span>
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500" /> Band 4: Very High (≥251)</span>
                       </>
                     )}
                   </div>
@@ -693,21 +696,33 @@ export default function AirQualityDashboard({ psiData: initialPsiData }: { psiDa
                     const isPsi = mapMetric === 'psi';
                     const val = isPsi ? psiData?.psi?.readings?.psi_twenty_four_hourly?.[region.id] ?? null : psiData?.pm25?.readings?.pm25_one_hourly?.[region.id] ?? null;
                     const info = isPsi ? getPsiData(val) : getPm25Data(val);
+                    const tagText = !isPsi && 'band' in info && info.band ? `${info.band} · ${info.status}` : info.status;
                     return (
                       <div key={region.id} className={`p-2.5 rounded-lg border bg-slate-50/50 flex items-center justify-between ${region.id === 'central' ? 'col-span-2' : ''}`}>
-                        <div><div className="text-xs font-bold text-[#243324]">{region.label}</div><div className={`text-[10px] font-semibold ${info.color}`}>{info.status}</div></div>
+                        <div><div className="text-xs font-bold text-[#243324]">{region.label}</div><div className={`text-[10px] font-semibold ${info.color}`}>{tagText}</div></div>
                         <div className="text-right"><div className="text-lg font-bold font-serif text-[#243324] leading-tight">{val ?? '-'}</div><div className="text-[9px] text-slate-400 leading-none">{isPsi ? 'PSI' : 'µg/m³'}</div></div>
                       </div>
                     );
                   })}
                 </div>
                 <div className="mt-3 pt-2.5 border-t border-slate-100 text-[10px] text-[#243324]/80">
-                  <div className="font-semibold text-[10px] mb-1.5 text-[#243324]">{mapMetric === 'psi' ? '24-hr PSI Scale' : '1-hr PM2.5 Bands'}</div>
+                  <div className="font-semibold text-[10px] mb-1.5 text-[#243324]">{mapMetric === 'psi' ? '24-hr PSI Bands (haze.gov.sg)' : '1-hr PM2.5 Bands (haze.gov.sg)'}</div>
                   <div className="flex flex-wrap gap-x-2.5 gap-y-1">
                     {mapMetric === 'psi' ? (
-                      <><span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Good (0–50)</span><span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-amber-500" /> Mod (51–100)</span><span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-orange-500" /> Unhealthy (101+)</span></>
+                      <>
+                        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#479b02' }} /> Good (0–50)</span>
+                        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#006fa1' }} /> Moderate (51–100)</span>
+                        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#f59e0b' }} /> Unhealthy (101–200)</span>
+                        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#f97316' }} /> Very Unhealthy (201–300)</span>
+                        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#d60000' }} /> Hazardous (&gt;300)</span>
+                      </>
                     ) : (
-                      <><span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Normal (≤12)</span><span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-amber-500" /> Elev (13–35)</span><span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-orange-500" /> High (36+)</span></>
+                      <>
+                        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Band 1: Normal (0–55)</span>
+                        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-amber-500" /> Band 2: Elev (56–150)</span>
+                        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-orange-500" /> Band 3: High (151–250)</span>
+                        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-red-500" /> Band 4: Very High (≥251)</span>
+                      </>
                     )}
                   </div>
                 </div>
