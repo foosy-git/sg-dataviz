@@ -56,6 +56,7 @@ jobs:
             npm install --omit=dev
             
             # Extract the pre-built .next folder from GitHub Actions
+            rm -rf .next
             tar -xzf next-build.tar.gz
             rm next-build.tar.gz
             
