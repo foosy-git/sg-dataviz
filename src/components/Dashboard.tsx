@@ -257,7 +257,7 @@ export default function Dashboard() {
                   search={search}
                   setSearch={setSearch}
                   minAvailableMonth={analytics?.dateBounds?.minMonth || '2017-01'}
-                  maxAvailableMonth={analytics?.dateBounds?.maxMonth || '2026-09'}
+                  maxAvailableMonth={analytics?.dateBounds?.maxMonth || '2026-10'}
                 />
               </div>
 

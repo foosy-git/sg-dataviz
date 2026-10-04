@@ -52,7 +52,7 @@ export default function DashboardFilters({
   search,
   setSearch,
   minAvailableMonth = '2017-01',
-  maxAvailableMonth = '2026-09'
+  maxAvailableMonth = '2026-10'
 }: DashboardFiltersProps) {
 
   const [localSearch, setLocalSearch] = useState(search);

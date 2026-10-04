@@ -25,8 +25,18 @@ export async function GET(request: Request) {
       const historicalRecords = await getHistoricalData();
       let recentLiveRecords: any[] = [];
 
+      // Determine the newest month present in local historical data
+      let maxHistoricalMonth = '';
+      if (historicalRecords.length > 0) {
+        for (const r of historicalRecords) {
+          if (r.month && r.month > maxHistoricalMonth) {
+            maxHistoricalMonth = r.month;
+          }
+        }
+      }
+
       try {
-        const apiUrl = `${API_URL}?resource_id=${RESOURCE_ID}&sort=month%20desc&limit=10000`;
+        const apiUrl = `${API_URL}?resource_id=${RESOURCE_ID}&sort=month%20desc&limit=5000`;
         const headers: Record<string, string> = {};
         if (process.env.DATAGOV_API_KEY) {
           headers['api-key'] = process.env.DATAGOV_API_KEY.trim();
@@ -34,15 +44,15 @@ export async function GET(request: Request) {
 
         const response = await fetch(apiUrl, { 
           headers, 
-          signal: AbortSignal.timeout(8000),
+          signal: AbortSignal.timeout(15000),
           next: { revalidate: 86400 } 
         });
 
         if (response.ok) {
           const data = await response.json();
           const allLiveRecords = normalizeHdbData(data.result?.records || []);
-          recentLiveRecords = historicalRecords.length > 0 
-            ? allLiveRecords.filter(r => r.month >= '2026-09')
+          recentLiveRecords = maxHistoricalMonth 
+            ? allLiveRecords.filter(r => r.month > maxHistoricalMonth)
             : allLiveRecords;
         } else {
           console.warn(`Data.gov.sg returned ${response.status}. Falling back to historical data.`);
@@ -58,7 +68,7 @@ export async function GET(request: Request) {
 
     // Available dataset date bounds (2017-01 onwards)
     const minAvailableMonth = '2017-01';
-    let maxAvailableMonth = '2026-09';
+    let maxAvailableMonth = '2017-01';
     if (allRecords.length > 0) {
       for (const r of allRecords) {
         if (r.month && r.month > maxAvailableMonth) {
